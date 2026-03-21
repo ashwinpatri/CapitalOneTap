@@ -1,5 +1,5 @@
 // MongoDB API integration — replaces nessie-api.js
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://onetap-api.onrender.com/api';
 
 // Get stored auth token
 async function getToken() {
