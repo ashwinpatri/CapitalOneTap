@@ -35,7 +35,7 @@ async function refreshData() {
 chrome.runtime.onInstalled.addListener(() => refreshData());
 
 // Message handler
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   handleMessage(message).then(sendResponse);
   return true;
 });
@@ -178,7 +178,7 @@ async function handleMessage(message) {
       const { cards, offers } = await chrome.storage.local.get(['cards', 'offers']);
       if (!cards || cards.length === 0) return { bestCard: null, offers: [], allCards: [] };
 
-      const { merchant, amount } = message.payload;
+      const { merchant } = message.payload;
       // Simple best card selection using tiered rewards
       const bestCard = selectBestCard(merchant, cards);
       const matchingOffers = (offers || []).filter(o =>
@@ -246,6 +246,7 @@ function selectBestCard(merchant, cards) {
   return {
     ...best.card,
     _score: best.rate,
+    _unit: best.tier?.unit || 'points',
     _category: best.category,
     _reason: best.category !== 'general'
       ? `Best for ${best.category} — earns ${best.rate}x`
