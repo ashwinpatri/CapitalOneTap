@@ -18,77 +18,139 @@
         </svg>
         <div>
           <div class="header-title">One Tap</div>
-          <div class="header-sub">Capital One Smart Checkout</div>
+          <div class="header-sub" id="header-sub">Capital One Smart Checkout</div>
         </div>
       </div>
+      <button class="header-logout" id="logout-btn" style="display:none">Sign Out</button>
     </header>
 
-    <!-- Tabs -->
-    <nav class="tabs">
-      <button class="tab active" data-tab="cards">Cards</button>
-      <button class="tab" data-tab="offers">Offers</button>
-      <button class="tab" data-tab="activity">Activity</button>
-      <button class="tab" data-tab="settings">Settings</button>
-    </nav>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth="login">Sign In</button>
+        <button class="auth-tab" data-auth="register">Sign Up</button>
+      </div>
 
-    <!-- Cards Tab -->
-    <div class="tab-content active" id="tab-cards">
-      <div class="cards-carousel" id="cards-carousel"></div>
-      <div class="card-stats" id="card-stats">
-        <div class="stat">
-          <div class="stat-value" id="stat-total-rewards">—</div>
-          <div class="stat-label">Total Rewards</div>
+      <div class="auth-form" id="login-form">
+        <input type="text" class="form-input" id="login-username" placeholder="Username">
+        <input type="password" class="form-input" id="login-password" placeholder="Password">
+        <button class="auth-submit" id="login-btn">Sign In</button>
+        <div class="auth-error" id="login-error"></div>
+      </div>
+
+      <div class="auth-form" id="register-form" style="display:none">
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" class="form-input" id="reg-first" placeholder="First Name">
+          </div>
+          <div class="form-col">
+            <input type="text" class="form-input" id="reg-last" placeholder="Last Name">
+          </div>
         </div>
-        <div class="stat">
-          <div class="stat-value" id="stat-transactions">—</div>
-          <div class="stat-label">This Month</div>
-        </div>
+        <input type="text" class="form-input" id="reg-username" placeholder="Username">
+        <input type="email" class="form-input" id="reg-email" placeholder="Email">
+        <input type="password" class="form-input" id="reg-password" placeholder="Password">
+        <button class="auth-submit" id="register-btn">Create Account</button>
+        <div class="auth-error" id="register-error"></div>
       </div>
     </div>
 
-    <!-- Offers Tab -->
-    <div class="tab-content" id="tab-offers">
-      <div id="offers-list" class="offers-list"></div>
-    </div>
+    <!-- Main App (hidden until logged in) -->
+    <div id="main-app" style="display:none">
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="cards">Cards</button>
+        <button class="tab" data-tab="offers">Offers</button>
+        <button class="tab" data-tab="activity">Activity</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
 
-    <!-- Activity Tab -->
-    <div class="tab-content" id="tab-activity">
-      <div id="activity-list" class="activity-list"></div>
-    </div>
+      <!-- Cards Tab -->
+      <div class="tab-content active" id="tab-cards">
+        <div class="cards-carousel" id="cards-carousel"></div>
+        <div class="card-stats" id="card-stats">
+          <div class="stat">
+            <div class="stat-value" id="stat-total-rewards">—</div>
+            <div class="stat-label">Total Rewards</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-transactions">—</div>
+            <div class="stat-label">This Month</div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Settings Tab -->
-    <div class="tab-content" id="tab-settings">
-      <div class="settings-list">
-        <label class="setting-row">
-          <div>
-            <div class="setting-name">Auto-detect checkout</div>
-            <div class="setting-desc">Show One Tap on checkout pages</div>
+      <!-- Add Card Modal -->
+      <div class="modal-overlay" id="add-card-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Add a Card</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
           </div>
-          <input type="checkbox" class="toggle-input" id="setting-autodetect" checked>
-          <div class="toggle-switch"><div class="toggle-knob"></div></div>
-        </label>
-        <label class="setting-row">
-          <div>
-            <div class="setting-name">Floating button</div>
-            <div class="setting-desc">Show pay button on checkout pages</div>
+          <div class="modal-body">
+            <label class="form-label">Card Product</label>
+            <div class="card-type-grid" id="card-product-grid"></div>
+
+            <label class="form-label">Card Number (last 4 digits)</label>
+            <input type="text" class="form-input" id="add-card-lastfour" placeholder="1234" maxlength="4">
+
+            <label class="form-label">Current Balance</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input type="number" class="form-input" id="add-card-balance" placeholder="0.00" min="0" step="0.01">
+            </div>
+
+            <button class="add-card-submit" id="add-card-submit" disabled>Add Card</button>
           </div>
-          <input type="checkbox" class="toggle-input" id="setting-floating" checked>
-          <div class="toggle-switch"><div class="toggle-knob"></div></div>
-        </label>
-        <label class="setting-row">
-          <div>
-            <div class="setting-name">Notifications</div>
-            <div class="setting-desc">Get alerts for new offers</div>
+        </div>
+      </div>
+
+      <!-- Offers Tab -->
+      <div class="tab-content" id="tab-offers">
+        <div id="offers-list" class="offers-list"></div>
+        <div class="empty-state" id="offers-empty" style="display:none">No offers available yet</div>
+      </div>
+
+      <!-- Activity Tab -->
+      <div class="tab-content" id="tab-activity">
+        <div id="activity-list" class="activity-list"></div>
+        <div class="empty-state" id="activity-empty" style="display:none">No transactions yet</div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings">
+        <div class="settings-list">
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Auto-detect checkout</div>
+              <div class="setting-desc">Show One Tap on checkout pages</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-autodetect" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Floating button</div>
+              <div class="setting-desc">Show pay button on checkout pages</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-floating" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Notifications</div>
+              <div class="setting-desc">Get alerts for new offers</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-notifications" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Default card</div>
+              <div class="setting-desc">Used when no better match found</div>
+            </div>
+            <select id="setting-default-card" class="setting-select"></select>
           </div>
-          <input type="checkbox" class="toggle-input" id="setting-notifications" checked>
-          <div class="toggle-switch"><div class="toggle-knob"></div></div>
-        </label>
-        <div class="setting-row">
-          <div>
-            <div class="setting-name">Default card</div>
-            <div class="setting-desc">Used when no better match found</div>
-          </div>
-          <select id="setting-default-card" class="setting-select"></select>
         </div>
       </div>
     </div>
