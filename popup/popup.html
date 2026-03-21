@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Tap</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-brand">
+        <svg class="header-logo" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#004977"/>
+          <path d="M8 16C8 16 12 10 16 10C20 10 24 16 24 16C24 16 20 22 16 22C12 22 8 16 8 16Z" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="16" r="3" fill="white"/>
+        </svg>
+        <div>
+          <div class="header-title">One Tap</div>
+          <div class="header-sub">Capital One Smart Checkout</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="cards">Cards</button>
+      <button class="tab" data-tab="offers">Offers</button>
+      <button class="tab" data-tab="activity">Activity</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+
+    <!-- Cards Tab -->
+    <div class="tab-content active" id="tab-cards">
+      <div class="cards-carousel" id="cards-carousel"></div>
+      <div class="card-stats" id="card-stats">
+        <div class="stat">
+          <div class="stat-value" id="stat-total-rewards">—</div>
+          <div class="stat-label">Total Rewards</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-transactions">—</div>
+          <div class="stat-label">This Month</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offers Tab -->
+    <div class="tab-content" id="tab-offers">
+      <div id="offers-list" class="offers-list"></div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div class="tab-content" id="tab-activity">
+      <div id="activity-list" class="activity-list"></div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="tab-settings">
+      <div class="settings-list">
+        <label class="setting-row">
+          <div>
+            <div class="setting-name">Auto-detect checkout</div>
+            <div class="setting-desc">Show One Tap on checkout pages</div>
+          </div>
+          <input type="checkbox" class="toggle-input" id="setting-autodetect" checked>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </label>
+        <label class="setting-row">
+          <div>
+            <div class="setting-name">Floating button</div>
+            <div class="setting-desc">Show pay button on checkout pages</div>
+          </div>
+          <input type="checkbox" class="toggle-input" id="setting-floating" checked>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </label>
+        <label class="setting-row">
+          <div>
+            <div class="setting-name">Notifications</div>
+            <div class="setting-desc">Get alerts for new offers</div>
+          </div>
+          <input type="checkbox" class="toggle-input" id="setting-notifications" checked>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </label>
+        <div class="setting-row">
+          <div>
+            <div class="setting-name">Default card</div>
+            <div class="setting-desc">Used when no better match found</div>
+          </div>
+          <select id="setting-default-card" class="setting-select"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a href="https://www.capitalone.com" target="_blank" class="footer-link">Manage at capitalone.com</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

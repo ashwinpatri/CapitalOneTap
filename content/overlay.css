@@ -1,0 +1,531 @@
+/* ===== Floating Action Button ===== */
+.onetap-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--co-blue);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(120%);
+  transition: all var(--transition);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.onetap-fab:hover {
+  background: var(--co-blue-dark);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.onetap-fab:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.onetap-fab-visible {
+  transform: translateX(0) !important;
+}
+
+.onetap-fab-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.onetap-fab-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.onetap-fab-text {
+  white-space: nowrap;
+}
+
+/* Pulse animation on first appearance */
+.onetap-fab-visible {
+  animation: onetap-pulse 2s ease-in-out 0.5s 2;
+}
+
+@keyframes onetap-pulse {
+  0%, 100% { box-shadow: var(--shadow-lg); }
+  50% { box-shadow: 0 0 0 8px rgba(0, 73, 119, 0.2), var(--shadow-lg); }
+}
+
+/* ===== Overlay Backdrop ===== */
+.onetap-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 2147483647;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 24px;
+  transition: background var(--transition);
+}
+
+.onetap-overlay-visible {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ===== Drawer ===== */
+.onetap-drawer {
+  width: 400px;
+  max-height: 85vh;
+  background: var(--co-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform: translateY(100%) scale(0.95);
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: var(--font);
+  color: var(--co-dark);
+  padding-bottom: var(--space-lg);
+}
+
+.onetap-drawer-visible {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Custom scrollbar */
+.onetap-drawer::-webkit-scrollbar { width: 4px; }
+.onetap-drawer::-webkit-scrollbar-track { background: transparent; }
+.onetap-drawer::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 4px; }
+
+/* ===== Header ===== */
+.onetap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--co-gray-200);
+  position: sticky;
+  top: 0;
+  background: var(--co-white);
+  z-index: 10;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.onetap-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.onetap-logo svg {
+  width: 36px;
+  height: 36px;
+}
+
+.onetap-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--co-blue);
+}
+
+.onetap-subtitle {
+  font-size: 13px;
+  color: var(--co-gray-500);
+}
+
+.onetap-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--co-gray-400);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  line-height: 1;
+}
+
+.onetap-close:hover {
+  color: var(--co-dark);
+  background: var(--co-gray-100);
+}
+
+/* ===== Amount Bar ===== */
+.onetap-amount-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-xl);
+  background: var(--co-gray-100);
+}
+
+.onetap-amount-label {
+  font-size: 14px;
+  color: var(--co-gray-500);
+  font-weight: 500;
+}
+
+.onetap-amount-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--co-dark);
+}
+
+/* ===== Sections ===== */
+.onetap-section {
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid var(--co-gray-200);
+}
+
+.onetap-section:last-of-type {
+  border-bottom: none;
+}
+
+.onetap-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--co-gray-500);
+  margin-bottom: var(--space-md);
+}
+
+/* ===== Recommended Card ===== */
+.onetap-card-recommended {
+  border-radius: var(--radius-md);
+  padding: var(--space-lg) var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.onetap-card-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  backdrop-filter: blur(8px);
+}
+
+.onetap-card-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.onetap-card-number {
+  font-size: 14px;
+  opacity: 0.8;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  letter-spacing: 1px;
+}
+
+.onetap-card-reason {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ===== Card List (Other Cards) ===== */
+.onetap-card-list {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+  -webkit-overflow-scrolling: touch;
+}
+
+.onetap-card-list::-webkit-scrollbar { height: 3px; }
+.onetap-card-list::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 3px; }
+
+.onetap-card-chip {
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+  text-align: left;
+  min-width: 140px;
+}
+
+.onetap-card-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.onetap-card-chip:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.onetap-chip-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.onetap-chip-last4 {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  margin-top: 2px;
+}
+
+/* ===== Offers ===== */
+.onetap-offers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.onetap-offer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--co-gray-100);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.onetap-offer:hover {
+  background: var(--co-gray-200);
+}
+
+.onetap-offer-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.onetap-offer-icon {
+  font-size: 24px;
+  width: 36px;
+  text-align: center;
+}
+
+.onetap-offer-desc {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.onetap-offer-savings {
+  font-size: 12px;
+  color: var(--co-success);
+  font-weight: 500;
+}
+
+/* ===== Toggle Switch ===== */
+.onetap-toggle {
+  cursor: pointer;
+}
+
+.onetap-toggle-track {
+  width: 44px;
+  height: 24px;
+  background: var(--co-gray-300);
+  border-radius: 12px;
+  position: relative;
+  transition: background var(--transition);
+}
+
+.onetap-toggle.active .onetap-toggle-track {
+  background: var(--co-blue);
+}
+
+.onetap-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.onetap-toggle.active .onetap-toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* ===== Split Payment ===== */
+.onetap-split-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.onetap-split-panel {
+  margin-top: var(--space-lg);
+}
+
+.onetap-split-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.onetap-split-card {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.onetap-split-slider {
+  flex: 1;
+  accent-color: var(--co-blue);
+}
+
+.onetap-split-amount {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: right;
+}
+
+.onetap-split-select {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--co-gray-300);
+  font-family: var(--font);
+  font-size: 12px;
+  min-width: 140px;
+  background: var(--co-white);
+}
+
+/* ===== Rewards Bar ===== */
+.onetap-rewards-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
+  font-size: 13px;
+  color: #5D4037;
+}
+
+.onetap-rewards-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ===== Pay Button ===== */
+.onetap-pay-btn {
+  display: block;
+  width: calc(100% - 48px);
+  margin: var(--space-lg) var(--space-xl);
+  padding: 16px;
+  background: var(--co-red);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.onetap-pay-btn:hover:not(:disabled) {
+  background: var(--co-red-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(208, 48, 39, 0.4);
+}
+
+.onetap-pay-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.onetap-pay-btn:disabled {
+  cursor: default;
+}
+
+.onetap-pay-btn-content,
+.onetap-pay-btn-loading,
+.onetap-pay-btn-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.onetap-lock-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.onetap-pay-success {
+  background: var(--co-success) !important;
+}
+
+/* ===== Spinner ===== */
+.onetap-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: onetap-spin 0.7s linear infinite;
+}
+
+@keyframes onetap-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Checkmark Animation ===== */
+.onetap-checkmark {
+  width: 24px;
+  height: 24px;
+}
+
+.onetap-checkmark path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: onetap-check 0.4s ease forwards 0.1s;
+}
+
+@keyframes onetap-check {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .onetap-drawer {
+    width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .onetap-overlay-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+}

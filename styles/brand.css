@@ -1,0 +1,35 @@
+:host {
+  --co-blue: #004977;
+  --co-blue-dark: #003557;
+  --co-blue-light: #0066A4;
+  --co-red: #D03027;
+  --co-red-dark: #B0201A;
+  --co-white: #FFFFFF;
+  --co-bg: #F8F9FA;
+  --co-gray-100: #F5F5F5;
+  --co-gray-200: #E8E8E8;
+  --co-gray-300: #D0D0D0;
+  --co-gray-400: #9E9E9E;
+  --co-gray-500: #6B6B6B;
+  --co-dark: #1A1A1A;
+  --co-success: #0A8A3E;
+
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.2);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.25);
+
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
