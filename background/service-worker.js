@@ -32,6 +32,20 @@ async function refreshData() {
   }
 }
 
+async function pollForGoogleToken(session, attempts = 0) {
+  if (attempts > 80) return;
+  try {
+    const res = await fetch(`https://onetap-api.onrender.com/api/auth/google/poll?session=${session}`);
+    const data = await res.json();
+    if (data.ready) {
+      await chrome.storage.local.set({ authToken: data.token });
+      await refreshData();
+      return;
+    }
+  } catch (_) {}
+  setTimeout(() => pollForGoogleToken(session, attempts + 1), 1500);
+}
+
 chrome.runtime.onInstalled.addListener(() => refreshData());
 
 
@@ -44,16 +58,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 async function handleMessage(message) {
   switch (message.type) {
     // ===== Auth =====
-    case 'GOOGLE_POLL': {
+    case 'START_GOOGLE_POLL': {
       const { session } = message.payload;
-      const res = await fetch(`https://onetap-api.onrender.com/api/auth/google/poll?session=${session}`);
-      const data = await res.json();
-      if (data.ready) {
-        await chrome.storage.local.set({ authToken: data.token });
-        await refreshData();
-        return { ready: true };
-      }
-      return { ready: false };
+      pollForGoogleToken(session);
+      return { started: true };
     }
 
     case 'GOOGLE_LOGIN': {
