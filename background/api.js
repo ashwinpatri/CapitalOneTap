@@ -139,6 +139,11 @@ export async function activateOffer(offerId) {
   return data;
 }
 
+// ===== Recommendations =====
+export async function fetchRecommendation() {
+  return apiFetch('/recommendations');
+}
+
 // ===== Settings =====
 export async function updateSettings(settings) {
   const data = await apiFetch('/auth/settings', {

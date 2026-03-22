@@ -51,6 +51,7 @@ async function showMainApp(user) {
   renderActivity(txRes.transactions || [], cardsRes.cards || []);
   renderSettings(settingsRes.settings || {}, cardsRes.cards || []);
   renderStats(txRes.transactions || []);
+  loadRecommendation();
 }
 
 function setupAuthTabs() {
@@ -579,6 +580,17 @@ document.getElementById('edit-card-submit').addEventListener('click', async () =
     setTimeout(() => { btn.textContent = 'Save Changes'; }, 2000);
   }
 });
+
+// ===== AI Recommendation =====
+async function loadRecommendation() {
+  const el = document.getElementById('ai-rec-body');
+  const res = await sendMessage('GET_RECOMMENDATION');
+  if (res.success && res.recommendation) {
+    el.textContent = res.recommendation;
+  } else {
+    el.textContent = `Error: ${res.error || 'Unknown error'}`;
+  }
+}
 
 // ===== Helpers =====
 function formatDate(dateStr) {
