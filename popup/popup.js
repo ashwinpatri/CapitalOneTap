@@ -453,7 +453,7 @@ async function loadRecommendation() {
   if (res.success && res.recommendation) {
     el.textContent = res.recommendation;
   } else {
-    el.textContent = 'Could not load recommendation. Check your API key.';
+    el.textContent = `Error: ${res.error || 'Unknown error'}`;
   }
 }
 
