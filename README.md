@@ -2,11 +2,6 @@
 
 <br/>
 
-<!-- BANNER: Replace with assets/banner.png -->
-<img src="assets/banner.png" alt="CapitalOneTap Banner" width="100%" style="border-radius:12px;" onerror="this.style.display='none'"/>
-
-<br/><br/>
-
 <img src="icons/icon128.png" alt="OneTap Icon" width="96"/>
 
 <br/><br/>
@@ -176,30 +171,13 @@ CapitalOneTap/
 
 ## 👥 Contributors
 
-<div align="center">
-
-| [![ashwinpatri](https://avatars.githubusercontent.com/u/206020846?s=60&v=4)](https://github.com/ashwinpatri) | [![thung19](https://avatars.githubusercontent.com/u/221648236?s=60&v=4)](https://github.com/thung19) | [![db30x](https://avatars.githubusercontent.com/u/70980800?s=60&v=4)](https://github.com/db30x) | [![sjmcf](https://avatars.githubusercontent.com/u/203656461?s=60&v=4)](https://github.com/sjmcf) |
-|:---:|:---:|:---:|:---:|
-| [ashwinpatri](https://github.com/ashwinpatri) | [thung19](https://github.com/thung19) | [db30x](https://github.com/db30x) | [sjmcf](https://github.com/sjmcf) |
-
-</div>
+- [Ashwin Patri](https://github.com/ashwinpatri)
+- [thung19](https://github.com/thung19)
+- [db30x](https://github.com/db30x)
+- [sjmcf](https://github.com/sjmcf)
 
 ---
 
 ## ⚠️ Disclaimer
 
 This project is an independent, unofficial tool and is **not affiliated with, endorsed by, or sponsored by Capital One Financial Corporation**. Capital One® and related marks are trademarks of Capital One.
-
----
-
-<div align="center">
-
-<br/>
-
-Made with ❤️ and a Capital One card
-
-<br/>
-
-[![Star on GitHub](https://img.shields.io/github/stars/ashwinpatri/CapitalOneTap?style=social)](https://github.com/ashwinpatri/CapitalOneTap)
-
-</div>
