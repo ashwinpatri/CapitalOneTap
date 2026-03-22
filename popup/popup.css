@@ -57,7 +57,6 @@
 
 body {
   width: 380px;
-  min-height: 540px;
   max-height: 600px;
   font-family: var(--font);
   font-weight: 500;
@@ -71,11 +70,11 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  height: 600px;
+  min-height: unset;
 }
 
 #main-app {
-  flex: 1;
+  height: 540px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -250,7 +249,7 @@ body {
 .auth-signup-sep {
   height: 1px;
   background: var(--border);
-  margin: 8px 0;
+  margin: 4px 0;
 }
 
 .auth-signup-btn {
