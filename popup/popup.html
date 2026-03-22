@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Tap</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-brand">
+        <svg class="header-logo" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#004977"/>
+          <path d="M8 16C8 16 12 10 16 10C20 10 24 16 24 16C24 16 20 22 16 22C12 22 8 16 8 16Z" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="16" r="3" fill="white"/>
+        </svg>
+        <div>
+          <div class="header-title">One Tap</div>
+          <div class="header-sub" id="header-sub">Capital One Smart Checkout</div>
+        </div>
+      </div>
+      <button class="header-logout" id="logout-btn" style="display:none">Sign Out</button>
+    </header>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth="login">Sign In</button>
+        <button class="auth-tab" data-auth="register">Sign Up</button>
+      </div>
+
+      <div class="auth-form" id="login-form">
+        <input type="text" class="form-input" id="login-username" placeholder="Username">
+        <input type="password" class="form-input" id="login-password" placeholder="Password">
+        <button class="auth-submit" id="login-btn">Sign In</button>
+        <div class="auth-error" id="login-error"></div>
+      </div>
+
+      <div class="auth-form" id="register-form" style="display:none">
+        <div class="form-row">
+          <div class="form-col">
+            <input type="text" class="form-input" id="reg-first" placeholder="First Name">
+          </div>
+          <div class="form-col">
+            <input type="text" class="form-input" id="reg-last" placeholder="Last Name">
+          </div>
+        </div>
+        <input type="text" class="form-input" id="reg-username" placeholder="Username">
+        <input type="email" class="form-input" id="reg-email" placeholder="Email">
+        <input type="password" class="form-input" id="reg-password" placeholder="Password">
+        <button class="auth-submit" id="register-btn">Create Account</button>
+        <div class="auth-error" id="register-error"></div>
+      </div>
+    </div>
+
+    <!-- Main App (hidden until logged in) -->
+    <div id="main-app" style="display:none">
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab active" data-tab="cards">Cards</button>
+        <button class="tab" data-tab="offers">Offers</button>
+        <button class="tab" data-tab="insights">Insights</button>
+        <button class="tab" data-tab="activity">Activity</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+
+      <!-- Cards Tab -->
+      <div class="tab-content active" id="tab-cards">
+        <div class="cards-carousel" id="cards-carousel"></div>
+        <div class="rewards-summary">
+          <div class="rewards-summary-block">
+            <div class="rewards-summary-label">Spent This Month</div>
+            <div class="rewards-summary-value" id="stat-total-rewards">—</div>
+          </div>
+          <div class="rewards-summary-block">
+            <div class="rewards-summary-label">Transactions</div>
+            <div class="rewards-summary-value" id="stat-transactions">—</div>
+          </div>
+        </div>
+        <div class="ai-rec-card collapsed" id="ai-rec-card">
+          <button class="ai-rec-toggle" id="ai-rec-toggle">
+            <span class="ai-rec-label">Best Cards by Category</span>
+            <svg class="ai-rec-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 6 8 10 12 6"/>
+            </svg>
+          </button>
+          <div class="ai-rec-rows-wrap" id="ai-rec-rows-wrap">
+            <div id="ai-rec-rows"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insights Tab -->
+      <div class="tab-content" id="tab-insights">
+
+        <!-- Spending Breakdown -->
+        <div class="insights-spending-card">
+          <div class="insights-spending-header">
+            <span class="insights-label">Spending Breakdown</span>
+          </div>
+          <div class="insights-loading" id="insights-loading">Loading spending data...</div>
+          <div id="ai-rec-chart-wrap" style="display:none">
+            <div class="spending-chart-center">
+              <canvas id="ai-rec-chart"></canvas>
+            </div>
+            <div class="spending-legend" id="ai-rec-legend"></div>
+          </div>
+        </div>
+
+        <!-- AI Recommendation -->
+        <div class="insights-rec-card">
+          <div class="insights-rec-header">
+            <span class="insights-rec-title">Recommended for You</span>
+            <span class="ai-rec-badge">Gemini</span>
+          </div>
+          <div class="ai-rec-body" id="ai-rec-body"></div>
+        </div>
+
+        <!-- Savings Tally — only shown when a card is recommended -->
+        <div class="insights-savings-tally" id="insights-savings-section" style="display:none">
+          <div class="savings-tally-header">
+            <span class="savings-tally-title">Potential Savings</span>
+            <span class="savings-tally-sub">Based on your transaction history</span>
+          </div>
+          <div class="savings-tally-body" id="savings-tally-body"></div>
+        </div>
+
+      </div>
+
+      <!-- Add Card Modal -->
+      <div class="modal-overlay" id="add-card-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Add a Card</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label">Card Product</label>
+            <div class="card-type-grid" id="card-product-grid"></div>
+
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" id="add-card-fullnumber" placeholder="4111 1111 1111 1111" maxlength="19">
+
+            <div class="form-row">
+              <div class="form-col">
+                <label class="form-label">Expiration</label>
+                <input type="text" class="form-input" id="add-card-exp" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-col">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" id="add-card-cvv" placeholder="123" maxlength="4">
+              </div>
+            </div>
+
+            <label class="form-label">Name on Card</label>
+            <input type="text" class="form-input" id="add-card-name" placeholder="JOHN DOE">
+
+            <label class="form-label">Current Balance</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input type="number" class="form-input" id="add-card-balance" placeholder="0.00" min="0" step="0.01">
+            </div>
+
+            <button class="add-card-submit" id="add-card-submit" disabled>Add Card</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Card Modal -->
+      <div class="modal-overlay" id="edit-card-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Edit Card</h3>
+            <button class="modal-close" id="edit-modal-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit-card-id">
+
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" id="edit-card-fullnumber" placeholder="4111 1111 1111 1111" maxlength="19">
+
+            <div class="form-row">
+              <div class="form-col">
+                <label class="form-label">Expiration</label>
+                <input type="text" class="form-input" id="edit-card-exp" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-col">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" id="edit-card-cvv" placeholder="123" maxlength="4">
+              </div>
+            </div>
+
+            <label class="form-label">Name on Card</label>
+            <input type="text" class="form-input" id="edit-card-name" placeholder="JOHN DOE">
+
+            <div class="form-divider"></div>
+            <label class="form-label">Billing Address</label>
+
+            <div class="form-row">
+              <div class="form-col">
+                <input type="text" class="form-input" id="edit-card-firstname" placeholder="First Name">
+              </div>
+              <div class="form-col">
+                <input type="text" class="form-input" id="edit-card-lastname" placeholder="Last Name">
+              </div>
+            </div>
+
+            <input type="text" class="form-input" id="edit-card-address" placeholder="Street Address">
+
+            <div class="form-row">
+              <div class="form-col" style="flex:2">
+                <input type="text" class="form-input" id="edit-card-city" placeholder="City">
+              </div>
+              <div class="form-col">
+                <input type="text" class="form-input" id="edit-card-state" placeholder="State" maxlength="2">
+              </div>
+              <div class="form-col">
+                <input type="text" class="form-input" id="edit-card-zip" placeholder="Zip" maxlength="5">
+              </div>
+            </div>
+
+            <button class="add-card-submit" id="edit-card-submit">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Offers Tab -->
+      <div class="tab-content" id="tab-offers">
+        <div id="offers-list" class="offers-list"></div>
+        <div class="empty-state" id="offers-empty" style="display:none">No offers available yet</div>
+      </div>
+
+      <!-- Activity Tab -->
+      <div class="tab-content" id="tab-activity">
+        <div id="activity-list" class="activity-list"></div>
+        <div class="empty-state" id="activity-empty" style="display:none">No transactions yet</div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings">
+        <div class="settings-list">
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Auto-detect checkout</div>
+              <div class="setting-desc">Show One Tap on checkout pages</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-autodetect" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Floating button</div>
+              <div class="setting-desc">Show pay button on checkout pages</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-floating" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <label class="setting-row">
+            <div>
+              <div class="setting-name">Notifications</div>
+              <div class="setting-desc">Get alerts for new offers</div>
+            </div>
+            <input type="checkbox" class="toggle-input" id="setting-notifications" checked>
+            <div class="toggle-switch"><div class="toggle-knob"></div></div>
+          </label>
+          <div class="setting-row setting-row-col">
+            <div>
+              <div class="setting-name">Default card</div>
+              <div class="setting-desc">Used when no better match found</div>
+            </div>
+            <select id="setting-default-card" class="setting-select-full"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a href="https://www.capitalone.com" target="_blank" class="footer-link">Manage at capitalone.com</a>
+    </footer>
+  </div>
+
+  <script src="../shared/constants.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
