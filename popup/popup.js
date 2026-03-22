@@ -698,8 +698,10 @@ function drawSpendingChart(spendingSummary) {
   const COLORS = ['#004977','#0066A4','#D03027','#0A8A3E','#F5A623','#7B68EE','#20B2AA','#FF6B6B','#4ECDC4'];
   const CAT_LABELS = {
     dining: 'Dining', groceries: 'Groceries', travel: 'Travel',
-    hotels: 'Hotels', streaming: 'Streaming', entertainment: 'Entertainment',
+    flights: 'Flights', hotels: 'Hotels', streaming: 'Streaming',
+    entertainment: 'Entertainment', 'car-rental': 'Car Rental',
     gas: 'Gas', transit: 'Transit', shopping: 'Shopping',
+    general: 'General', everything: 'Everything Else',
   };
 
   const entries = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
@@ -732,7 +734,7 @@ function drawSpendingChart(spendingSummary) {
   legend.innerHTML = entries.slice(0, 6).map(([cat, amt], i) => `
     <div class="ai-rec-legend-item">
       <div class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></div>
-      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || cat}</div>
+      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || capitalize(cat)}</div>
       <div class="ai-rec-legend-pct">$${amt}</div>
     </div>`).join('');
 
