@@ -188,11 +188,7 @@ router.get('/google/callback', async (req, res) => {
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     const sessionId = req.query.state || '';
     if (sessionId) storePendingToken(sessionId, jwtToken);
-    res.send(`<!DOCTYPE html><html><head><title>Signed In</title></head><body>
-      <p style="font-family:sans-serif;text-align:center;margin-top:20vh;font-size:1.1rem;">
-        Signed in successfully! You can close this tab.
-      </p>
-    </body></html>`);
+    res.redirect('https://onetap-ten.vercel.app/signin-success.html');
   } catch (err) {
     res.redirect('https://onetap-ten.vercel.app/signin.html?error=server_error');
   }
