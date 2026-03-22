@@ -39,7 +39,7 @@ const OneTapInjector = (() => {
   }
 
   function show(response, merchant, amount) {
-    overlayData = { ...response, merchant, amount: amount || 42.99 };
+    overlayData = { ...response, merchant, amount: amount || 0 };
     if (!shadowRoot) createHost();
     injectButton();
   }
@@ -463,5 +463,9 @@ const OneTapInjector = (() => {
     setTimeout(() => backdrop.remove(), 300);
   }
 
-  return { show };
+  function updateAmount(price) {
+    if (overlayData) overlayData.amount = price;
+  }
+
+  return { show, updateAmount };
 })();

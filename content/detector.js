@@ -68,10 +68,12 @@
     }, async (response) => {
       if (!response || !response.bestCard) return;
 
-      // Wait for the actual total to appear in the DOM (handles async SPA renders)
-      const total = await waitForTotal();
+      // Show the FAB button immediately — don't block on price detection
+      OneTapInjector.show(response, merchant, 0);
 
-      OneTapInjector.show(response, merchant, total);
+      // Poll for a confident price in the background and update before the user taps
+      const total = await waitForTotal();
+      if (total > 0) OneTapInjector.updateAmount(total);
     });
   }
 

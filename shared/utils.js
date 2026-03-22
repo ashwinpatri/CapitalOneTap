@@ -36,7 +36,9 @@ const OneTapUtils = {
   //   0 = regex fallback only (low confidence)
   //   null = nothing found
   extractCheckoutTotalWithScore() {
-    const GRAND_LABELS = ['order total', 'grand total', 'estimated total', 'total due', 'amount due', 'total today', 'payment total', 'your total'];
+    const GRAND_LABELS = ['order total', 'grand total', 'estimated total', 'total due', 'amount due',
+      'total today', 'payment total', 'your total', 'bag total', 'cart total', 'purchase total',
+      'checkout total', 'you pay', 'due today', 'total amount', 'order amount'];
     const BASIC_LABELS = ['total'];
     const SKIP_LABELS  = ['subtotal', 'item total', 'items total', 'rewards total', 'savings', 'you saved', 'discount'];
 
@@ -49,7 +51,11 @@ const OneTapUtils = {
     }
 
     function parseDollar(text) {
-      const m = text.replace(/,/g, '').match(/\$\s*(\d+\.?\d{0,2})/);
+      const t = text.replace(/,/g, '');
+      // Match $79.99, USD 79.99, USD79.99, or 79.99 USD
+      const m = t.match(/\$\s*(\d+\.?\d{0,2})/) ||
+                t.match(/USD\s*(\d+\.?\d{0,2})/i) ||
+                t.match(/(\d+\.\d{2})\s*USD/i);
       return m ? parseFloat(m[1]) : null;
     }
 
