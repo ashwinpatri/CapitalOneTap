@@ -796,6 +796,280 @@ body {
 .ai-rec-legend-label { flex: 1; color: var(--text); font-weight: 500; }
 .ai-rec-legend-pct { color: var(--text-light); font-weight: 600; }
 
+/* ===== Recommendation & Savings ===== */
+.rec-loading {
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rec-covered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 14px;
+  gap: 8px;
+}
+
+.rec-covered-check {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--success);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.rec-covered-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rec-covered-body {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+.rec-spotlight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 14px 20px;
+  gap: 10px;
+}
+
+.rec-card-visual {
+  width: 200px;
+  aspect-ratio: 1.586;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.rec-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rec-card-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+}
+
+.rec-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+/* Savings toggle */
+.savings-toggle {
+  border-top: 1px solid var(--border);
+  background: var(--off-white);
+}
+
+.savings-toggle-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.savings-toggle-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.savings-toggle-chevron {
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition);
+}
+
+.savings-toggle:not(.collapsed) .savings-toggle-chevron { transform: rotate(180deg); }
+
+.savings-body {
+  overflow: hidden;
+  max-height: 200px;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+  padding: 0 14px 10px;
+}
+
+.savings-toggle.collapsed .savings-body {
+  max-height: 0;
+  padding-bottom: 0;
+}
+
+.savings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.savings-row:last-of-type { border-bottom: none; }
+
+.savings-row-total {
+  padding-top: 8px;
+  margin-top: 2px;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.savings-label { font-size: 12px; color: var(--muted); }
+.savings-value { font-size: 13px; font-weight: 600; color: var(--text); }
+.savings-value.highlight { color: var(--success); font-size: 14px; }
+
+/* Recommendation markdown */
+.rec-markdown {
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rec-section-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.rec-section-header:first-child { margin-top: 0; }
+
+.rec-para {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.55;
+}
+
+.rec-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 0;
+}
+
+.rec-list-item {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+  padding-left: 12px;
+  position: relative;
+}
+
+.rec-list-item::before {
+  content: '•';
+  position: absolute;
+  left: 2px;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.rec-list-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Spending chart */
+.spending-chart-center {
+  display: flex;
+  justify-content: center;
+  padding: 14px 14px 6px;
+}
+
+.spending-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 6px 10px 10px;
+}
+
+/* Savings tally */
+.tally-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+}
+
+.tally-row-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.tally-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tally-dot-actual { background: var(--muted); }
+.tally-dot-potential { background: var(--blue); }
+
+.tally-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--off-white);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 40px;
+}
+
+.tally-bar {
+  height: 100%;
+  border-radius: 3px;
+}
+.tally-bar-actual { background: var(--muted); }
+.tally-bar-potential { background: var(--blue); }
+
+.tally-amount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 44px;
+  text-align: right;
+}
+
+.tally-delta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--blue-light);
+  border-radius: var(--radius);
+  margin: 6px 14px 14px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.tally-delta strong {
+  color: var(--blue);
+  font-size: 13px;
+}
+
 /* ===== Insights Tab ===== */
 .insights-section {
   background: var(--white);

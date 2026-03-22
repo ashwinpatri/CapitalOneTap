@@ -144,6 +144,10 @@ export async function fetchRecommendation() {
   return apiFetch('/recommendations');
 }
 
+export async function fetchSpending() {
+  return apiFetch('/recommendations/spending');
+}
+
 // ===== Settings =====
 export async function updateSettings(settings) {
   const data = await apiFetch('/auth/settings', {

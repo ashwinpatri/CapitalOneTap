@@ -104,18 +104,26 @@
           <div class="insights-header">
             <span class="insights-label">Spending Breakdown</span>
           </div>
-          <div class="ai-rec-chart-wrap" id="ai-rec-chart-wrap" style="display:none">
-            <canvas id="ai-rec-chart" width="110" height="110"></canvas>
-            <div class="ai-rec-legend" id="ai-rec-legend"></div>
+          <div id="ai-rec-chart-wrap" style="display:none">
+            <div class="spending-chart-center">
+              <canvas id="ai-rec-chart"></canvas>
+            </div>
+            <div class="spending-legend" id="ai-rec-legend"></div>
           </div>
           <div class="insights-loading" id="insights-loading">Loading spending data...</div>
         </div>
         <div class="insights-section insights-gemini">
           <div class="insights-header">
-            <span class="insights-label">AI Recommendation</span>
+            <span class="insights-label">Recommended for You</span>
             <span class="ai-rec-badge">Gemini</span>
           </div>
           <div class="ai-rec-body" id="ai-rec-body"></div>
+        </div>
+        <div class="insights-section" id="insights-savings-section" style="display:none">
+          <div class="insights-header">
+            <span class="insights-label">Potential Savings</span>
+          </div>
+          <div id="savings-tally-body"></div>
         </div>
       </div>
 

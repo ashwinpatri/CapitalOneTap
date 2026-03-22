@@ -198,10 +198,26 @@ async function handleMessage(message) {
       return { bestCard, offers: matchingOffers, allCards: allScoredCards };
     }
 
+    case 'GET_SPENDING': {
+      try {
+        const data = await api.fetchSpending();
+        return { success: true, spendingSummary: data.spendingSummary };
+      } catch (e) {
+        return { success: false, error: e.message };
+      }
+    }
+
     case 'GET_RECOMMENDATION': {
       try {
         const data = await api.fetchRecommendation();
-        return { success: true, recommendation: data.recommendation, spendingSummary: data.spendingSummary };
+        return {
+          success: true,
+          recommendation: data.recommendation,
+          recommendedCardName: data.recommendedCardName,
+          potentialSavings: data.potentialSavings,
+          actualEarned: data.actualEarned,
+          additionalValue: data.additionalValue,
+        };
       } catch (e) {
         return { success: false, error: e.message };
       }

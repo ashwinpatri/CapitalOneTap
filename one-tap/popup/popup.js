@@ -51,7 +51,7 @@ async function showMainApp(user) {
   renderActivity(txRes.transactions || [], cardsRes.cards || []);
   renderSettings(settingsRes.settings || {}, cardsRes.cards || []);
   renderStats(txRes.transactions || []);
-  loadRecommendation();
+  loadInsights();
 }
 
 function setupAuthTabs() {
@@ -679,15 +679,161 @@ function renderAIRec(cards) {
   container.innerHTML = rows.join('');
 }
 
+async function loadInsights() {
+  loadSpendingChart();
+  loadRecommendation();
+}
+
+async function loadSpendingChart() {
+  const res = await sendMessage('GET_SPENDING');
+  if (res.success && res.spendingSummary) {
+    drawSpendingChart(res.spendingSummary);
+  }
+}
+
+function findCardImageUrl(name) {
+  const exact = getCardImageUrl(name);
+  if (exact) return exact;
+  const nameLower = name.toLowerCase();
+  const fuzzyKey = Object.keys(CARD_IMAGE_FILES).find(k =>
+    k.toLowerCase().includes(nameLower) || nameLower.includes(k.toLowerCase().split(' ').slice(0, 2).join(' '))
+  );
+  return fuzzyKey ? getCardImageUrl(fuzzyKey) : null;
+}
+
+function renderMarkdown(text) {
+  const body = text
+    .replace(/(?:\*\*)?Recommended Card:(?:\*\*)?\s*[^\n]*/i, '')
+    .replace(/\\\$/g, '$')
+    .trim();
+  const lines = body.split('\n');
+  const htmlParts = [];
+  let inList = false;
+  const HEADER_RE = /^(?:\*\*)?(Why This Card[^:]*|Key Benefits[^:]*|Drawbacks[^:]*)(?:\*\*)?:\s*(.*)/i;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { if (inList) { htmlParts.push('</ul>'); inList = false; } continue; }
+    const headerMatch = line.match(HEADER_RE);
+    if (headerMatch) {
+      if (inList) { htmlParts.push('</ul>'); inList = false; }
+      const label = headerMatch[1].replace(/\*\*/g, '').trim();
+      htmlParts.push(`<div class="rec-section-header">${label}</div>`);
+      const inline = headerMatch[2].trim();
+      if (inline) { htmlParts.push(`<p class="rec-para">${inline.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`); }
+      continue;
+    }
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (!inList) { htmlParts.push('<ul class="rec-list">'); inList = true; }
+      htmlParts.push(`<li class="rec-list-item">${line.slice(2).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</li>`);
+      continue;
+    }
+    if (inList) { htmlParts.push('</ul>'); inList = false; }
+    htmlParts.push(`<p class="rec-para">${line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`);
+  }
+  if (inList) htmlParts.push('</ul>');
+  return htmlParts.join('');
+}
+
+function extractNoneExplanation(text) {
+  const match = text.match(/Why This Card[^:]*:\s*([^\n]+(?:\n(?![A-Z*-]).*)*)/i);
+  if (match) return match[1].replace(/\*\*([^*]+)\*\*/g, '').replace(/\\\$/g, '$').trim();
+  return text
+    .replace(/(?:\*\*)?(?:Recommended Card|Why This Card[^:]*|Key Benefits[^:]*|Drawbacks[^:]*):(?:\*\*)?\s*/gi, '')
+    .replace(/^[-*]\s+/gm, '').replace(/\*\*/g, '').replace(/\\\$/g, '$')
+    .trim().split('\n').filter(l => l.trim()).slice(0, 3).join(' ');
+}
+
 async function loadRecommendation() {
   const el = document.getElementById('ai-rec-body');
-  el.textContent = 'Analyzing your spending...';
+  el.style.display = 'block';
+  el.innerHTML = '<div class="rec-loading">Analyzing your spending...</div>';
+
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
-    el.textContent = res.recommendation;
-    if (res.spendingSummary) drawSpendingChart(res.spendingSummary);
+    const rawName = res.recommendedCardName || null;
+    const isNone = !rawName || /^none/i.test(rawName);
+    const tallySection = document.getElementById('insights-savings-section');
+
+    if (isNone) {
+      const explanation = extractNoneExplanation(res.recommendation);
+      el.innerHTML = `<div class="rec-covered">
+        <div class="rec-covered-check">✓</div>
+        <div class="rec-covered-title">You're already optimized</div>
+        <div class="rec-covered-body">${explanation || "Your current cards are already well-suited for your spending habits."}</div>
+      </div>`;
+      if (tallySection) tallySection.style.display = 'none';
+      return;
+    }
+
+    const cardNameStr = rawName;
+    const imgUrl = findCardImageUrl(cardNameStr);
+    const markdownHtml = renderMarkdown(res.recommendation);
+    const { potentialSavings = 0, actualEarned = 0, additionalValue = 0 } = res;
+
+    const savingsHtml = additionalValue > 0 ? `
+      <div class="savings-toggle collapsed" id="savings-toggle">
+        <button class="savings-toggle-btn" id="savings-toggle-btn">
+          <span class="savings-toggle-label">Savings Opportunity</span>
+          <span class="savings-toggle-chevron">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+          </span>
+        </button>
+        <div class="savings-body">
+          <div class="savings-row">
+            <span class="savings-label">Rewards you earned</span>
+            <span class="savings-value actual">$${actualEarned.toFixed(2)}</span>
+          </div>
+          <div class="savings-row">
+            <span class="savings-label">Potential with ${cardNameStr}</span>
+            <span class="savings-value potential">$${potentialSavings.toFixed(2)}</span>
+          </div>
+          <div class="savings-row savings-row-total">
+            <span class="savings-label">Additional value</span>
+            <span class="savings-value highlight">+$${additionalValue.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>` : '';
+
+    el.innerHTML = `
+      <div class="rec-spotlight">
+        <div class="rec-card-visual">
+          ${imgUrl ? `<img class="rec-card-img" src="${imgUrl}" alt="${cardNameStr}">` : '<div class="rec-card-fallback"></div>'}
+        </div>
+        <div class="rec-card-name">${cardNameStr}</div>
+      </div>
+      ${savingsHtml}
+      <div class="rec-markdown">${markdownHtml}</div>`;
+
+    if (additionalValue > 0) {
+      document.getElementById('savings-toggle-btn').addEventListener('click', () => {
+        document.getElementById('savings-toggle').classList.toggle('collapsed');
+      });
+    }
+
+    if (tallySection) {
+      const tallyBody = document.getElementById('savings-tally-body');
+      const pct = actualEarned > 0 ? Math.round((additionalValue / actualEarned) * 100) : 0;
+      const barActual = potentialSavings > 0 ? Math.round((actualEarned / potentialSavings) * 100) : 100;
+      tallyBody.innerHTML = `
+        <div class="tally-row">
+          <div class="tally-row-label"><span class="tally-dot tally-dot-actual"></span><span>Current</span></div>
+          <div class="tally-bar-wrap"><div class="tally-bar tally-bar-actual" style="width:${barActual}%"></div></div>
+          <span class="tally-amount">$${actualEarned.toFixed(2)}</span>
+        </div>
+        <div class="tally-row">
+          <div class="tally-row-label"><span class="tally-dot tally-dot-potential"></span><span>Potential</span></div>
+          <div class="tally-bar-wrap"><div class="tally-bar tally-bar-potential" style="width:100%"></div></div>
+          <span class="tally-amount">$${potentialSavings.toFixed(2)}</span>
+        </div>
+        <div class="tally-delta">
+          <span>You left </span><strong>$${additionalValue.toFixed(2)}</strong><span> on the table${pct > 0 ? ` — ${pct}% more rewards` : ''}</span>
+        </div>`;
+      tallySection.style.display = '';
+    }
   } else {
-    el.textContent = '';
+    el.innerHTML = '<div class="rec-loading">Server warming up — try again in a moment.</div>';
+    const tallySection = document.getElementById('insights-savings-section');
+    if (tallySection) tallySection.style.display = 'none';
   }
 }
 
@@ -697,21 +843,23 @@ function drawSpendingChart(spendingSummary) {
   const legend = document.getElementById('ai-rec-legend');
   if (!canvas || !wrap) return;
 
-  const COLORS = ['#004977','#0066A4','#D03027','#0A8A3E','#F5A623','#7B68EE','#20B2AA','#FF6B6B','#4ECDC4'];
+  const COLORS = ['#004977','#2196F3','#D03027','#0A8A3E','#F5A623','#7C4DFF','#00BCD4','#FF5722','#8BC34A'];
   const CAT_LABELS = {
     dining: 'Dining', groceries: 'Groceries', travel: 'Travel',
-    hotels: 'Hotels', streaming: 'Streaming', entertainment: 'Entertainment',
+    flights: 'Flights', hotels: 'Hotels', streaming: 'Streaming',
+    entertainment: 'Entertainment', 'car-rental': 'Car Rental',
     gas: 'Gas', transit: 'Transit', shopping: 'Shopping',
+    general: 'General', everything: 'Everything Else',
   };
 
   const entries = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return;
 
+  canvas.width = 120;
+  canvas.height = 120;
   const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-  const r = Math.min(cx, cy) - 3;
-  const innerR = r * 0.52;
+  const cx = 60, cy = 60, r = 56, innerR = r * 0.52;
 
   let angle = -Math.PI / 2;
   entries.forEach(([, amt], i) => {
@@ -725,7 +873,6 @@ function drawSpendingChart(spendingSummary) {
     angle += slice;
   });
 
-  // Donut hole
   ctx.beginPath();
   ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
   ctx.fillStyle = '#ffffff';
