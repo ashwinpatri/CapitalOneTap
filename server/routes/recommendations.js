@@ -1,18 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-
-const MOCK_SPENDING = {
-  dining: 420,
-  groceries: 310,
-  travel: 890,
-  streaming: 55,
-  entertainment: 130,
-  gas: 95,
-  transit: 60,
-  shopping: 275,
-  hotels: 480,
-};
+const Transaction = require('../models/Transaction');
 
 const CARD_PRODUCTS = [
   {
@@ -65,8 +54,27 @@ router.get('/', auth, async (req, res) => {
       return res.status(500).json({ error: 'Gemini API key not configured' });
     }
 
-    const spendingSummary = Object.entries(MOCK_SPENDING)
-      .map(([cat, amt]) => `${cat}: $${amt}`)
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const transactions = await Transaction.find({
+      userId: req.userId,
+      date: { $gte: oneMonthAgo },
+      status: { $ne: 'refunded' },
+    });
+
+    const spendingByCategory = {};
+    for (const tx of transactions) {
+      const cat = tx.merchantCategory || 'general';
+      spendingByCategory[cat] = (spendingByCategory[cat] || 0) + tx.amount;
+    }
+
+    if (Object.keys(spendingByCategory).length === 0) {
+      return res.json({ recommendation: 'No transactions found in the last month to base a recommendation on.', spendingSummary: {} });
+    }
+
+    const spendingSummary = Object.entries(spendingByCategory)
+      .map(([cat, amt]) => `${cat}: $${amt.toFixed(2)}`)
       .join(', ');
 
     const cardList = CARD_PRODUCTS.map(c => {
@@ -102,7 +110,7 @@ Based purely on which card earns the most rewards for this spending mix, respond
     const geminiData = await geminiRes.json();
     const recommendation = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
-    res.json({ recommendation, spendingSummary: MOCK_SPENDING });
+    res.json({ recommendation, spendingSummary: spendingByCategory });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
