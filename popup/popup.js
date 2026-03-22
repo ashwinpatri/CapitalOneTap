@@ -722,7 +722,7 @@ function drawSpendingChart(spendingSummary) {
   const legend = document.getElementById('ai-rec-legend');
   if (!canvas || !wrap) return;
 
-  const COLORS = ['#004977','#0066A4','#D03027','#0A8A3E','#F5A623','#7B68EE','#20B2AA','#FF6B6B','#4ECDC4'];
+  const COLORS = ['#004977','#2196F3','#D03027','#0A8A3E','#F5A623','#7C4DFF','#00BCD4','#FF5722','#8BC34A'];
   const CAT_LABELS = {
     dining: 'Dining', groceries: 'Groceries', travel: 'Travel',
     flights: 'Flights', hotels: 'Hotels', streaming: 'Streaming',
@@ -735,47 +735,55 @@ function drawSpendingChart(spendingSummary) {
   const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return;
 
-  const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-  const r = Math.min(cx, cy) - 3;
-  const innerR = r * 0.52;
+  // DPI fix — crisp on Retina displays
+  const dpr = window.devicePixelRatio || 1;
+  const SIZE = 148;
+  canvas.width = SIZE * dpr;
+  canvas.height = SIZE * dpr;
+  canvas.style.width = SIZE + 'px';
+  canvas.style.height = SIZE + 'px';
 
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = SIZE / 2, cy = SIZE / 2;
+  const THICKNESS = 22;
+  const R = SIZE / 2 - 8;
+  const arcR = R - THICKNESS / 2;
+  const GAP = entries.length > 1 ? 0.05 : 0;
+
+  // Draw arc-stroke ring (modern donut, not wedge-fill)
+  ctx.lineWidth = THICKNESS;
+  ctx.lineCap = 'butt';
   let angle = -Math.PI / 2;
   entries.forEach(([, amt], i) => {
     const slice = (amt / total) * 2 * Math.PI;
     ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, angle, angle + slice);
-    ctx.closePath();
-    ctx.fillStyle = COLORS[i % COLORS.length];
-    ctx.fill();
+    ctx.arc(cx, cy, arcR, angle + GAP / 2, angle + slice - GAP / 2);
+    ctx.strokeStyle = COLORS[i % COLORS.length];
+    ctx.stroke();
     angle += slice;
   });
 
-  // Donut hole
-  ctx.beginPath();
-  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
-  ctx.fillStyle = '#ffffff';
-  ctx.fill();
-
-  // Total spending in center
+  // Center text — crisp because of DPI scaling
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#1A1A1A';
-  ctx.font = `bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-  ctx.fillText(`$${total.toLocaleString()}`, cx, cy - 7);
+  ctx.font = `700 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+  ctx.fillText(`$${total.toLocaleString()}`, cx, cy - 9);
   ctx.fillStyle = '#9E9E9E';
-  ctx.font = `10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-  ctx.fillText('spent', cx, cy + 8);
+  ctx.font = `11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+  ctx.fillText('total spent', cx, cy + 10);
 
-  legend.innerHTML = entries.slice(0, 6).map(([cat, amt], i) => `
-    <div class="ai-rec-legend-item">
-      <div class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></div>
-      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || capitalize(cat)}</div>
-      <div class="ai-rec-legend-pct">$${amt}</div>
+  // Legend as 2-column grid
+  legend.innerHTML = entries.map(([cat, amt], i) => `
+    <div class="spending-legend-item">
+      <span class="spending-legend-dot" style="background:${COLORS[i % COLORS.length]}"></span>
+      <span class="spending-legend-cat">${CAT_LABELS[cat] || capitalize(cat)}</span>
+      <span class="spending-legend-amt">$${amt}</span>
     </div>`).join('');
 
-  wrap.style.display = 'flex';
+  wrap.style.display = 'block';
   const loading = document.getElementById('insights-loading');
   if (loading) loading.style.display = 'none';
 }

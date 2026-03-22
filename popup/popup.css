@@ -567,7 +567,7 @@ body {
 }
 
 .ai-rec-body {
-  border-top: 1px solid var(--co-gray-100);
+  background: var(--co-white);
 }
 
 .rec-loading {
@@ -695,34 +695,107 @@ body {
 .ai-rec-legend-pct { color: var(--co-gray-500); font-weight: 600; }
 
 /* ===== Insights Tab ===== */
-.insights-section {
+
+/* Spending Breakdown Card */
+.insights-spending-card {
   background: var(--co-white);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-md);
-  border-top: 3px solid var(--co-blue);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-lg);
 }
 
-.insights-header {
-  padding: var(--space-md) var(--space-lg) var(--space-sm);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.insights-spending-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--co-gray-100);
 }
 
 .insights-label {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.7px;
   color: var(--co-gray-400);
 }
 
 .insights-loading {
-  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  padding: var(--space-lg);
   font-size: 12px;
   color: var(--co-gray-400);
+  font-style: italic;
+}
+
+.spending-chart-center {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-lg) var(--space-lg) var(--space-sm);
+}
+
+.spending-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+.spending-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px var(--space-sm);
+  border-radius: 6px;
+}
+
+.spending-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.spending-legend-cat {
+  font-size: 11px;
+  color: var(--co-dark);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spending-legend-amt {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--co-gray-500);
+  flex-shrink: 0;
+}
+
+/* AI Recommendation Card — visually distinct dark header */
+.insights-rec-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.insights-rec-header {
+  background: var(--co-blue);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.insights-rec-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.3px;
+}
+
+.insights-rec-header .ai-rec-badge {
+  background: rgba(255,255,255,0.18);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 /* ===== Offers ===== */
