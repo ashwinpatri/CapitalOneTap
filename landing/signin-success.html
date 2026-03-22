@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneTap — Signed In</title>
+  <link rel="icon" href="assets/OneTapIcon.png" type="image/png" />
+  <link rel="preload" href="assets/fonts/Optimist_W_XLt.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Optimist';
+      src: url('assets/fonts/Optimist_W_XLt.woff2') format('woff2');
+      font-weight: 300;
+      font-style: normal;
+      font-display: block;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Optimist', 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 5vw;
+      background: linear-gradient(150deg, #002f4d 0%, #004977 55%, #005e96 100%);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    .left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    h1 {
+      font-size: 11vw;
+      font-weight: 300;
+      color: #ffffff;
+      text-align: left;
+      line-height: 0.95;
+      letter-spacing: -.02em;
+    }
+
+    p {
+      font-size: 2.4vw;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: left;
+      margin-top: 2vw;
+      letter-spacing: .01em;
+    }
+
+    .smiley {
+      font-size: 22vw;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1;
+      letter-spacing: -.05em;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <h1>Signed in<br>Successfully</h1>
+    <p>You can safely close this page.</p>
+  </div>
+  <div class="smiley">:)</div>
+</body>
+</html>

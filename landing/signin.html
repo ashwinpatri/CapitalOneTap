@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneTap — Sign In</title>
+  <link rel="icon" href="assets/OneTapIcon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'Optimist';
+      src: url('assets/fonts/Optimist_W_XLt.woff2') format('woff2');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:        #004977;
+      --blue-dark:   #002f4d;
+      --blue-mid:    #005e96;
+      --blue-light:  #e8f4fb;
+      --red:         #cc2427;
+      --red-dark:    #a8231c;
+      --white:       #ffffff;
+      --border:      #e6e6e6;
+      --muted:       #525252;
+      --text:        #141414;
+      --shadow-md:   0 4px 16px 0 rgba(0,0,0,.20);
+      --radius-sm:   2px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Optimist', 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      font-weight: 500;
+      min-height: 100dvh;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      height: 96px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 20px; text-decoration: none; }
+    .co-logo { height: 80px; width: auto; display: block; flex-shrink: 0; }
+
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 24px;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: background .25s ease;
+      letter-spacing: .01em;
+    }
+    .btn-primary { background: var(--red); color: var(--white); }
+    .btn-primary:hover { background: var(--red-dark); }
+
+    /* PAGE */
+    .page {
+      padding-top: 96px;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(150deg, var(--blue-dark) 0%, var(--blue) 55%, var(--blue-mid) 100%);
+    }
+
+    .card {
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 16px;
+      border: 4px solid #000000;
+      padding: 56px 48px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+      animation: rise .5s cubic-bezier(.22,.68,0,1.2) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-wrap {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 24px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+
+    .subtitle {
+      font-size: .95rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+      text-decoration: none;
+    }
+    .google-btn:hover {
+      border-color: var(--blue);
+      box-shadow: 0 2px 8px rgba(0,73,119,.15);
+    }
+    .google-btn img { width: 22px; height: 22px; }
+
+    .error-msg {
+      margin-top: 20px;
+      font-size: .88rem;
+      color: var(--red);
+      font-weight: 600;
+      min-height: 1.4em;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      font-size: .85rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--blue); text-decoration: underline; }
+
+    /* SOCIAL PROOF */
+    .social-proof {
+      background: var(--blue-dark);
+      color: var(--white);
+      padding: 18px clamp(1rem, 3vw, 3rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vw, 40px);
+      flex-wrap: nowrap;
+      width: 100%;
+      min-height: 56px;
+    }
+    .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      font-size: clamp(.65rem, 1vw, .8rem);
+      color: rgba(255,255,255,.7);
+      font-weight: 500;
+    }
+    .proof-item svg { flex-shrink: 0; opacity: .8; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <img class="co-logo" src="assets/caponetap.png" alt="Capital One" />
+    </a>
+    <div class="nav-right">
+      <a class="btn" href="index.html#how-it-works" style="background:var(--blue); color:var(--white);">Launchpad</a>
+      <a class="btn btn-primary" href="index.html#demo">Download Demo</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="card">
+      <div class="logo-wrap">
+        <img src="assets/OneTapIcon.png" alt="OneTap" style="width:80px; height:80px; object-fit:cover;" />
+      </div>
+
+      <h1>Sign in to OneTap</h1>
+      <p class="subtitle">Use your Capital One account email to sign in.</p>
+
+      <a class="google-btn" id="google-btn" href="https://onetap-ten.vercel.app/api/auth/google">
+        <img src="assets/googleImg.png" alt="Google" />
+        Sign in with Google
+      </a>
+
+      <div class="error-msg" id="error-msg"></div>
+
+      <a class="back-link" href="index.html">← Back to home</a>
+    </div>
+  </div>
+
+  <div class="social-proof">
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Runs entirely in your browser
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Card selected in under 1 second
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Works across 500+ major retailers
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Built for Capital One cardholders
+    </div>
+  </div>
+
+  <script>
+    // Show error if redirected back with an error param
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const session = params.get('session');
+    const errorEl = document.getElementById('error-msg');
+
+    // Pass session through to backend
+    if (session) {
+      document.getElementById('google-btn').href =
+        `https://onetap-ten.vercel.app/api/auth/google?session=${encodeURIComponent(session)}`;
+    }
+
+    if (error === 'not_registered') {
+      const email = params.get('email') || '';
+      errorEl.textContent = `No account found for ${email}. Please sign up first.`;
+    } else if (error === 'token_failed' || error === 'server_error') {
+      errorEl.textContent = 'Something went wrong. Please try again.';
+    }
+  </script>
+
+</body>
+</html>

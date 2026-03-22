@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneTap — Capital One Smart Checkout</title>
+  <link rel="icon" href="assets/OneTapIcon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'Optimist';
+      src: url('assets/fonts/Optimist_W_XLt.woff2') format('woff2');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:        #004977;
+      --blue-dark:   #002f4d;
+      --blue-mid:    #005e96;
+      --blue-light:  #e8f4fb;
+      --red:         #cc2427;
+      --red-dark:    #a8231c;
+      --red-light:   #fdf0ef;
+      --white:       #ffffff;
+      --off-white:   #f4f4f4;
+      --border:      #e6e6e6;
+      --muted:       #525252;
+      --text:        #141414;
+      --text-light:  #3d3d3d;
+      --gold:        #ffffff;
+      --success:     #0c7a3a;
+      --shadow-sm:   0 2px 4px rgba(0,0,0,.12);
+      --shadow-md:   0 4px 16px 0 rgba(0,0,0,.20);
+      --shadow-lg:   0 8px 32px 0 rgba(0,0,0,.20);
+      --radius-sm:   2px;
+      --radius-md:   4px;
+      --radius-lg:   4px;
+      --radius-xl:   4px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Optimist', 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      font-weight: 500;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      height: 96px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-decoration: none;
+    }
+
+    .co-logo {
+      height: 80px;
+      width: auto;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 22px;
+      background: var(--border);
+    }
+
+    .nav-product-name {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--blue-dark);
+      letter-spacing: -.01em;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #nav-register {
+      overflow: hidden;
+      max-width: 160px;
+      opacity: 1;
+      transition: max-width .35s ease, opacity .35s ease, margin .35s ease, padding .35s ease;
+    }
+    #nav-register.hidden {
+      max-width: 0;
+      opacity: 0;
+      padding-left: 0;
+      padding-right: 0;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    .nav-link {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      transition: color .25s ease;
+      letter-spacing: .01em;
+    }
+    .nav-link:hover { color: var(--blue); text-decoration: underline; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 24px;
+      border-radius: 2px;
+      font-size: .9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: background .25s ease;
+      letter-spacing: .01em;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+    }
+    .btn-primary:hover { background: var(--red-dark); }
+
+    /* ─── HERO ─── */
+    .above-fold {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    .hero {
+      padding-top: 96px;
+      padding-bottom: clamp(8px, 2vh, 24px);
+      flex: 1 0 auto;
+      background: linear-gradient(150deg, var(--blue-dark) 0%, var(--blue) 55%, var(--blue-mid) 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 110% 0%, rgba(208,48,39,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at -10% 100%, rgba(255,255,255,.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: clamp(32px, 5vh, 60px) 3rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 56px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-copy { text-align: left; }
+
+    /* ─── LOGIN CARD ─── */
+    .hero-content-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: fit-content;
+    }
+
+    .login-card {
+      background: var(--white);
+      border-radius: 2px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+    }
+
+    .login-card h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+
+    .google-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      font-size: .875rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--text);
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: background .15s, box-shadow .15s;
+    }
+    .google-btn:hover { background: #f5f5f5; box-shadow: var(--shadow-sm); }
+    .google-btn img { width: 18px; height: 18px; }
+
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .login-divider::before, .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .login-divider span {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--blue-dark);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .15s;
+    }
+    .login-btn:hover { background: var(--blue); }
+
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 3px;
+      padding: 6px 16px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.85);
+      margin-bottom: 28px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 {
+      font-family: 'Optimist', 'Inter', system-ui, sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 300;
+      line-height: 1.15;
+      letter-spacing: -.01em;
+      color: var(--white);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .hero-lead {
+      font-size: clamp(.95rem, 1.4vw, 1.05rem);
+      color: rgba(255,255,255,.82);
+      max-width: 480px;
+      margin: 0 0 16px;
+      font-weight: 300;
+      line-height: 1.65;
+    }
+
+    .hero-pills {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 16px 20px;
+      justify-content: start;
+    }
+
+    .card-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .card-pill img {
+      width: 140px;
+      height: auto;
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.35);
+      display: block;
+      transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .card-pill:hover img {
+      transform: scale(1.06) translateY(-3px);
+      box-shadow: 0 10px 22px rgba(0,0,0,.40), 0 0 0 2px rgba(255,255,255,.5);
+      filter: brightness(1.08);
+    }
+
+    .card-pill .shimmer-wrap {
+      display: block;
+      border-radius: 6px;
+    }
+
+    .card-pill-name {
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.75);
+      letter-spacing: .03em;
+      text-align: center;
+    }
+
+
+    /* ─── WAITLIST CARD ─── */
+    .waitlist-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      margin-bottom: 60px;
+    }
+
+    .waitlist-card-header { margin-bottom: 24px; }
+
+    .waitlist-card-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      letter-spacing: -.02em;
+    }
+
+    .waitlist-card-header p {
+      font-size: .875rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .form-group { margin-bottom: 12px; }
+
+    .form-group label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,73,119,.10);
+    }
+    .form-control::placeholder { color: #b4b8bc; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: -.01em;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      margin-top: 4px;
+    }
+    .submit-btn:hover {
+      background: var(--red-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(208,48,39,.28);
+    }
+
+    .form-fine {
+      font-size: .72rem;
+      color: #a0a4a8;
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 28px;
+    }
+
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 20px 0 32px;
+    }
+    .success-icon {
+      width: 52px; height: 52px;
+      border-radius: 4px;
+      background: #e8f7ee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .success-icon svg { width: 26px; height: 26px; }
+    .success-state h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 6px;
+    }
+    .success-state p { font-size: .875rem; color: var(--muted); }
+
+    /* ─── SOCIAL PROOF ─── */
+    .social-proof {
+      background: var(--blue-dark);
+      color: var(--white);
+      padding: 18px clamp(1rem, 3vw, 3rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vw, 40px);
+      flex-wrap: nowrap;
+      width: 100%;
+      min-height: 56px;
+      overflow: visible;
+    }
+
+    .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      font-size: clamp(.65rem, 1vw, .8rem);
+      color: rgba(255,255,255,.7);
+      font-weight: 500;
+    }
+
+    .proof-item svg { flex-shrink: 0; opacity: .8; }
+
+    /* ─── SECTIONS ─── */
+    .section { padding: 72px 3rem; }
+
+    .section-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Optimist', 'Inter', system-ui, sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-weight: 300;
+      letter-spacing: -.01em;
+      line-height: 1.2;
+      color: var(--text);
+      max-width: 560px;
+      margin-bottom: 48px;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0;
+      align-items: center;
+    }
+
+    .step {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 36px 28px;
+      text-align: center;
+      position: relative;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .step-icon {
+      width: 52px; height: 52px;
+      border-radius: 2px;
+      background: var(--blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+
+    .step-icon svg { width: 24px; height: 24px; color: var(--blue); }
+
+    .step-num {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+
+    .step-title {
+      font-size: .975rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    .step-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      color: #c8c8c8;
+    }
+
+    /* ─── DEMO ─── */
+    .demo-section {
+      background: var(--off-white);
+      padding: 96px 3rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .demo-video-wrap {
+      background: var(--blue-dark);
+      border-radius: var(--radius-lg);
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .demo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,.4);
+      font-size: .85rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .demo-placeholder svg {
+      opacity: .3;
+    }
+
+
+    .demo-copy .section-title { margin-bottom: 16px; }
+
+    .demo-desc {
+      font-size: .95rem;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 2px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: .01em;
+      transition: background .25s ease;
+    }
+    .download-btn:hover { background: var(--blue-mid); }
+
+    .download-btn svg { flex-shrink: 0; width: 24px; height: 24px; }
+
+    .download-note {
+      display: block;
+      margin-top: 12px;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .demo-layout { grid-template-columns: 1fr; gap: 36px; }
+      .demo-section { padding: 72px 1.5rem; }
+    }
+
+    /* ─── STATS RIBBON ─── */
+    .stats-ribbon {
+      background: var(--blue-dark);
+      padding: 56px 3rem;
+      border-top: 3px solid var(--red);
+      border-bottom: 3px solid var(--red);
+    }
+
+    .stats-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-family: 'Optimist', 'Inter', system-ui, sans-serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: -.02em;
+    }
+
+    .stat-val sup {
+      font-size: 1.4rem;
+      vertical-align: super;
+      line-height: 0;
+      letter-spacing: 0;
+    }
+
+    .stats-inner > div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: .85rem;
+      color: rgba(255,255,255,.60);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* ─── BOTTOM CTA ─── */
+    .bottom-cta {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+      padding: 100px 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bottom-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 120%, rgba(208,48,39,.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .bottom-cta-inner { position: relative; z-index: 1; }
+
+    .bottom-cta h2 {
+      font-family: 'Optimist', 'Inter', system-ui, sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .bottom-cta p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.72);
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .inline-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 480px;
+      margin: 0 auto 12px;
+    }
+
+    .inline-form input {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: .9rem;
+      font-family: inherit;
+      outline: none;
+      box-shadow: 0 0 0 1.5px transparent;
+      transition: box-shadow .15s;
+    }
+    .inline-form input:focus {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.6);
+    }
+
+    .inline-form button {
+      padding: 12px 22px;
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, transform .1s;
+      letter-spacing: -.01em;
+    }
+    .inline-form button:hover {
+      background: var(--red-dark);
+      transform: translateY(-1px);
+    }
+
+    #bottom-success {
+      display: none;
+      font-size: .9rem;
+      color: var(--gold);
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .cta-fine {
+      font-size: .75rem;
+      color: rgba(255,255,255,.40);
+      margin-top: 14px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #141414;
+      border-top: 3px solid var(--red);
+      padding: 40px 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .footer-legal {
+      font-size: .7rem;
+      color: rgba(255,255,255,.28);
+      line-height: 1.7;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding-bottom: 20px;
+    }
+
+    .footer-copy {
+      font-size: .78rem;
+      color: rgba(255,255,255,.40);
+      line-height: 1.6;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 0 1.5rem; }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        padding: 40px 1.5rem 40px;
+        gap: 32px;
+      }
+      .hero-copy { display: flex; justify-content: center; }
+      .hero-content-wrap { align-items: center; }
+      .hero-pills { justify-content: center; }
+
+      .steps { grid-template-columns: 1fr; }
+      .step-arrow { transform: rotate(90deg); padding: 8px 0; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .stats-inner { grid-template-columns: 1fr; gap: 32px; }
+
+      .social-proof { gap: 20px; padding: 20px 1.5rem; }
+      .section, .features-section { padding: 72px 1.5rem; }
+      footer { padding: 24px 1.5rem; flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .nav-link { display: none; }
+      .hero h1 { font-size: 2.5rem; }
+      .bottom-cta { padding: 72px 1.5rem; }
+      .founders-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <img class="co-logo" src="assets/caponetap.png" alt="Capital One" />
+    </a>
+    <div class="nav-right">
+      <a class="nav-link" href="#how-it-works">How It Works</a>
+      <a class="btn btn-primary" id="nav-download" href="#" style="background:var(--red);">Download Demo</a>
+      <a class="btn" id="nav-register" href="#" style="background:var(--blue-dark); color:var(--white);">Register</a>
+    </div>
+  </nav>
+
+  <!-- ─── ABOVE FOLD ─── -->
+  <div class="above-fold">
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="hero-inner">
+
+      <div class="hero-copy">
+        <div class="hero-content-wrap">
+          <h1>Maximum rewards.<br /><em>Zero friction.</em></h1>
+          <p class="hero-lead" style="margin-bottom:16px;">OneTap automatically picks the best <em>Capital One</em>&reg; card for every purchase. <strong style="font-weight:800; color:rgba(255,255,255,.95);">Never lose rewards again.</strong></p>
+
+          <div style="display:flex; flex-direction:column; align-items:center; width:fit-content;">
+            <div class="hero-pills">
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/Cap1plat.avif" alt="Platinum card" /></span>
+                <span class="card-pill-name">Platinum</span>
+              </div>
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/cap1quicksilver.avif" alt="Quicksilver card" /></span>
+                <span class="card-pill-name">Quicksilver</span>
+              </div>
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/cap1savor.avif" alt="Savor card" /></span>
+                <span class="card-pill-name">Savor</span>
+              </div>
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/cap1venture.avif" alt="Venture card" /></span>
+                <span class="card-pill-name">Venture</span>
+              </div>
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/ventureOnecap1.avif" alt="Venture One card" /></span>
+                <span class="card-pill-name">Venture One</span>
+              </div>
+              <div class="card-pill">
+                <span class="shimmer-wrap"><img src="assets/ventureXcap1.avif" alt="Venture X card" /></span>
+                <span class="card-pill-name">Venture X</span>
+              </div>
+            </div>
+
+            <p style="margin-top:10px; font-size:.78rem; font-weight:600; color:rgba(255,255,255,.45); letter-spacing:.04em;">& Many More</p>
+
+            <div style="margin-top:16px;">
+              <a href="#demo" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'}); return false;" class="btn btn-primary" style="font-size:1rem; padding:14px 32px;">
+                Download Demo Below
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOGIN CARD -->
+      <div class="login-card" id="register" style="text-align:center;">
+
+        <!-- Phase 1: initial state -->
+        <div id="phase-1">
+          <button class="google-btn" id="google-signin-btn" style="text-align:center;">
+            <img src="assets/googleImg.png" alt="Google" />
+            Sign Up with Google
+          </button>
+          <div class="login-divider"><span>or</span></div>
+          <button class="login-btn" id="email-expand-btn">Sign Up with Email</button>
+        </div>
+
+        <!-- Phase 2: email entry -->
+        <div id="phase-2" style="display:none;">
+          <div class="form-group" style="text-align:left;">
+            <label for="login-email">Email Address</label>
+            <input class="form-control" type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
+            <div id="email-error" style="color:#cc2427; font-size:.8rem; margin-top:6px; display:none;"></div>
+          </div>
+          <button class="login-btn" id="email-enter-btn">Enter</button>
+        </div>
+
+        <!-- Phase G: Google username pick -->
+        <div id="phase-g" style="display:none;">
+          <p style="text-align:left; font-size:.8rem; color:var(--muted); margin-bottom:14px;" id="google-email-display"></p>
+          <div class="form-group" style="text-align:left;">
+            <label for="google-username">Choose a Username</label>
+            <input class="form-control" type="text" id="google-username" placeholder="janedoe" autocomplete="username" />
+          </div>
+          <div id="google-reg-error" style="color:#cc2427; font-size:.8rem; margin-bottom:10px; display:none;"></div>
+          <button class="login-btn" id="google-register-btn">Complete Sign Up</button>
+        </div>
+
+        <!-- Phase 3: full registration form -->
+        <div id="phase-3" style="display:none;">
+          <p style="text-align:left; font-size:.8rem; color:var(--muted); margin-bottom:14px;" id="email-display"></p>
+          <div class="form-group" style="text-align:left;">
+            <label for="reg-username">Username</label>
+            <input class="form-control" type="text" id="reg-username" placeholder="janedoe" autocomplete="username" />
+          </div>
+          <div style="display:flex; gap:10px;">
+            <div class="form-group" style="text-align:left; flex:1;">
+              <label for="reg-firstname">First Name</label>
+              <input class="form-control" type="text" id="reg-firstname" placeholder="Jane" autocomplete="given-name" />
+            </div>
+            <div class="form-group" style="text-align:left; flex:1;">
+              <label for="reg-lastname">Last Name</label>
+              <input class="form-control" type="text" id="reg-lastname" placeholder="Doe" autocomplete="family-name" />
+            </div>
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label for="reg-password">Password</label>
+            <input class="form-control" type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label for="reg-confirm">Confirm Password</label>
+            <input class="form-control" type="password" id="reg-confirm" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          <div id="reg-error" style="color:#cc2427; font-size:.8rem; margin-bottom:10px; display:none;"></div>
+          <button class="login-btn" id="email-register-btn">Register</button>
+          <button id="back-btn" type="button" style="margin-top:10px; background:none; border:none; color:var(--muted); font-size:.8rem; cursor:pointer; text-decoration:underline;">← Back</button>
+        </div>
+
+      </div>
+
+    </div>git 
+  </section>
+
+  <!-- ─── SOCIAL PROOF RIBBON ─── -->
+  <div class="social-proof" style="flex-shrink:0;">
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Runs entirely in your browser
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Card selected in under 1 second
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Works across 500+ major retailers
+    </div>
+    <div class="proof-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Built for Capital One cardholders
+    </div>
+  </div>
+
+  </div><!-- /.above-fold -->
+
+  <!-- ─── HOW IT WORKS ─── -->
+  <section class="section" id="how-it-works">
+    <div class="section-inner">
+      <span class="eyebrow">How it works</span>
+      <h2 class="section-title">From checkout page to optimal card in seconds.</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div class="step-num">Step 01</div>
+          <div class="step-title">Detects Checkout</div>
+        </div>
+
+        <div class="step-arrow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="step-num">Step 02</div>
+          <div class="step-title">Best Card Selected</div>
+        </div>
+
+        <div class="step-arrow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="step-num">Step 03</div>
+          <div class="step-title">OneTap to Confirm</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STATS ─── -->
+  <div class="stats-ribbon">
+    <div class="stats-inner">
+      <div>
+        <div class="stat-val">~$33 Billion</div>
+        <div class="stat-label">In rewards left unclaimed by cardholders each year</div>
+      </div>
+      <div>
+        <div class="stat-val">5×</div>
+        <div class="stat-label">More rewards earned when the right card is used every time</div>
+      </div>
+      <div>
+        <div class="stat-val">&lt;1s</div>
+        <div class="stat-label">Time from checkout detection to card recommendation</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DEMO ─── -->
+  <section class="demo-section" id="demo">
+    <div class="section-inner">
+      <div class="demo-layout">
+
+        <div class="demo-video-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/2tqr90ty_Gc"
+            title="OneTap Demo"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            style="width:100%; height:100%; position:absolute; top:0; left:0;">
+          </iframe>
+        </div>
+
+        <div class="demo-copy">
+          <span class="eyebrow">See it in action</span>
+          <h2 class="section-title">Maximum rewards.</h2>
+          <p class="demo-desc">Watch how OneTap silently detects checkout, algorithmically scores your Capital One cards, and finds the best one.</p>
+
+          <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+            <a class="download-btn" href="https://github.com/ashwinpatri/CapitalOneTap" target="_blank" rel="noopener">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              View on GitHub
+            </a>
+            <ol style="text-align:left; font-size:.88rem; color:var(--muted); line-height:2; margin:0; padding-left:1.2em;">
+              <li>Download and <strong>unzip</strong> the file</li>
+              <li>Open Chrome and go to <code style="background:#f0f0f0; padding:1px 5px; border-radius:3px;">chrome://extensions</code></li>
+              <li>Enable <strong>Developer mode</strong> (top right toggle)</li>
+              <li>Click <strong>Load unpacked</strong> and select the unzipped folder</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-legal">
+      OneTap is an independent browser extension built for the VandyHacks XII x Capital One Hackathon and is not affiliated with, endorsed by, or connected to Capital One Financial Corporation or any of its subsidiaries. OneTap accepts no liability of any kind for purchases, transactions, or any financial outcomes resulting from the use of this extension, and all card benefit information is provided for informational purposes only. OneTap is not a bank or financial institution, is not FDIC insured, and is not a deposit or obligation of any financial institution.
+    </div>
+    <div class="footer-copy">
+      Not affiliated with or endorsed by Capital One Financial Corporation. &copy; 2026 OneTap.
+    </div>
+  </footer>
+
+  <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
+
+  <script>
+    var steps = document.querySelectorAll('.step');
+    var stepObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var i = Array.from(steps).indexOf(el);
+          setTimeout(function() { el.classList.add('visible'); }, i * 200);
+          stepObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1 });
+    steps.forEach(function(s) { stepObserver.observe(s); });
+
+    // Circular favicon
+    (function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 64; canvas.height = 64;
+      var ctx = canvas.getContext('2d');
+      var img = new Image();
+      img.onload = function() {
+        ctx.beginPath();
+        ctx.arc(32, 32, 32, 0, Math.PI * 2);
+        ctx.clip();
+        var scale = 1.4;
+        var size = 64 * scale;
+        var offset = (64 - size) / 2;
+        ctx.drawImage(img, offset, offset, size, size);
+        var link = document.querySelector("link[rel='icon']");
+        link.href = canvas.toDataURL('image/png');
+      };
+      img.src = 'assets/OneTapIcon.png';
+    })();
+  </script>
+
+  <script>
+    // Phase 1 → Phase 2: show email input
+    // Hide Register nav btn when login card is visible
+    var navRegisterBtn = document.getElementById('nav-register');
+    var registerObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          navRegisterBtn.classList.add('hidden');
+        } else {
+          navRegisterBtn.classList.remove('hidden');
+        }
+      });
+    }, { threshold: 0.1 });
+    registerObserver.observe(document.getElementById('register'));
+
+    var navDownload = document.getElementById('nav-download');
+    if (navDownload) navDownload.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    document.getElementById('nav-register').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('email-expand-btn').addEventListener('click', function() {
+      document.getElementById('phase-1').style.display = 'none';
+      document.getElementById('phase-2').style.display = 'block';
+      document.getElementById('login-email').focus();
+    });
+
+    // Phase 2: validate email → check existence → expand to Phase 3
+    function validateAndAdvanceEmail() {
+      var email = document.getElementById('login-email').value.trim();
+      var errorEl = document.getElementById('email-error');
+      errorEl.style.display = 'none';
+      errorEl.textContent = '';
+
+      if (!email || !email.includes('@')) {
+        errorEl.textContent = 'Please enter a valid email address.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      fetch('https://onetaplanding.onrender.com/api/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(function(res) {
+        if (res.ok) {
+          document.getElementById('email-display').textContent = email;
+          document.getElementById('phase-2').style.display = 'none';
+          document.getElementById('phase-3').style.display = 'block';
+        } else {
+          res.json().then(function(data) {
+            errorEl.textContent = data.error || 'Something went wrong.';
+            errorEl.style.display = 'block';
+          }).catch(function() {
+            errorEl.textContent = 'Something went wrong.';
+            errorEl.style.display = 'block';
+          });
+        }
+      })
+      .catch(function() {
+        errorEl.textContent = 'Unable to connect to server.';
+        errorEl.style.display = 'block';
+      });
+    }
+
+    document.getElementById('email-enter-btn').addEventListener('click', validateAndAdvanceEmail);
+    document.getElementById('login-email').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') validateAndAdvanceEmail();
+    });
+
+    // Back button
+    document.getElementById('back-btn').addEventListener('click', function() {
+      document.getElementById('phase-3').style.display = 'none';
+      document.getElementById('phase-2').style.display = 'none';
+      document.getElementById('phase-1').style.display = 'block';
+      document.getElementById('login-email').value = '';
+      document.getElementById('reg-error').style.display = 'none';
+    });
+
+    // Phase 3: validate and POST
+    document.getElementById('email-register-btn').addEventListener('click', function() {
+      var email = document.getElementById('login-email').value.trim();
+      var username = document.getElementById('reg-username').value.trim();
+      var firstName = document.getElementById('reg-firstname').value.trim();
+      var lastName = document.getElementById('reg-lastname').value.trim();
+      var password = document.getElementById('reg-password').value;
+      var confirm = document.getElementById('reg-confirm').value;
+      var errorEl = document.getElementById('reg-error');
+      errorEl.style.display = 'none';
+      errorEl.textContent = '';
+
+      if (!username) {
+        errorEl.textContent = 'Please enter a username.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!firstName || !lastName) {
+        errorEl.textContent = 'Please enter your first and last name.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (password.length < 8) {
+        errorEl.textContent = 'Password must be at least 8 characters.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!/[A-Z]/.test(password)) {
+        errorEl.textContent = 'Password must contain at least one uppercase letter.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (!/[0-9]/.test(password)) {
+        errorEl.textContent = 'Password must contain at least one number.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      fetch('https://onetaplanding.onrender.com/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, username: username, firstName: firstName, lastName: lastName, password: password })
+      })
+      .then(function(res) {
+        if (res.status === 409) {
+          res.json().then(function(data) {
+            errorEl.textContent = data.error || 'Already registered.';
+            errorEl.style.display = 'block';
+          });
+          return;
+        } else if (res.ok) {
+          window.location.href = 'success.html';
+        } else {
+          errorEl.textContent = 'Something went wrong. Please try again.';
+          errorEl.style.display = 'block';
+        }
+      })
+      .catch(function() {
+        errorEl.textContent = 'Unable to connect. Please try again.';
+        errorEl.style.display = 'block';
+      });
+    });
+
+    var tokenClient;
+    var googleUserData = {};
+
+    window.addEventListener('load', function() {
+      function initGoogleAuth() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: '196802038272-836kb92qlquaa98r327he3uujvsoq609.apps.googleusercontent.com',
+          scope: 'openid email profile',
+          callback: function(response) {
+            if (!response.access_token) return;
+            fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: 'Bearer ' + response.access_token }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(user) {
+              console.log('Google user:', JSON.stringify(user));
+              googleUserData = {
+                email: user.email,
+                firstName: user.given_name || '',
+                lastName: user.family_name || '',
+                googleId: user.sub
+              };
+              document.getElementById('google-email-display').textContent = user.email;
+              document.getElementById('phase-1').style.display = 'none';
+              document.getElementById('phase-g').style.display = 'block';
+              document.getElementById('google-username').focus();
+            })
+            .catch(function() {
+              window.location.href = 'failure.html';
+            });
+          }
+        });
+        document.getElementById('google-signin-btn').addEventListener('click', function() {
+          tokenClient.requestAccessToken();
+        });
+      }
+      var gsiPoll = setInterval(function() {
+        if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+          clearInterval(gsiPoll);
+          initGoogleAuth();
+        }
+      }, 100);
+    });
+
+    // Phase G: submit username and register via Google
+    document.getElementById('google-register-btn').addEventListener('click', function() {
+      var username = document.getElementById('google-username').value.trim();
+      var errorEl = document.getElementById('google-reg-error');
+      errorEl.style.display = 'none';
+
+      if (!username) {
+        errorEl.textContent = 'Please choose a username.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      fetch('https://onetaplanding.onrender.com/api/register-google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: googleUserData.email,
+          firstName: googleUserData.firstName,
+          lastName: googleUserData.lastName,
+          googleId: googleUserData.googleId,
+          username: username
+        })
+      })
+      .then(function(res) {
+        if (res.ok) {
+          sessionStorage.setItem('onetap_first_name', username);
+          window.location.href = 'success.html';
+        } else {
+          res.json().then(function(data) {
+            errorEl.textContent = data.error || 'Something went wrong.';
+            errorEl.style.display = 'block';
+          });
+        }
+      })
+      .catch(function() {
+        errorEl.textContent = 'Unable to connect. Please try again.';
+        errorEl.style.display = 'block';
+      });
+    });
+  </script>
+
+</body>
+</html>

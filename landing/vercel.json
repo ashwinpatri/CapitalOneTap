@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/auth/google/callback", "dest": "/api/auth/google/callback.js" },
+    { "src": "/api/auth/google/poll", "dest": "/api/auth/google/poll.js" },
+    { "src": "/api/auth/google", "dest": "/api/auth/google/index.js" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*)\\.html", "dest": "/$1.html" },
+    { "src": "/", "dest": "/index.html" }
+  ]
+}
