@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
   setupAuthTabs();
   setupTabs();
+  setupAccordion();
 
   // Check if already logged in
   const authRes = await sendMessage('CHECK_AUTH');
@@ -132,6 +133,15 @@ async function handleLogout() {
   showAuthScreen();
 }
 
+// ===== Accordion =====
+function setupAccordion() {
+  const toggle = document.getElementById('ai-rec-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    document.getElementById('ai-rec-card').classList.toggle('collapsed');
+  });
+}
+
 // ===== Tabs =====
 function setupTabs() {
   document.querySelectorAll('.tab').forEach(tab => {
@@ -142,6 +152,12 @@ function setupTabs() {
       document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
     });
   });
+}
+
+// ===== Helpers (early) =====
+function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // ===== Cards =====
@@ -156,9 +172,9 @@ function renderCards(cards) {
       const isPct = tier.unit === 'percent_cashback' || tier.unit === 'percent_back';
       const rate = isPct ? `${tier.rate}%` : `${tier.rate}x`;
       const cats = tier.categories || [];
-      const cat = cats[0] === 'everything' ? 'everywhere'
-        : cats.length > 1 ? cats.slice(0, 2).join(' & ')
-        : cats[0] || '';
+      const cat = cats[0] === 'everything' ? 'Everywhere'
+        : cats.length > 1 ? cats.slice(0, 2).map(capitalize).join(' & ')
+        : capitalize(cats[0] || '');
       return `<span class="card-tier-tag"><span class="card-tier-rate">${rate}</span>${cat ? `<span class="card-tier-cat">${cat}</span>` : ''}</span>`;
     }).join('');
 
@@ -463,7 +479,7 @@ function renderSettings(settings, cards) {
     `<option value="${c._id}" ${c.isDefault ? 'selected' : ''}>${c.productName}</option>`
   ).join('');
 
-  document.querySelectorAll('.toggle-input, .setting-select').forEach(input => {
+  document.querySelectorAll('.toggle-input, .setting-select, .setting-select-full').forEach(input => {
     input.addEventListener('change', () => {
       sendMessage('UPDATE_SETTINGS', {
         autoDetect: document.getElementById('setting-autodetect').checked,
@@ -511,7 +527,7 @@ function renderAIRec(cards) {
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     })
     .map(([cat, { card, rate, unit }]) => {
-      const label = CAT_LABELS[cat] || cat;
+      const label = CAT_LABELS[cat] || capitalize(cat);
       const rateStr = unit === 'percent_cashback' || unit === 'percent_back'
         ? `${rate}% back` : `${rate}x`;
       return `
@@ -529,12 +545,66 @@ function renderAIRec(cards) {
 
 async function loadRecommendation() {
   const el = document.getElementById('ai-rec-body');
+  el.textContent = 'Analyzing your spending...';
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
     el.textContent = res.recommendation;
+    if (res.spendingSummary) drawSpendingChart(res.spendingSummary);
   } else {
     el.textContent = '';
   }
+}
+
+function drawSpendingChart(spendingSummary) {
+  const wrap = document.getElementById('ai-rec-chart-wrap');
+  const canvas = document.getElementById('ai-rec-chart');
+  const legend = document.getElementById('ai-rec-legend');
+  if (!canvas || !wrap) return;
+
+  const COLORS = ['#004977','#0066A4','#D03027','#0A8A3E','#F5A623','#7B68EE','#20B2AA','#FF6B6B','#4ECDC4'];
+  const CAT_LABELS = {
+    dining: 'Dining', groceries: 'Groceries', travel: 'Travel',
+    hotels: 'Hotels', streaming: 'Streaming', entertainment: 'Entertainment',
+    gas: 'Gas', transit: 'Transit', shopping: 'Shopping',
+  };
+
+  const entries = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  if (total === 0) return;
+
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const r = Math.min(cx, cy) - 3;
+  const innerR = r * 0.52;
+
+  let angle = -Math.PI / 2;
+  entries.forEach(([, amt], i) => {
+    const slice = (amt / total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length];
+    ctx.fill();
+    angle += slice;
+  });
+
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  legend.innerHTML = entries.slice(0, 6).map(([cat, amt], i) => `
+    <div class="ai-rec-legend-item">
+      <div class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></div>
+      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || cat}</div>
+      <div class="ai-rec-legend-pct">$${amt}</div>
+    </div>`).join('');
+
+  wrap.style.display = 'flex';
+  const loading = document.getElementById('insights-loading');
+  if (loading) loading.style.display = 'none';
 }
 
 // ===== Helpers =====
