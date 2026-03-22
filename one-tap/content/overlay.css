@@ -1,0 +1,248 @@
+/* ===== Design Tokens (scoped to shadow DOM) ===== */
+:host {
+  --co-blue: #004977;
+  --co-blue-dark: #002f4d;
+  --co-blue-mid: #005e96;
+  --co-blue-light: #e8f4fb;
+  --co-red: #cc2427;
+  --co-red-dark: #a8231c;
+  --co-white: #ffffff;
+  --co-off-white: #f4f4f4;
+  --co-border: #e6e6e6;
+  --co-muted: #525252;
+  --co-text: #141414;
+  --co-text-light: #3d3d3d;
+  --co-success: #0c7a3a;
+  --co-gray-100: #f4f4f4;
+  --co-gray-200: #e6e6e6;
+  --co-gray-300: #d0d0d0;
+  --co-gray-400: #525252;
+  --co-gray-500: #3d3d3d;
+  --co-dark: #141414;
+  --font: 'Optimist', 'Inter', system-ui, -apple-system, sans-serif;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.2);
+  --transition: 0.15s ease;
+}
+
+/* ===== Floating Action Button ===== */
+.onetap-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--co-blue-dark);
+  color: white;
+  border: none;
+  border-radius: 2px;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(120%);
+  transition: all var(--transition);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: .01em;
+}
+
+.onetap-fab:hover {
+  background: var(--co-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0,47,77,.3);
+}
+
+.onetap-fab:active { transform: translateY(0) scale(0.98); }
+
+.onetap-fab-visible {
+  transform: translateX(0) !important;
+  animation: onetap-pulse 2s ease-in-out 0.5s 2;
+}
+
+.onetap-fab-inner { display: flex; align-items: center; gap: 10px; }
+.onetap-fab-icon { width: 20px; height: 20px; }
+.onetap-fab-text { white-space: nowrap; }
+
+@keyframes onetap-pulse {
+  0%, 100% { box-shadow: var(--shadow-lg); }
+  50% { box-shadow: 0 0 0 8px rgba(0,73,119,0.15), var(--shadow-lg); }
+}
+
+/* ===== Backdrop ===== */
+.onetap-overlay-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0);
+  z-index: 2147483647;
+  display: flex; justify-content: flex-end; align-items: flex-end;
+  padding: 24px;
+  transition: background var(--transition);
+}
+.onetap-overlay-visible {
+  background: transparent;
+}
+
+/* ===== Drawer ===== */
+.onetap-drawer {
+  width: 400px; max-height: 85vh;
+  background: var(--co-white); border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2), 0 0 0 1px rgba(0,0,0,.05);
+  overflow-y: auto; overflow-x: hidden;
+  transform: translateY(100%) scale(0.97); opacity: 0;
+  transition: all 0.25s cubic-bezier(0.25,1,0.5,1);
+  font-family: var(--font); color: var(--co-dark);
+  display: flex; flex-direction: column;
+}
+.onetap-drawer-visible { transform: translateY(0) scale(1); opacity: 1; }
+.onetap-drawer::-webkit-scrollbar { width: 3px; }
+.onetap-drawer::-webkit-scrollbar-track { background: transparent; }
+.onetap-drawer::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 3px; }
+
+/* ===== Header ===== */
+.onetap-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; position: sticky; top: 0;
+  background: var(--co-white); z-index: 10;
+  border-radius: 4px 4px 0 0; border-bottom: 1px solid var(--co-gray-200);
+}
+.onetap-header-left { display: flex; align-items: center; gap: 12px; }
+.onetap-logo svg { width: 28px; height: 28px; }
+.onetap-title { font-size: 15px; font-weight: 700; color: var(--co-blue-dark); letter-spacing: -.02em; }
+.onetap-subtitle { font-size: 10.5px; color: var(--co-gray-500); font-weight: 500; }
+.onetap-close {
+  background: none; border: none; color: var(--co-gray-400);
+  cursor: pointer; padding: 6px; border-radius: 2px;
+  transition: all var(--transition); display: flex; align-items: center; justify-content: center;
+}
+.onetap-close:hover { color: var(--co-dark); background: var(--co-gray-100); }
+
+/* ===== Body ===== */
+.onetap-body { padding: 20px; flex: 1; }
+.onetap-heading { font-size: 15px; font-weight: 700; color: var(--co-dark); margin-bottom: 14px; letter-spacing: -.01em; }
+
+/* ===== Card Pick ===== */
+.onetap-pick {
+  border: 1.5px solid var(--co-gray-200); border-radius: 4px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition); overflow: hidden;
+}
+.onetap-pick:hover { border-color: var(--co-gray-300); }
+.onetap-pick-selected { border-color: var(--co-blue); box-shadow: 0 0 0 1px var(--co-blue); }
+.onetap-pick-selected:hover { border-color: var(--co-blue); }
+
+.onetap-pick-badge {
+  padding: 7px 14px; background: var(--co-blue-light);
+  font-size: 10px; font-weight: 700; color: var(--co-blue);
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.onetap-pick-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; }
+.onetap-pick-img-wrap {
+  width: 60px; height: 40px; flex-shrink: 0; border-radius: 4px;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+  background: var(--co-gray-100);
+}
+.onetap-pick-img { width: 100%; height: 100%; object-fit: contain; }
+.onetap-pick-img-fallback { width: 100%; height: 100%; border-radius: 4px; }
+.onetap-pick-info { flex: 1; min-width: 0; }
+.onetap-pick-name { font-size: 13px; font-weight: 700; color: var(--co-dark); line-height: 1.3; letter-spacing: -.01em; }
+.onetap-pick-rate { font-size: 11px; color: var(--co-success); font-weight: 600; margin-top: 2px; }
+.onetap-pick-check { flex-shrink: 0; }
+
+/* ===== Rewards Breakdown ===== */
+.onetap-rewards-section { border-top: 1px solid var(--co-gray-200); padding: 0 14px 14px; }
+.onetap-rewards-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 8px; }
+.onetap-rewards-label { font-size: 13px; font-weight: 700; color: var(--co-dark); letter-spacing: -.01em; }
+.onetap-rewards-value { font-size: 13px; font-weight: 700; color: var(--co-dark); }
+.onetap-rewards-detail { background: var(--co-gray-100); border-radius: 4px; padding: 12px; }
+.onetap-rewards-detail-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.onetap-rewards-detail-title { font-size: 12px; font-weight: 700; color: var(--co-dark); letter-spacing: -.01em; }
+.onetap-rewards-detail-sub { font-size: 11px; color: var(--co-gray-500); margin-top: 1px; font-weight: 500; }
+.onetap-rewards-detail-right { text-align: right; }
+.onetap-rewards-detail-amount { font-size: 12px; font-weight: 700; color: var(--co-dark); }
+
+/* ===== Comparison Table ===== */
+.onetap-cmp-table { display: flex; flex-direction: column; gap: 8px; }
+.onetap-cmp-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 4px; background: var(--co-gray-100); }
+.onetap-cmp-row-best { background: var(--co-blue-light); border: 1px solid #b8d9ed; }
+.onetap-cmp-left { flex: 1; min-width: 0; }
+.onetap-cmp-name { display: block; font-size: 12px; font-weight: 700; color: var(--co-dark); letter-spacing: -.01em; }
+.onetap-cmp-best-badge { font-size: 8px; font-weight: 700; text-transform: uppercase; background: var(--co-blue); color: white; border-radius: 2px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; letter-spacing: .04em; }
+.onetap-cmp-earn { display: block; font-size: 11px; color: var(--co-gray-500); margin-top: 1px; font-weight: 500; }
+.onetap-cmp-bar-wrap { height: 4px; background: var(--co-gray-200); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.onetap-cmp-bar { height: 100%; background: var(--co-gray-300); border-radius: 2px; transition: width 0.4s ease; }
+.onetap-cmp-bar-top { background: var(--co-blue); }
+.onetap-cmp-value { font-size: 13px; font-weight: 700; color: var(--co-blue); white-space: nowrap; min-width: 44px; text-align: right; }
+.onetap-cmp-value-dim { color: var(--co-gray-400); font-weight: 500; }
+
+/* ===== Deep Reasoning ===== */
+.onetap-section { padding: 0; }
+.onetap-section-deep { padding: 0; }
+.onetap-deep { width: 100%; }
+.onetap-deep-summary {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; font-size: 12px; font-weight: 700; color: var(--co-blue);
+  cursor: pointer; list-style: none; border-top: 1px solid var(--co-gray-200); user-select: none;
+  letter-spacing: .01em;
+}
+.onetap-deep-summary::-webkit-details-marker { display: none; }
+.onetap-deep-chevron { font-size: 16px; font-weight: 400; transition: transform var(--transition); color: var(--co-gray-400); }
+.onetap-deep[open] .onetap-deep-chevron { transform: rotate(90deg); }
+.onetap-deep-body { padding: 0 0 14px; display: flex; flex-direction: column; gap: 10px; }
+.onetap-deep-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: start; }
+.onetap-deep-key { font-size: 9.5px; font-weight: 700; color: var(--co-gray-400); text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+.onetap-deep-val { font-size: 12px; color: var(--co-dark); line-height: 1.5; font-weight: 500; }
+.onetap-deep-sub { font-size: 10.5px; color: var(--co-gray-400); margin-top: 2px; font-weight: 500; }
+.onetap-deep-tiers { display: flex; flex-direction: column; gap: 4px; }
+.onetap-deep-tier { font-size: 11px; color: var(--co-dark); line-height: 1.4; font-weight: 500; }
+.onetap-deep-qualifier { font-style: italic; color: var(--co-gray-400); font-size: 10.5px; }
+.onetap-progress-bar { height: 3px; background: var(--co-gray-200); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.onetap-progress-fill { height: 100%; background: var(--co-blue); border-radius: 2px; transition: width 0.4s ease; }
+
+/* ===== Offers ===== */
+.onetap-offers-section { margin-top: 16px; }
+.onetap-section-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--co-gray-500); margin-bottom: 10px; }
+.onetap-offer { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 4px; background: var(--co-gray-100); cursor: pointer; transition: background var(--transition); margin-bottom: 6px; }
+.onetap-offer:hover { background: var(--co-gray-200); }
+.onetap-offer-info { display: flex; align-items: center; gap: 10px; }
+.onetap-offer-icon { font-size: 20px; width: 32px; text-align: center; }
+.onetap-offer-desc { font-size: 12px; font-weight: 600; letter-spacing: -.01em; }
+.onetap-offer-savings { font-size: 10.5px; color: var(--co-success); font-weight: 600; }
+
+/* ===== Toggle ===== */
+.onetap-toggle { cursor: pointer; }
+.onetap-toggle-track { width: 38px; height: 20px; background: var(--co-gray-300); border-radius: 10px; position: relative; transition: background var(--transition); }
+.onetap-toggle.active .onetap-toggle-track { background: var(--co-blue); }
+.onetap-toggle-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform var(--transition); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.onetap-toggle.active .onetap-toggle-thumb { transform: translateX(18px); }
+
+/* ===== Footer / Pay Button ===== */
+.onetap-footer { padding: 14px 20px; border-top: 1px solid var(--co-gray-200); background: var(--co-white); position: sticky; bottom: 0; }
+.onetap-pay-btn {
+  display: block; width: 100%; padding: 14px;
+  background: var(--co-blue-dark); color: white; border: none; border-radius: 2px;
+  font-family: var(--font); font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all var(--transition); position: relative; overflow: hidden;
+  letter-spacing: .01em;
+}
+.onetap-pay-btn:hover:not(:disabled) { background: var(--co-blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,47,77,.2); }
+.onetap-pay-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.onetap-pay-btn:disabled { cursor: default; }
+.onetap-pay-btn-content, .onetap-pay-btn-loading, .onetap-pay-btn-success { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.onetap-lock-icon { width: 16px; height: 16px; }
+.onetap-pay-success { background: var(--co-success) !important; }
+
+/* ===== Spinner & Checkmark ===== */
+.onetap-spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: onetap-spin 0.7s linear infinite; }
+@keyframes onetap-spin { to { transform: rotate(360deg); } }
+.onetap-checkmark { width: 24px; height: 24px; }
+.onetap-checkmark path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: onetap-check 0.4s ease forwards 0.1s; }
+@keyframes onetap-check { to { stroke-dashoffset: 0; } }
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .onetap-drawer { width: 100%; max-height: 90vh; border-radius: 4px 4px 0 0; }
+  .onetap-overlay-backdrop { padding: 0; align-items: flex-end; }
+}

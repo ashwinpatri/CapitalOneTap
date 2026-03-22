@@ -1,0 +1,44 @@
+# Card Image URLs
+# Format: CardName | ImageURL
+# Paste the image URL next to each card name after the pipe (|)
+# Example: Venture X Rewards | https://example.com/venture-x.png
+
+# ===== Personal Cards =====
+Platinum | https://ecm.capitalone.com/WCM/card/products/plat_cardart_prim_323x203.png
+Venture X Rewards | https://ecm.capitalone.com/WCM/card/products/venture-x-card-art.png
+Venture Rewards | https://ecm.capitalone.com/WCM/card/products/venture_cardart_prim_323x203-1.png
+VentureOne Rewards | https://ecm.capitalone.com/WCM/card/products/ventureone_cardart_prim_323x203.png 
+VentureOne Rewards for Good Credit | https://ecm.capitalone.com/WCM/card/products/ventureone_cardart_prim_323x203.png
+Quicksilver Rewards | https://ecm.capitalone.com/WCM/card/products/quicksilver_cardart.png
+Quicksilver Rewards for Good Credit | https://ecm.capitalone.com/WCM/card/products/quicksilver_cardart.png 
+Savor Rewards | https://ecm.capitalone.com/WCM/card/products/new-savor-card-art.png 
+Savor Rewards for Good Credit | https://ecm.capitalone.com/WCM/card/products/new-savor-card-art.png
+SavorOne Rewards | https://ecm.capitalone.com/WCM/card/products/savorone-2025-cardart.png 
+QuicksilverOne Rewards | https://ecm.capitalone.com/WCM/card/products/quicksilver_one_cardart.png 
+Savor Rewards for Students | https://ecm.capitalone.com/WCM/card/products/new-savor-card-art.png
+Quicksilver Rewards for Students | https://ecm.capitalone.com/WCM/card/products/quicksilver_cardart.png
+Quicksilver Secured Rewards | https://ecm.capitalone.com/WCM/card/products/quicksilver_cardart.png 
+Platinum Secured | https://ecm.capitalone.com/WCM/card/products/plat_cardart_prim_323x203.png
+
+# ===== Business Cards =====
+Spark 2% Cash Plus | https://ecm.capitalone.com/WCM/card/products/spark-cash-plus2.png
+Spark 2% Cash | https://ecm.capitalone.com/WCM/card/products/spark-cash-plus.png
+Spark 1.5% Cash Select | https://ecm.capitalone.com/WCM/card/products/cash_new_2021_optimized.png
+Spark 1% Classic | https://ecm.capitalone.com/WCM/card/products/classic_new_2021.png
+Venture X Business | https://ecm.capitalone.com/WCM/card/products/vxb-card.png
+Spark 2X Miles | https://ecm.capitalone.com/WCM/card/products/miles_new_2021.png
+Spark 1.5X Miles Select | https://ecm.capitalone.com/WCM/card/products/miles_new_2021.png
+
+# ===== Partner Cards =====
+T-Mobile Visa | https://ecm.capitalone.com/WCM/card/products/tower-screenshot.png 
+Kohl's Rewards Visa | https://ecm.capitalone.com/WCM/card/products/kohls_visa_sig_master_rgb_300x189.png 
+REI Co-op Mastercard | https://ecm.capitalone.com/WCM/card/products/card-art-240x151.png 
+Pottery Barn Key Rewards Visa | https://ecm.capitalone.com/WCM/card/products/pb_ca_cb_rgb.png
+Williams Sonoma Key Rewards Visa | https://ecm.capitalone.com/WCM/card/products/ws_ca_cb_rgb_card_art.png 
+West Elm Key Rewards Visa | https://ecm.capitalone.com/WCM/card/products/we_ca_cb_rgb.png
+Key Rewards Visa | https://ecm.capitalone.com/WCM/card/products/kr_ca_cb_rgb.png
+Cabela's CLUB Card | https://ecm.capitalone.com/WCM/card/products/cabelas_card_art_2023.png
+Bass Pro Shops CLUB Card | https://ecm.capitalone.com/WCM/card/products/bass_pro_cardart.png
+Bass Pro Shops & Cabela's CLUB Business | https://ecm.capitalone.com/WCM/card/products/smallbusinesscard_club_120120.jpg
+BJ's One Mastercard | https://ecm.capitalone.com/WCM/card/products/www-bj-one-mc-240x151.png
+BJ's One+ Mastercard | https://ecm.capitalone.com/WCM/card/products/www-bj-one-plus-mc-240x151.png
