@@ -94,23 +94,30 @@
 
       <!-- Insights Tab -->
       <div class="tab-content" id="tab-insights">
-        <div class="insights-section">
-          <div class="insights-header">
+
+        <!-- Spending Breakdown -->
+        <div class="insights-spending-card">
+          <div class="insights-spending-header">
             <span class="insights-label">Spending Breakdown</span>
           </div>
-          <div class="ai-rec-chart-wrap" id="ai-rec-chart-wrap" style="display:none">
-            <canvas id="ai-rec-chart" width="110" height="110"></canvas>
-            <div class="ai-rec-legend" id="ai-rec-legend"></div>
-          </div>
           <div class="insights-loading" id="insights-loading">Loading spending data...</div>
+          <div id="ai-rec-chart-wrap" style="display:none">
+            <div class="spending-chart-center">
+              <canvas id="ai-rec-chart"></canvas>
+            </div>
+            <div class="spending-legend" id="ai-rec-legend"></div>
+          </div>
         </div>
-        <div class="insights-section insights-gemini">
-          <div class="insights-header">
-            <span class="insights-label">AI Recommendation</span>
+
+        <!-- AI Recommendation -->
+        <div class="insights-rec-card">
+          <div class="insights-rec-header">
+            <span class="insights-rec-title">Recommended for You</span>
             <span class="ai-rec-badge">Gemini</span>
           </div>
           <div class="ai-rec-body" id="ai-rec-body"></div>
         </div>
+
       </div>
 
       <!-- Add Card Modal -->
