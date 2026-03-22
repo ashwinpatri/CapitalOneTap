@@ -89,7 +89,7 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// PUT /api/cards/:id — edit card details
+// PUT /api/cards/:id — edit card details (fullNumber, exp, cvv, name)
 router.put('/:id', auth, async (req, res) => {
   try {
     const { fullNumber, expMonth, expYear, cvv, cardholderName, nickname } = req.body;
