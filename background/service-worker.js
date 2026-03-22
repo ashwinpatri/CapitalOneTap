@@ -210,7 +210,14 @@ async function handleMessage(message) {
     case 'GET_RECOMMENDATION': {
       try {
         const data = await api.fetchRecommendation();
-        return { success: true, recommendation: data.recommendation };
+        return {
+          success: true,
+          recommendation: data.recommendation,
+          recommendedCardName: data.recommendedCardName,
+          potentialSavings: data.potentialSavings,
+          actualEarned: data.actualEarned,
+          additionalValue: data.additionalValue,
+        };
       } catch (e) {
         return { success: false, error: e.message };
       }

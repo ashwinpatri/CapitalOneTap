@@ -108,9 +108,9 @@ router.get('/', auth, async (req, res) => {
       ? `Cards this customer already owns (do NOT recommend these): ${[...ownedProductNames].join(', ')}`
       : 'This customer has no Capital One cards yet.';
 
-    const prompt = `You are a credit card advisor in a browser extension. Be brief and direct.
+    const prompt = `You are an expert financial writer with perfect grammar and a sharp, concise voice. Recommend the single best Capital One card for this user.
 
-USER SPENDING (by category):
+USER SPENDING:
 ${spendingStr}
 
 ${ownedStr}
@@ -118,27 +118,28 @@ ${ownedStr}
 AVAILABLE CARDS:
 ${cardListStr}
 
-OUTPUT RULES:
-- Use plain dollar signs like $94, never LaTeX like \\$94
-- Keep every bullet to ONE line, no sub-explanations
-- 2-3 sentences max for the summary — be concise
-- Only list real drawbacks (skip "$0 annual fee", skip anything neutral or positive)
-- Do NOT hallucinate features — only use data from the card list above
-
-OUTPUT FORMAT (copy exactly, replace bracketed placeholders):
+STRICT OUTPUT FORMAT — copy this structure exactly:
 
 **Recommended Card:** [Exact card name from the list above]
 
 Why This Card Fits Your Spending:
-[2-3 sentences. Name the top spending categories, state the reward rates, give one estimated dollar figure. No filler.]
+[Exactly 2 sentences. Mention the user's top 1-2 spending categories by name. State the reward rate. No math, no earnings estimates. Tight, confident writing.]
 
 Key Benefits:
-- [Rate + category, tied to user's actual spend — one line]
-- [Another benefit — one line]
-- [Optional third benefit — one line]
+- [**Rate** on Category — one line, no elaboration]
+- [**Rate** on Category — one line]
+- [One more relevant benefit if applicable — one line]
 
 Drawbacks:
-- [Only real tradeoffs. Skip if none. Do NOT mention $0 annual fee.]`;
+- [One real tradeoff only — e.g., annual fee if non-zero, weak travel rewards, etc.]
+- [Skip entirely if no real drawbacks. NEVER list "$0 annual fee" as a drawback.]
+
+RULES:
+- Use plain $ signs (never LaTeX \\$)
+- Bold all key numbers and rates using **like this**
+- Every bullet is exactly one line — no parenthetical explanations, no elaboration
+- Perfect grammar — no awkward phrasing like "($94 spend)"
+- Do not invent features — only use data from the card list above`;
 
 
     const geminiRes = await fetch(
