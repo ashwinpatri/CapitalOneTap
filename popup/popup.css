@@ -55,25 +55,29 @@
   --transition:  0.15s ease;
 }
 
+html {
+  background: transparent;
+}
+
 body {
   width: 380px;
   font-family: var(--font);
   font-weight: 500;
-  background: var(--off-white);
+  background: transparent;
   color: var(--text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
-  border-radius: 12px;
-  overflow: hidden;
 }
 
 .app {
   display: flex;
   flex-direction: column;
   min-height: unset;
+  background: var(--off-white);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 #main-app {
