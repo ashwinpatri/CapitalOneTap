@@ -688,6 +688,43 @@ function findCardImageUrl(cardName) {
   return fuzzyKey ? getCardImageUrl(fuzzyKey) : null;
 }
 
+function renderMarkdown(text) {
+  // Strip the "Recommended Card:" line since we display it separately
+  const body = text.replace(/\*\*Recommended Card:\*\*[^\n]*/i, '').trim();
+
+  const lines = body.split('\n');
+  const htmlParts = [];
+  let inList = false;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) {
+      if (inList) { htmlParts.push('</ul>'); inList = false; }
+      continue;
+    }
+    // Section headers: **Header:**
+    if (/^\*\*[^*]+:\*\*$/.test(line)) {
+      if (inList) { htmlParts.push('</ul>'); inList = false; }
+      const header = line.replace(/\*\*/g, '');
+      htmlParts.push(`<div class="rec-section-header">${header}</div>`);
+      continue;
+    }
+    // Bullet points: - **label:** text  or  - text
+    if (line.startsWith('- ')) {
+      if (!inList) { htmlParts.push('<ul class="rec-list">'); inList = true; }
+      const content = line.slice(2).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      htmlParts.push(`<li class="rec-list-item">${content}</li>`);
+      continue;
+    }
+    // Regular paragraph text
+    if (inList) { htmlParts.push('</ul>'); inList = false; }
+    const content = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    htmlParts.push(`<p class="rec-para">${content}</p>`);
+  }
+  if (inList) htmlParts.push('</ul>');
+  return htmlParts.join('');
+}
+
 async function loadRecommendation() {
   const el = document.getElementById('ai-rec-body');
   el.style.display = 'block';
@@ -695,11 +732,36 @@ async function loadRecommendation() {
 
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
-    const text = res.recommendation;
-    const parsed = text.match(/we recommend the (.+?) because (.+)/i);
-    const cardName = parsed ? parsed[1].trim() : null;
-    const reason = parsed ? parsed[2].replace(/\.$/, '').trim() : text;
+    const cardName = res.recommendedCardName || null;
     const imgUrl = cardName ? findCardImageUrl(cardName) : null;
+    const markdownHtml = renderMarkdown(res.recommendation);
+
+    const { potentialSavings = 0, actualEarned = 0, additionalValue = 0 } = res;
+
+    const savingsHtml = additionalValue > 0 ? `
+      <div class="savings-toggle collapsed" id="savings-toggle">
+        <button class="savings-toggle-btn" id="savings-toggle-btn">
+          <span class="savings-toggle-label">Savings Opportunity</span>
+          <span class="savings-toggle-chevron">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>
+          </span>
+        </button>
+        <div class="savings-body">
+          <div class="savings-row">
+            <span class="savings-label">Rewards you earned</span>
+            <span class="savings-value actual">$${actualEarned.toFixed(2)}</span>
+          </div>
+          <div class="savings-row">
+            <span class="savings-label">Potential with ${cardName || 'this card'}</span>
+            <span class="savings-value potential">$${potentialSavings.toFixed(2)}</span>
+          </div>
+          <div class="savings-row savings-row-total">
+            <span class="savings-label">Additional value</span>
+            <span class="savings-value highlight">+$${additionalValue.toFixed(2)}</span>
+          </div>
+          <div class="savings-note">Estimate based on your transaction history. Points/miles valued at $0.01 each.</div>
+        </div>
+      </div>` : '';
 
     el.innerHTML = `
       <div class="rec-spotlight">
@@ -709,8 +771,15 @@ async function loadRecommendation() {
             : `<div class="rec-card-fallback"></div>`}
         </div>
         <div class="rec-card-name">${cardName || 'Capital One Card'}</div>
-        <div class="rec-reason">${reason}</div>
-      </div>`;
+      </div>
+      ${savingsHtml}
+      <div class="rec-markdown">${markdownHtml}</div>`;
+
+    if (additionalValue > 0) {
+      document.getElementById('savings-toggle-btn').addEventListener('click', () => {
+        document.getElementById('savings-toggle').classList.toggle('collapsed');
+      });
+    }
   } else {
     el.innerHTML = `<div class="rec-loading">Server warming up — try again in a moment.</div>`;
   }
