@@ -690,7 +690,11 @@ function findCardImageUrl(cardName) {
 
 function renderMarkdown(text) {
   // Strip the "Recommended Card:" line since we display it separately as card art + name
-  const body = text.replace(/\*\*Recommended Card:\*\*[^\n]*/i, '').trim();
+  // Also unescape LaTeX-style dollar signs that Gemini sometimes outputs (\$ -> $)
+  const body = text
+    .replace(/(?:\*\*)?Recommended Card:(?:\*\*)?\s*[^\n]*/i, '')
+    .replace(/\\\$/g, '$')
+    .trim();
 
   const lines = body.split('\n');
   const htmlParts = [];

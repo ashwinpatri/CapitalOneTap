@@ -108,79 +108,38 @@ router.get('/', auth, async (req, res) => {
       ? `Cards this customer already owns (do NOT recommend these): ${[...ownedProductNames].join(', ')}`
       : 'This customer has no Capital One cards yet.';
 
-    const prompt = `You are a financial assistant embedded inside a browser extension.
+    const prompt = `You are a credit card advisor in a browser extension. Be brief and direct.
 
-Your goal is to recommend the BEST credit card for this user and clearly explain WHY, using their actual spending behavior.
-
-You are given:
-- The user's past transaction history (by category and total spend)
-- The available credit cards (including rewards, categories, fees, and benefits)
-- The cards the user already owns
-
----
-
-### USER SPENDING HISTORY
-
+USER SPENDING (by category):
 ${spendingStr}
 
----
+${ownedStr}
 
-### AVAILABLE CARDS (do NOT recommend any card marked as already owned)
-
+AVAILABLE CARDS:
 ${cardListStr}
 
----
+OUTPUT RULES:
+- Use plain dollar signs like $94, never LaTeX like \\$94
+- Keep every bullet to ONE line, no sub-explanations
+- 2-3 sentences max for the summary — be concise
+- Only list real drawbacks (skip "$0 annual fee", skip anything neutral or positive)
+- Do NOT hallucinate features — only use data from the card list above
 
-### ${ownedStr}
+OUTPUT FORMAT (copy exactly, replace bracketed placeholders):
 
----
-
-### TASK
-
-1. Select the best card for this user based on their spending patterns.
-2. Generate a clear, structured explanation.
-
----
-
-### OUTPUT FORMAT (STRICT)
-
-**Recommended Card:** [Exact card name from the available list above]
+**Recommended Card:** [Exact card name from the list above]
 
 Why This Card Fits Your Spending:
-<2–3 sentence summary that explains the recommendation using the user's actual spending patterns. Make it personalized and concrete. Include estimated reward if possible.>
+[2-3 sentences. Name the top spending categories, state the reward rates, give one estimated dollar figure. No filler.]
 
 Key Benefits:
-- <2–4 bullet points highlighting the most relevant benefits for THIS user based on their spending>
-- <Tie each benefit to actual behavior when possible>
-- <Include reward percentages and categories>
+- [Rate + category, tied to user's actual spend — one line]
+- [Another benefit — one line]
+- [Optional third benefit — one line]
 
 Drawbacks:
-- <Only include REAL tradeoffs or limitations>
-- <Examples: annual fee (ONLY if non-zero), reward caps, missing categories, weaker earning vs other cards, foreign transaction fees>
-- <DO NOT list something as a drawback if it is neutral or positive (e.g., "$0 annual fee")>
+- [Only real tradeoffs. Skip if none. Do NOT mention $0 annual fee.]`;
 
----
-
-### IMPORTANT RULES
-
-- Personalize everything using the user's spending history (e.g., "You spend heavily on dining and groceries each month")
-- Quantify when possible (e.g., "This earns ~3% on your dining purchases")
-- Compare implicitly or explicitly to other cards when relevant
-- Only mention fees if they are actually a downside ($95 annual fee = drawback, $0 annual fee = do NOT include)
-- Do NOT hallucinate card features — only use data from the card list above
-- Do NOT be generic
-
----
-
-### TONE
-
-- Clear, concise, and smart
-- Sounds like a helpful financial advisor
-- No fluff, no marketing language
-
----
-
-Now generate the recommendation.`;
 
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`,
@@ -198,8 +157,8 @@ Now generate the recommendation.`;
     const geminiData = await geminiRes.json();
     const recommendation = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
-    // Extract recommended card name from the response (strip any residual ** markdown)
-    const cardNameMatch = recommendation.match(/\*\*Recommended Card:\*\*\s*(.+)/i);
+    // Extract recommended card name — handle bold or plain, strip ** markers
+    const cardNameMatch = recommendation.match(/(?:\*\*)?Recommended Card:(?:\*\*)?\s*\*{0,2}([^\n*]+)\*{0,2}/i);
     const recommendedCardName = cardNameMatch
       ? cardNameMatch[1].replace(/\*\*/g, '').trim()
       : null;
