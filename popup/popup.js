@@ -764,7 +764,18 @@ async function loadInsights() {
 async function loadSpendingChart() {
   const res = await sendMessage('GET_SPENDING');
   if (res.success && res.spendingSummary) {
+    const total = Object.values(res.spendingSummary).reduce((s, v) => s + v, 0);
+    if (total === 0) {
+      // No spend data — hide the entire spending section
+      const section = document.getElementById('ai-rec-chart-wrap')?.closest('.insights-section');
+      if (section) section.style.display = 'none';
+      return;
+    }
     drawSpendingChart(res.spendingSummary);
+  } else {
+    // Failed to load — hide section
+    const section = document.getElementById('ai-rec-chart-wrap')?.closest('.insights-section');
+    if (section) section.style.display = 'none';
   }
 }
 
@@ -932,9 +943,13 @@ function drawSpendingChart(spendingSummary) {
 
   const entries = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((s, [, v]) => s + v, 0);
-  if (total === 0) return;
+  if (total === 0) {
+    const loading = document.getElementById('insights-loading');
+    if (loading) loading.style.display = 'none';
+    return;
+  }
 
-  const SIZE = 155;
+  const SIZE = 140;
   const dpr = window.devicePixelRatio || 1;
   canvas.width = SIZE * dpr;
   canvas.height = SIZE * dpr;
