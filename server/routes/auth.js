@@ -188,36 +188,7 @@ router.get('/google/callback', async (req, res) => {
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     const sessionId = req.query.state || '';
     if (sessionId) storePendingToken(sessionId, jwtToken);
-    res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Signed In</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap');
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'Inter',system-ui,sans-serif;
-      min-height:100vh;display:flex;align-items:flex-start;justify-content:space-between;
-      padding:5vw;
-      background:linear-gradient(150deg,#002f4d 0%,#004977 55%,#005e96 100%);
-      -webkit-font-smoothing:antialiased;overflow:hidden;
-    }
-    .left{display:flex;flex-direction:column;align-items:flex-start;}
-    h1{font-size:11vw;font-weight:700;color:#fff;line-height:.95;letter-spacing:-.03em;}
-    p{font-size:2.4vw;font-weight:300;color:rgba(255,255,255,.6);margin-top:2vw;letter-spacing:.01em;}
-    .smiley{font-size:22vw;font-weight:300;color:rgba(255,255,255,.85);line-height:1;letter-spacing:-.05em;user-select:none;}
-  </style>
-</head>
-<body>
-  <div class="left">
-    <h1>Signed in<br>Successfully</h1>
-    <p>You can safely close this page.</p>
-  </div>
-  <div class="smiley">:)</div>
-</body>
-</html>`);
+    res.redirect('https://onetap-ten.vercel.app/signin-success.html');
   } catch (err) {
     res.redirect('https://onetap-ten.vercel.app/signin.html?error=server_error');
   }
