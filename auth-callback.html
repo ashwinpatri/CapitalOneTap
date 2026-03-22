@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signing you in…</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f5f5f5; }
+    .msg { text-align: center; color: #004977; font-size: 1rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="msg">Signing you in…</div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const firstName = params.get('firstName');
+
+    if (token) {
+      chrome.storage.local.set({ authToken: token }, () => {
+        window.close();
+      });
+    } else {
+      document.querySelector('.msg').textContent = 'Sign-in failed. Please try again.';
+    }
+  </script>
+</body>
+</html>

@@ -65,6 +65,7 @@ function setupAuthTabs() {
   });
 
   document.getElementById('login-btn').addEventListener('click', handleLogin);
+  document.getElementById('google-signin-btn').addEventListener('click', handleGoogleLogin);
   document.getElementById('register-btn').addEventListener('click', handleRegister);
   document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
@@ -73,6 +74,19 @@ function setupAuthTabs() {
     document.getElementById(id).addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleLogin();
     });
+  });
+}
+
+function handleGoogleLogin() {
+  chrome.tabs.create({ url: 'https://onetap-ten.vercel.app/signin.html' });
+
+  chrome.storage.onChanged.addListener(function onAuthChange(changes, area) {
+    if (area === 'local' && changes.authToken) {
+      chrome.storage.onChanged.removeListener(onAuthChange);
+      sendMessage('CHECK_AUTH').then(res => {
+        if (res.loggedIn) showMainApp(res.user);
+      });
+    }
   });
 }
 

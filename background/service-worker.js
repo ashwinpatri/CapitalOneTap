@@ -43,6 +43,23 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 async function handleMessage(message) {
   switch (message.type) {
     // ===== Auth =====
+    case 'GOOGLE_LOGIN': {
+      try {
+        const CLIENT_ID = '196802038272-qusfgtfsl6n515seqh22cqf28koh7b6t.apps.googleusercontent.com';
+        const REDIRECT_URI = 'https://iglldahcailcddegenopplhmeoebhohh.chromiumapp.org/';
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=email%20profile`;
+        const redirectUrl = await chrome.identity.launchWebAuthFlow({ url: authUrl, interactive: true });
+        const params = new URLSearchParams(new URL(redirectUrl).hash.slice(1));
+        const googleToken = params.get('access_token');
+        if (!googleToken) return { success: false, error: 'No token received' };
+        const data = await api.googleLogin(googleToken);
+        await refreshData();
+        return { success: true, user: data.user };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
+
     case 'LOGIN': {
       try {
         const { username, password } = message.payload;

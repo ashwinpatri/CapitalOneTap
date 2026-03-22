@@ -77,6 +77,16 @@ export async function logout() {
   await chrome.storage.local.remove('user');
 }
 
+export async function googleLogin(googleToken) {
+  const data = await apiFetch('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ token: googleToken }),
+  });
+  await setToken(data.token);
+  await chrome.storage.local.set({ user: data.user });
+  return data;
+}
+
 // ===== Cards =====
 export async function fetchCards() {
   const data = await apiFetch('/cards');

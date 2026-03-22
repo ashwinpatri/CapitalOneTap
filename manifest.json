@@ -3,7 +3,7 @@
   "name": "One Tap — Capital One Smart Checkout",
   "version": "1.0.0",
   "description": "Frictionless Capital One checkout everywhere. Auto-applies best offers, splits transactions, one tap to pay.",
-  "permissions": ["activeTab", "storage", "scripting"],
+  "permissions": ["activeTab", "storage", "scripting", "identity"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background/service-worker.js",
@@ -30,6 +30,10 @@
     {
       "resources": ["styles/brand.css", "content/overlay.css", "icons/*", "icons/cards/*", "assets/fonts/*"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "resources": ["auth-callback.html"],
+      "matches": ["https://onetap-api.onrender.com/*"]
     }
   ],
   "icons": {
@@ -38,7 +42,8 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtlLECdyEyPf288PnC0qU45J1WqB7EbknQ+V8x5aSVpTNXldvQkgHydQi2/7GIax0VEMlMv1hMt8XYay/7+a5Ss53zZrVLPUfXMZHQ2HIkUfSwkkXi4rAm/OP545JVWnvC+vKtwmg4fBjLlkE3ktj2rbXIQs871IHnAIT6O81gzzYvZMWjZsfjhNTvZ4sLb3yNNos6XaGzJPzVLw1qNG4hKWz+4JcxFoVCPGZXokzUK7VnXXtpU/l7ISwlAcqhPvwkQ7+3yYTFDL0EbUYU+uss/9lyST6hHzbVDALhRiw6x2bBxuDNInUDza5Em4q77dJyvaFVMi7ouYTMUK+w4TBXwIDAQAB",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://onetap-api.onrender.com; img-src 'self' https://ecm.capitalone.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://onetap-api.onrender.com https://accounts.google.com https://www.googleapis.com; img-src 'self' https://ecm.capitalone.com"
   }
 }
