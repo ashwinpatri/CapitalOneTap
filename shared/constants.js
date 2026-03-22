@@ -46,6 +46,50 @@ const CHECKOUT_DOM_SELECTORS = [
   'form[action*="payment"]',
 ];
 
+// Map card product names to local image files in icons/cards/
+const CARD_IMAGE_FILES = {
+  'Platinum': 'platinum.png',
+  'Venture X Rewards': 'venture-x.png',
+  'Venture Rewards': 'venture.png',
+  'VentureOne Rewards': 'ventureone.png',
+  'VentureOne Rewards for Good Credit': 'ventureone.png',
+  'Quicksilver Rewards': 'quicksilver.png',
+  'Quicksilver Rewards for Good Credit': 'quicksilver.png',
+  'Savor Rewards': 'savor.png',
+  'Savor Rewards for Good Credit': 'savor.png',
+  'SavorOne Rewards': 'savorone.png',
+  'QuicksilverOne Rewards': 'quicksilverone.png',
+  'Savor Rewards for Students': 'savor.png',
+  'Quicksilver Rewards for Students': 'quicksilver.png',
+  'Quicksilver Secured Rewards': 'quicksilver.png',
+  'Platinum Secured': 'platinum.png',
+  'T-Mobile Visa': 'tmobile.png',
+  "Kohl's Rewards Visa": 'kohls.png',
+  'REI Co-op Mastercard': 'rei.png',
+  'Pottery Barn Key Rewards Visa': 'pottery-barn.png',
+  'Williams Sonoma Key Rewards Visa': 'williams-sonoma.png',
+  'West Elm Key Rewards Visa': 'west-elm.png',
+  'Key Rewards Visa': 'key-rewards.png',
+  "Cabela's CLUB Card": 'cabelas.png',
+  'Bass Pro Shops CLUB Card': 'bass-pro.png',
+  "Bass Pro Shops & Cabela's CLUB Business": 'bass-pro-business.jpg',
+  "BJ's One Mastercard": 'bjs-one.png',
+  "BJ's One+ Mastercard": 'bjs-one-plus.png',
+  'Spark 2% Cash Plus': 'spark-cash-plus2.png',
+  'Spark 2% Cash': 'spark-cash-plus.png',
+  'Spark 1.5% Cash Select': 'spark-cash-select.png',
+  'Spark 1% Classic': 'spark-classic.png',
+  'Venture X Business': 'venture-x-business.png',
+  'Spark 2X Miles': 'spark-miles.png',
+  'Spark 1.5X Miles Select': 'spark-miles.png',
+};
+
+function getCardImageUrl(cardName) {
+  const file = CARD_IMAGE_FILES[cardName];
+  if (!file) return null;
+  return chrome.runtime.getURL('icons/cards/' + file);
+}
+
 const PRICE_SELECTORS = [
   '[class*="total"] [class*="price"]',
   '[class*="order-total"]',

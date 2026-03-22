@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const rewardTierSchema = new mongoose.Schema({
   rate: { type: Number, required: true },
-  unit: { type: String, required: true, enum: ['miles', 'percent_cashback', 'points'] },
+  unit: { type: String, required: true, enum: ['miles', 'percent_cashback', 'points', 'percent_back'] },
   categories: { type: [String], required: true },
   qualifier: { type: String, default: null },
 }, { _id: false });
@@ -29,6 +29,9 @@ const cardProductSchema = new mongoose.Schema({
   defaultIntroOffer: introOfferSchema,
   visual: cardVisualSchema,
   description: { type: String, default: null },
+  imageUrl: { type: String, default: null },
+  creditLevel: { type: String, enum: ['fair', 'good', 'excellent', 'good-excellent', 'rebuilding'], default: null },
+  cardType: { type: String, enum: ['personal', 'business', 'partner'], default: 'personal' },
   isAvailable: { type: Boolean, default: true },
 });
 
