@@ -622,6 +622,154 @@ body {
   padding: 0 var(--space-sm);
 }
 
+/* ===== Savings Dropdown ===== */
+.savings-toggle {
+  border-top: 1px solid var(--co-gray-200);
+  border-bottom: 1px solid var(--co-gray-200);
+  background: var(--co-gray-100);
+}
+
+.savings-toggle-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px var(--space-lg);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.savings-toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--co-blue);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.savings-toggle-chevron {
+  color: var(--co-blue);
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition);
+}
+
+.savings-toggle:not(.collapsed) .savings-toggle-chevron { transform: rotate(180deg); }
+
+.savings-body {
+  overflow: hidden;
+  max-height: 200px;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+  padding: 0 var(--space-lg) var(--space-md);
+}
+
+.savings-toggle.collapsed .savings-body {
+  max-height: 0;
+  padding-bottom: 0;
+}
+
+.savings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--co-gray-200);
+}
+
+.savings-row:last-of-type { border-bottom: none; }
+
+.savings-row-total {
+  padding-top: 8px;
+  margin-top: 2px;
+  border-top: 1px solid var(--co-gray-300);
+  border-bottom: none;
+}
+
+.savings-label {
+  font-size: 12px;
+  color: var(--co-gray-500);
+}
+
+.savings-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--co-dark);
+}
+
+.savings-value.highlight {
+  color: var(--co-success);
+  font-size: 14px;
+}
+
+.savings-note {
+  font-size: 10px;
+  color: var(--co-gray-400);
+  margin-top: var(--space-sm);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* ===== Recommendation Markdown ===== */
+.rec-markdown {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.rec-section-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--co-gray-400);
+  margin-top: var(--space-sm);
+}
+
+.rec-section-header:first-child { margin-top: 0; }
+
+.rec-para {
+  font-size: 13px;
+  color: var(--co-gray-500);
+  line-height: 1.55;
+}
+
+.rec-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 0;
+}
+
+.rec-list-item {
+  font-size: 12px;
+  color: var(--co-gray-500);
+  line-height: 1.5;
+  padding-left: var(--space-md);
+  position: relative;
+}
+
+.rec-list-item::before {
+  content: '•';
+  position: absolute;
+  left: 2px;
+  color: var(--co-blue);
+  font-weight: 700;
+}
+
+.rec-list-item strong {
+  color: var(--co-dark);
+  font-weight: 600;
+}
+
+/* Shrink card visual in spotlight so markdown fits */
+.rec-spotlight {
+  padding-bottom: var(--space-md);
+}
+
 .ai-rec-row {
   display: flex;
   justify-content: space-between;
