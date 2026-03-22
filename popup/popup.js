@@ -56,7 +56,7 @@ async function showMainApp(user) {
 
   renderCards(cardsRes.cards || []);
   renderAIRec(cardsRes.cards || []);
-  renderOffers(offersRes.offers || []);
+  renderOffers(offersRes.offers || [], cardsRes.cards || [], txRes.transactions || []);
   renderActivity(txRes.transactions || [], cardsRes.cards || []);
   renderSettings(settingsRes.settings || {}, cardsRes.cards || []);
   renderStats(txRes.transactions || []);
@@ -445,26 +445,96 @@ document.getElementById('add-card-submit').addEventListener('click', async () =>
 });
 
 // ===== Offers =====
-function renderOffers(offers) {
+function renderOffers(offers, cards = [], transactions = []) {
   const list = document.getElementById('offers-list');
   const empty = document.getElementById('offers-empty');
 
+  // ── Sign-up Bonus Progress ────────────────────────────────────────────────
+  const bonusSection = document.getElementById('intro-offers-section');
+  const cardsWithIntro = cards.filter(c => c.introOffer && !c.introOffer.earned);
+
+  if (cardsWithIntro.length > 0) {
+    // Build a spend-per-card map from transaction history
+    const spentByCard = {};
+    for (const tx of transactions) {
+      const cid = tx.cardId?._id || tx.cardId;
+      spentByCard[cid] = (spentByCard[cid] || 0) + tx.amount;
+    }
+
+    bonusSection.innerHTML = `
+      <div class="intro-offers-header">
+        <span class="intro-offers-label">Sign-up Bonus Progress</span>
+      </div>
+      ${cardsWithIntro.map(card => {
+        const o = card.introOffer;
+        const spent = spentByCard[card._id] || 0;
+        const pct = o.spendRequired > 0 ? Math.min(100, Math.round((spent / o.spendRequired) * 100)) : 100;
+        const remaining = Math.max(0, o.spendRequired - spent);
+        const bonus = o.bonusUnit === 'cash'
+          ? `$${o.bonusAmount.toLocaleString()} Cash`
+          : `${o.bonusAmount.toLocaleString()} ${o.bonusUnit.charAt(0).toUpperCase() + o.bonusUnit.slice(1)}`;
+
+        let daysLeft = null;
+        const startMs = o.startDate ? new Date(o.startDate) : new Date(card.createdAt);
+        if (startMs && o.timeframeDays) {
+          const endMs = startMs.getTime() + o.timeframeDays * 86400000;
+          daysLeft = Math.max(0, Math.ceil((endMs - Date.now()) / 86400000));
+        }
+
+        const earned = remaining === 0;
+
+        return `
+          <div class="intro-offer-card">
+            <div class="intro-offer-head">
+              <div class="intro-offer-head-left">
+                <div class="intro-offer-card-name">${card.productName}</div>
+                <div class="intro-offer-desc">${o.description}</div>
+              </div>
+              <div class="intro-offer-bonus-pill">${bonus}</div>
+            </div>
+
+            <div class="intro-offer-progress-section">
+              <div class="intro-offer-bar-row">
+                <div class="intro-offer-bar-wrap">
+                  <div class="intro-offer-bar ${earned ? 'intro-offer-bar-complete' : ''}" style="width:${pct}%"></div>
+                </div>
+                <span class="intro-offer-pct">${pct}%</span>
+              </div>
+              <div class="intro-offer-meta">
+                <span class="intro-offer-spent">$${spent.toFixed(0)} <span class="intro-offer-meta-of">of</span> $${o.spendRequired.toLocaleString()}</span>
+                ${daysLeft !== null
+                  ? `<span class="intro-offer-days ${daysLeft < 14 ? 'intro-offer-days-urgent' : ''}">${daysLeft}d left</span>`
+                  : ''}
+              </div>
+              ${earned
+                ? `<div class="intro-offer-status intro-offer-status-done">✓ Bonus earned!</div>`
+                : `<div class="intro-offer-status">$${remaining.toFixed(0)} more to unlock your bonus</div>`}
+            </div>
+          </div>`;
+      }).join('')}`;
+    bonusSection.style.display = '';
+  } else {
+    bonusSection.style.display = 'none';
+  }
+
+  // ── Merchant Offers ───────────────────────────────────────────────────────
+  const offersHeader = document.getElementById('offers-section-header');
   if (!offers.length) {
     list.innerHTML = '';
-    empty.style.display = '';
+    if (offersHeader) offersHeader.style.display = 'none';
+    empty.style.display = cardsWithIntro.length ? 'none' : '';
     return;
   }
   empty.style.display = 'none';
+  if (offersHeader) offersHeader.style.display = '';
 
   list.innerHTML = offers.map(offer => `
     <div class="offer-card" data-offer-id="${offer._id}">
       <div class="offer-left">
         <div class="offer-icon">${offer.merchantIcon || '🏷'}</div>
-        <div>
-          <div class="offer-merchant">${offer.merchant}</div>
-          <div class="offer-desc">${offer.description}</div>
-          ${offer.expiresAt ? `<div class="offer-expiry">Expires ${formatDate(offer.expiresAt)}</div>` : ''}
-        </div>
+        <div class="offer-merchant">${offer.merchant}</div>
+        <div class="offer-desc">${offer.description}</div>
+        ${offer.expiresAt ? `<div class="offer-expiry">Expires ${formatDate(offer.expiresAt)}</div>` : ''}
       </div>
       <button class="offer-btn ${offer.activated ? 'offer-btn-activated' : 'offer-btn-activate'}">
         ${offer.activated ? 'Active' : 'Activate'}
