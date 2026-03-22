@@ -188,6 +188,15 @@ async function handleMessage(message) {
       return { bestCard, offers: matchingOffers, allCards: cards };
     }
 
+    case 'GET_RECOMMENDATION': {
+      try {
+        const data = await api.fetchRecommendation();
+        return { success: true, recommendation: data.recommendation };
+      } catch (e) {
+        return { success: false, error: e.message };
+      }
+    }
+
     case 'REFRESH_DATA': {
       const fresh = await refreshData();
       return { success: true, ...fresh };
