@@ -10,6 +10,23 @@ const OneTapInjector = (() => {
     document.body.appendChild(host);
     shadowRoot = host.attachShadow({ mode: 'closed' });
 
+    // Inject Optimist font into main document (shadow DOM can't load @font-face)
+    if (!document.getElementById('onetap-font')) {
+      const fontUrl = chrome.runtime.getURL('assets/fonts/Optimist_W_XLt.woff2');
+      const fontStyle = document.createElement('style');
+      fontStyle.id = 'onetap-font';
+      fontStyle.textContent = `
+        @font-face {
+          font-family: 'Optimist';
+          src: url('${fontUrl}') format('woff2');
+          font-weight: 100 900;
+          font-style: normal;
+          font-display: swap;
+        }
+      `;
+      document.head.appendChild(fontStyle);
+    }
+
     const brandLink = document.createElement('link');
     brandLink.rel = 'stylesheet';
     brandLink.href = chrome.runtime.getURL('styles/brand.css');
@@ -22,7 +39,7 @@ const OneTapInjector = (() => {
   }
 
   function show(response, merchant, amount) {
-    overlayData = { ...response, merchant, amount: amount || 0 };
+    overlayData = { ...response, merchant, amount: amount || 42.99 };
     if (!shadowRoot) createHost();
     injectButton();
   }
@@ -49,10 +66,6 @@ const OneTapInjector = (() => {
   }
 
   function showOverlay() {
-    // Re-scan for the freshest price each time the overlay opens
-    const freshPrice = OneTapUtils.extractCheckoutTotal();
-    if (freshPrice && freshPrice >= 1) overlayData.amount = freshPrice;
-
     const existing = shadowRoot.querySelector('.onetap-overlay-backdrop');
     if (existing) existing.remove();
 
@@ -146,14 +159,14 @@ const OneTapInjector = (() => {
 
     const sectionCompare = topCards.length > 1 ? `
       <div class="onetap-rewards-section" style="border-top: 1px solid var(--co-gray-200); padding: 0 14px 14px;">
-        <div style="padding: 12px 0 8px; font-size: 12px; font-weight: 600; color: var(--co-gray-500); text-transform: uppercase; letter-spacing: 0.5px;">How your cards compare</div>
+        <div style="padding: 12px 0 8px; font-size: 12px; font-weight: 700; color: var(--co-dark);">How your cards compare</div>
         <div class="onetap-cmp-table">
           ${topCards.map(c => {
             const earn = earnDisplay(getScore(c), getUnit(c), finalAmount);
             const dollars = toDollars(getScore(c), getUnit(c), finalAmount);
             const barPct = Math.round((dollars / maxDollars) * 100);
             const isAlgoBest = cardId(c) === originalBestCardId;
-            const badge = isAlgoBest ? '<span class="onetap-cmp-best-badge">⭐ best</span>' : '';
+            const badge = isAlgoBest ? '<span class="onetap-cmp-best-badge">Best</span>' : '';
             return `
               <div class="onetap-cmp-row${isAlgoBest ? ' onetap-cmp-row-best' : ''}">
                 <div class="onetap-cmp-left">
@@ -163,7 +176,7 @@ const OneTapInjector = (() => {
                     <div class="onetap-cmp-bar${isAlgoBest ? ' onetap-cmp-bar-top' : ''}" style="width:${barPct}%"></div>
                   </div>
                 </div>
-                <span class="onetap-cmp-value${isAlgoBest ? '' : ' onetap-cmp-value-dim'}">≈$${dollars.toFixed(2)}</span>
+                <span class="onetap-cmp-value${isAlgoBest ? '' : ' onetap-cmp-value-dim'}">$${dollars.toFixed(2)}</span>
               </div>`;
           }).join('')}
         </div>
@@ -179,7 +192,7 @@ const OneTapInjector = (() => {
       const bonus = o.bonusUnit === 'cash' ? `$${o.bonusAmount}` : `${o.bonusAmount.toLocaleString()} ${o.bonusUnit}`;
       return `
         <div class="onetap-deep-row">
-          <div class="onetap-deep-key">🎯 Intro offer</div>
+          <div class="onetap-deep-key">Intro offer</div>
           <div class="onetap-deep-val">
             $${rem.toFixed(0)} more to earn ${bonus}
             <div class="onetap-deep-sub">$${spent.toFixed(0)} of $${o.spendRequired} spent</div>
@@ -199,8 +212,8 @@ const OneTapInjector = (() => {
       const ruDollars = ru ? toDollars(getScore(ru), getUnit(ru), finalAmount).toFixed(2) : '—';
       return `
         <div class="onetap-deep-row">
-          <div class="onetap-deep-key">🆚 Runner-up</div>
-          <div class="onetap-deep-val">${bestCard._runnerUp.productName} earns ${bestCard._runnerUp.rewardLabel} here (≈$${ruDollars})</div>
+          <div class="onetap-deep-key">Runner-up</div>
+          <div class="onetap-deep-val">${bestCard._runnerUp.productName} earns ${bestCard._runnerUp.rewardLabel} here ($${ruDollars})</div>
         </div>`;
     })() : '';
 
@@ -213,17 +226,17 @@ const OneTapInjector = (() => {
           </summary>
           <div class="onetap-deep-body">
             <div class="onetap-deep-row">
-              <div class="onetap-deep-key">🏷 Category</div>
+              <div class="onetap-deep-key">Category</div>
               <div class="onetap-deep-val">${bestCard._category && bestCard._category !== 'general' ? bestCard._category : 'General — no special category matched'}</div>
             </div>
             <div class="onetap-deep-row">
-              <div class="onetap-deep-key">💳 Rate applied</div>
-              <div class="onetap-deep-val">${bestRateText} → ${bestEarn.primary} ${bestEarn.label} (≈$${bestDollars.toFixed(2)} value)</div>
+              <div class="onetap-deep-key">Rate applied</div>
+              <div class="onetap-deep-val">${bestRateText} · ${bestEarn.primary} ${bestEarn.label} ($${bestDollars.toFixed(2)} value)</div>
             </div>
             ${runnerUpDeepRow}
             ${tiersRows ? `
             <div class="onetap-deep-row">
-              <div class="onetap-deep-key">📋 All tiers</div>
+              <div class="onetap-deep-key">All tiers</div>
               <div class="onetap-deep-val onetap-deep-tiers">${tiersRows}</div>
             </div>` : ''}
             ${introRow}
@@ -254,13 +267,7 @@ const OneTapInjector = (() => {
     return `
       <div class="onetap-header">
         <div class="onetap-header-left">
-          <div class="onetap-logo">
-            <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#004977"/><path d="M8 16C8 16 12 10 16 10C20 10 24 16 24 16C24 16 20 22 16 22C12 22 8 16 8 16Z" stroke="white" stroke-width="2" fill="none"/><circle cx="16" cy="16" r="3" fill="white"/></svg>
-          </div>
-          <div>
-            <div class="onetap-title">One Tap</div>
-            <div class="onetap-subtitle">${merchant}</div>
-          </div>
+          <img class="onetap-logo-img" src="${chrome.runtime.getURL('icons/logo.png')}" alt="Capital OneTap">
         </div>
         <div class="onetap-header-right">
           <button class="onetap-close" aria-label="Close">
@@ -274,7 +281,7 @@ const OneTapInjector = (() => {
 
         <!-- Best Card -->
         <div class="onetap-pick onetap-pick-selected" data-card-id="${cardId(bestCard)}">
-          <div class="onetap-pick-badge">${isManual ? 'Using ' + cardName(bestCard) : '👍 Best card to use'}</div>
+          <div class="onetap-pick-badge">${isManual ? 'Using ' + cardName(bestCard) : 'Recommended for this purchase'}</div>
           <div class="onetap-pick-row">
             <div class="onetap-pick-img-wrap">
               ${bestImg ? `<img class="onetap-pick-img" src="${bestImg}" alt="">` : `<div class="onetap-pick-img-fallback" style="background:${cardGradient(bestCard)}"></div>`}
@@ -300,7 +307,7 @@ const OneTapInjector = (() => {
                   <div class="onetap-rewards-detail-sub">${bestRateText}${bestCard._category && bestCard._category !== 'general' ? ' on ' + bestCard._category : ''}</div>
                 </div>
                 <div class="onetap-rewards-detail-right">
-                  <div class="onetap-rewards-detail-amount">≈$${bestDollars.toFixed(2)}</div>
+                  <div class="onetap-rewards-detail-amount">$${bestDollars.toFixed(2)}</div>
                 </div>
               </div>
             </div>
@@ -364,37 +371,26 @@ const OneTapInjector = (() => {
     const backdrop = drawer.parentElement;
     closeBtn.addEventListener('click', () => closeOverlay(backdrop));
 
-    // Card pick selection (Kudos-style with smart scoring)
-    drawer.querySelectorAll('.onetap-pick:not(.onetap-pick-selected)').forEach(pick => {
+    // Card pick selection — just toggle selection, don't rebuild
+    drawer.querySelectorAll('.onetap-pick').forEach(pick => {
       pick.addEventListener('click', () => {
         const selectedId = pick.dataset.cardId;
         const card = allCards.find(c => (c._id || c.id) === selectedId);
         if (card) {
-          const topTier = (card.rewardTiers || [])[0];
-          const score = card._score != null ? card._score : (topTier ? topTier.rate : 1);
-          const unit = card._unit || (topTier ? topTier.unit : 'points');
-          const rateLabel = card._rewardLabel || (unit === 'percent_cashback' || unit === 'percent_back' ? score + '% cash back' : score + 'x ' + unit);
-          const reason = card._category && card._category !== 'general'
-            ? `${cardName(card)} earns ${rateLabel} at ${card._category} merchants`
-            : `${cardName(card)} earns ${rateLabel} on every purchase`;
-          overlayData.bestCard = { ...card, _score: score, _unit: unit, _category: card._category || 'selected', _isManualSelection: true, _reason: reason };
-          // Quick fade transition then re-render in place
-          const body = drawer.querySelector('.onetap-body');
-          if (body) {
-            body.style.transition = 'opacity 0.12s ease';
-            body.style.opacity = '0.4';
-            setTimeout(() => {
-              const { bestCard: newBest, offers: newOffers, allCards: newAll, merchant: m, amount: a } = overlayData;
-              drawer.innerHTML = buildOverlayHTML(newBest, newAll, newOffers || [], m, a, overlayData.originalBestCardId);
-              const newBody = drawer.querySelector('.onetap-body');
-              if (newBody) {
-                newBody.style.opacity = '0';
-                newBody.style.transition = 'opacity 0.15s ease';
-                requestAnimationFrame(() => { newBody.style.opacity = '1'; });
-              }
-              bindOverlayEvents(drawer, allCards, offers, merchant, amount);
-            }, 120);
-          }
+          // Remove selection from all picks
+          drawer.querySelectorAll('.onetap-pick').forEach(p => {
+            p.classList.remove('onetap-pick-selected');
+            const check = p.querySelector('.onetap-pick-check');
+            if (check) check.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#D0D0D0" stroke-width="2"/></svg>';
+          });
+          // Select clicked pick
+          pick.classList.add('onetap-pick-selected');
+          const check = pick.querySelector('.onetap-pick-check');
+          if (check) check.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#004977"/><path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          // Update pay button card id
+          const payBtn = drawer.querySelector('.onetap-pay-btn');
+          if (payBtn) payBtn.dataset.cardId = selectedId;
+
         }
       });
     });

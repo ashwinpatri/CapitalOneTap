@@ -1,17 +1,46 @@
+/* ===== Design Tokens (scoped to shadow DOM) ===== */
+:host {
+  --co-blue: #004977;
+  --co-blue-dark: #002f4d;
+  --co-blue-mid: #005e96;
+  --co-blue-light: #e8f4fb;
+  --co-red: #cc2427;
+  --co-red-dark: #a8231c;
+  --co-white: #ffffff;
+  --co-off-white: #f5f6f7;
+  --co-border: #e2e4e6;
+  --co-muted: #525252;
+  --co-text: #141414;
+  --co-text-light: #3d3d3d;
+  --co-success: #0c7a3a;
+  --co-gray-100: #f5f6f7;
+  --co-gray-200: #e2e4e6;
+  --co-gray-300: #d0d0d0;
+  --co-gray-400: #525252;
+  --co-gray-500: #3d3d3d;
+  --co-dark: #141414;
+  --font: 'Optimist', system-ui, -apple-system, sans-serif;
+  --shadow-card: 0 1px 4px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.2);
+  --radius: 8px;
+  --transition: 0.15s ease;
+}
+
 /* ===== Floating Action Button ===== */
 .onetap-fab {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: var(--co-blue);
+  background: linear-gradient(135deg, var(--co-blue-dark) 0%, var(--co-blue) 100%);
   color: white;
   border: none;
-  border-radius: 50px;
+  border-radius: var(--radius);
   padding: 14px 24px;
   cursor: pointer;
   font-family: var(--font);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   box-shadow: var(--shadow-lg);
   transform: translateX(120%);
   transition: all var(--transition);
@@ -22,9 +51,9 @@
 }
 
 .onetap-fab:hover {
-  background: var(--co-blue-dark);
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, var(--co-blue) 0%, var(--co-blue-mid) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0,47,77,.3);
 }
 
 .onetap-fab:active { transform: translateY(0) scale(0.98); }
@@ -35,12 +64,12 @@
 }
 
 .onetap-fab-inner { display: flex; align-items: center; gap: 10px; }
-.onetap-fab-icon { width: 22px; height: 22px; }
+.onetap-fab-icon { width: 20px; height: 20px; }
 .onetap-fab-text { white-space: nowrap; }
 
 @keyframes onetap-pulse {
   0%, 100% { box-shadow: var(--shadow-lg); }
-  50% { box-shadow: 0 0 0 8px rgba(0, 73, 119, 0.2), var(--shadow-lg); }
+  50% { box-shadow: 0 0 0 8px rgba(0,73,119,0.15), var(--shadow-lg); }
 }
 
 /* ===== Backdrop ===== */
@@ -59,92 +88,92 @@
 /* ===== Drawer ===== */
 .onetap-drawer {
   width: 400px; max-height: 85vh;
-  background: var(--co-white); border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+  background: var(--co-off-white); border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,.2), 0 0 0 1px rgba(0,0,0,.05);
   overflow-y: auto; overflow-x: hidden;
-  transform: translateY(100%) scale(0.95); opacity: 0;
-  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  transform: translateY(100%) scale(0.97); opacity: 0;
+  transition: all 0.25s cubic-bezier(0.25,1,0.5,1);
   font-family: var(--font); color: var(--co-dark);
   display: flex; flex-direction: column;
 }
 .onetap-drawer-visible { transform: translateY(0) scale(1); opacity: 1; }
-.onetap-drawer::-webkit-scrollbar { width: 4px; }
+.onetap-drawer::-webkit-scrollbar { width: 3px; }
 .onetap-drawer::-webkit-scrollbar-track { background: transparent; }
-.onetap-drawer::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 4px; }
+.onetap-drawer::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 3px; }
 
 /* ===== Header ===== */
 .onetap-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 16px 20px; position: sticky; top: 0;
+  padding: 14px 20px; position: sticky; top: 0;
   background: var(--co-white); z-index: 10;
-  border-radius: 16px 16px 0 0; border-bottom: 1px solid var(--co-gray-200);
+  border-radius: var(--radius) var(--radius) 0 0; border-bottom: 1px solid var(--co-border);
 }
 .onetap-header-left { display: flex; align-items: center; gap: 12px; }
-.onetap-logo svg { width: 32px; height: 32px; }
-.onetap-title { font-size: 17px; font-weight: 800; color: var(--co-blue); }
-.onetap-subtitle { font-size: 12px; color: var(--co-gray-500); }
+.onetap-logo-img { height: 32px; width: auto; }
 .onetap-close {
   background: none; border: none; color: var(--co-gray-400);
-  cursor: pointer; padding: 6px; border-radius: 8px;
-  transition: all 0.15s ease; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 6px; border-radius: var(--radius);
+  transition: all var(--transition); display: flex; align-items: center; justify-content: center;
 }
 .onetap-close:hover { color: var(--co-dark); background: var(--co-gray-100); }
 
 /* ===== Body ===== */
-.onetap-body { padding: 20px; flex: 1; }
-.onetap-heading { font-size: 16px; font-weight: 700; color: var(--co-dark); margin-bottom: 16px; }
+.onetap-body { padding: 16px; flex: 1; }
+.onetap-heading { font-size: 14px; font-weight: 700; color: var(--co-dark); margin-bottom: 12px; }
 
-/* ===== Card Pick (Kudos-style) ===== */
+/* ===== Card Pick ===== */
 .onetap-pick {
-  border: 2px solid var(--co-gray-200); border-radius: 12px;
+  border: 1.5px solid var(--co-border); border-radius: var(--radius);
   margin-bottom: 10px; cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease; overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition); overflow: hidden;
+  background: var(--co-white);
+  box-shadow: var(--shadow-card);
 }
 .onetap-pick:hover { border-color: var(--co-gray-300); }
-.onetap-pick-selected { border-color: var(--co-blue); box-shadow: 0 0 0 1px var(--co-blue); }
+.onetap-pick-selected { border-color: var(--co-blue); box-shadow: 0 0 0 1px var(--co-blue), var(--shadow-card); }
 .onetap-pick-selected:hover { border-color: var(--co-blue); }
 
 .onetap-pick-badge {
-  padding: 8px 14px; background: #e8f1f8;
-  font-size: 12px; font-weight: 600; color: var(--co-blue);
+  padding: 7px 14px; background: var(--co-off-white);
+  font-size: 11px; font-weight: 600; color: var(--co-muted);
 }
-.onetap-pick-row { display: flex; align-items: center; gap: 14px; padding: 14px; }
+.onetap-pick-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; }
 .onetap-pick-img-wrap {
-  width: 64px; height: 42px; flex-shrink: 0; border-radius: 6px;
+  width: 60px; height: 40px; flex-shrink: 0; border-radius: 6px;
   overflow: hidden; display: flex; align-items: center; justify-content: center;
   background: var(--co-gray-100);
 }
 .onetap-pick-img { width: 100%; height: 100%; object-fit: contain; }
 .onetap-pick-img-fallback { width: 100%; height: 100%; border-radius: 6px; }
 .onetap-pick-info { flex: 1; min-width: 0; }
-.onetap-pick-name { font-size: 14px; font-weight: 600; color: var(--co-dark); line-height: 1.3; }
-.onetap-pick-rate { font-size: 12px; color: var(--co-success); font-weight: 500; margin-top: 2px; }
+.onetap-pick-name { font-size: 13px; font-weight: 700; color: var(--co-dark); line-height: 1.3; }
+.onetap-pick-rate { font-size: 11px; color: var(--co-success); font-weight: 600; margin-top: 2px; }
 .onetap-pick-check { flex-shrink: 0; }
 
 /* ===== Rewards Breakdown ===== */
-.onetap-rewards-section { border-top: 1px solid var(--co-gray-200); padding: 0 14px 14px; }
-.onetap-rewards-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 8px; }
-.onetap-rewards-label { font-size: 14px; font-weight: 700; color: var(--co-dark); }
-.onetap-rewards-value { font-size: 14px; font-weight: 700; color: var(--co-dark); }
-.onetap-rewards-detail { background: var(--co-gray-100); border-radius: 8px; padding: 12px; }
+.onetap-rewards-section { border-top: 1px solid var(--co-border); padding: 0 14px 14px; }
+.onetap-rewards-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 8px; }
+.onetap-rewards-label { font-size: 13px; font-weight: 700; color: var(--co-dark); }
+.onetap-rewards-value { font-size: 13px; font-weight: 700; color: var(--co-dark); }
+.onetap-rewards-detail { background: var(--co-gray-100); border-radius: var(--radius); padding: 12px; }
 .onetap-rewards-detail-row { display: flex; justify-content: space-between; align-items: flex-start; }
-.onetap-rewards-detail-title { font-size: 13px; font-weight: 600; color: var(--co-dark); }
-.onetap-rewards-detail-sub { font-size: 12px; color: var(--co-gray-500); margin-top: 1px; }
+.onetap-rewards-detail-title { font-size: 12px; font-weight: 700; color: var(--co-dark); }
+.onetap-rewards-detail-sub { font-size: 11px; color: var(--co-gray-500); margin-top: 1px; }
 .onetap-rewards-detail-right { text-align: right; }
-.onetap-rewards-detail-amount { font-size: 13px; font-weight: 600; color: var(--co-dark); }
+.onetap-rewards-detail-amount { font-size: 12px; font-weight: 700; color: var(--co-dark); }
 
 /* ===== Comparison Table ===== */
-.onetap-cmp-table { display: flex; flex-direction: column; gap: 10px; }
-.onetap-cmp-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: var(--co-gray-100); }
-.onetap-cmp-row-best { background: #EEF4FB; border: 1px solid #C5D9EF; }
+.onetap-cmp-table { display: flex; flex-direction: column; gap: 8px; }
+.onetap-cmp-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); background: var(--co-white); box-shadow: var(--shadow-card); }
+.onetap-cmp-row-best { background: var(--co-blue-light); border: 1px solid #b8d9ed; }
 .onetap-cmp-left { flex: 1; min-width: 0; }
-.onetap-cmp-name { display: block; font-size: 13px; font-weight: 600; color: var(--co-dark); }
-.onetap-cmp-best-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; background: var(--co-blue); color: white; border-radius: 3px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
-.onetap-cmp-earn { display: block; font-size: 12px; color: var(--co-gray-500); margin-top: 1px; }
-.onetap-cmp-bar-wrap { height: 5px; background: var(--co-gray-200); border-radius: 3px; margin-top: 6px; overflow: hidden; }
-.onetap-cmp-bar { height: 100%; background: var(--co-gray-300); border-radius: 3px; transition: width 0.4s ease; }
+.onetap-cmp-name { display: block; font-size: 12px; font-weight: 700; color: var(--co-dark); }
+.onetap-cmp-best-badge { font-size: 9px; font-weight: 700; background: var(--co-blue); color: white; border-radius: 4px; padding: 2px 6px; margin-left: 4px; vertical-align: middle; }
+.onetap-cmp-earn { display: block; font-size: 11px; color: var(--co-gray-500); margin-top: 1px; }
+.onetap-cmp-bar-wrap { height: 4px; background: var(--co-gray-200); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.onetap-cmp-bar { height: 100%; background: var(--co-gray-300); border-radius: 2px; transition: width 0.4s ease; }
 .onetap-cmp-bar-top { background: var(--co-blue); }
-.onetap-cmp-value { font-size: 14px; font-weight: 700; color: var(--co-blue); white-space: nowrap; min-width: 44px; text-align: right; }
+.onetap-cmp-value { font-size: 13px; font-weight: 700; color: var(--co-blue); white-space: nowrap; min-width: 44px; text-align: right; }
 .onetap-cmp-value-dim { color: var(--co-gray-400); font-weight: 500; }
 
 /* ===== Deep Reasoning ===== */
@@ -153,44 +182,53 @@
 .onetap-deep { width: 100%; }
 .onetap-deep-summary {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 0; font-size: 13px; font-weight: 600; color: var(--co-blue);
-  cursor: pointer; list-style: none; border-top: 1px solid var(--co-gray-200); user-select: none;
+  padding: 12px 0; font-size: 12px; font-weight: 700; color: var(--co-blue);
+  cursor: pointer; list-style: none; border-top: 1px solid var(--co-border); user-select: none;
 }
 .onetap-deep-summary::-webkit-details-marker { display: none; }
-.onetap-deep-chevron { font-size: 18px; font-weight: 400; transition: transform var(--transition); color: var(--co-gray-400); }
+.onetap-deep-chevron { font-size: 16px; font-weight: 400; transition: transform var(--transition); color: var(--co-gray-400); }
 .onetap-deep[open] .onetap-deep-chevron { transform: rotate(90deg); }
 .onetap-deep-body { padding: 0 0 14px; display: flex; flex-direction: column; gap: 10px; }
-.onetap-deep-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px; align-items: start; }
-.onetap-deep-key { font-size: 11px; font-weight: 700; color: var(--co-gray-400); text-transform: uppercase; letter-spacing: 0.3px; padding-top: 2px; }
-.onetap-deep-val { font-size: 13px; color: var(--co-dark); line-height: 1.45; }
-.onetap-deep-sub { font-size: 11px; color: var(--co-gray-400); margin-top: 2px; }
+.onetap-deep-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: start; }
+.onetap-deep-key { font-size: 10px; font-weight: 700; color: var(--co-muted); padding-top: 2px; }
+.onetap-deep-val { font-size: 12px; color: var(--co-dark); line-height: 1.5; }
+.onetap-deep-sub { font-size: 10.5px; color: var(--co-gray-400); margin-top: 2px; }
 .onetap-deep-tiers { display: flex; flex-direction: column; gap: 4px; }
-.onetap-deep-tier { font-size: 12px; color: var(--co-dark); line-height: 1.4; }
-.onetap-deep-qualifier { font-style: italic; color: var(--co-gray-400); font-size: 11px; }
-.onetap-progress-bar { height: 4px; background: var(--co-gray-200); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.onetap-deep-tier { font-size: 11px; color: var(--co-dark); line-height: 1.4; }
+.onetap-deep-qualifier { font-style: italic; color: var(--co-gray-400); font-size: 10.5px; }
+.onetap-progress-bar { height: 3px; background: var(--co-gray-200); border-radius: 2px; margin-top: 6px; overflow: hidden; }
 .onetap-progress-fill { height: 100%; background: var(--co-blue); border-radius: 2px; transition: width 0.4s ease; }
 
 /* ===== Offers ===== */
 .onetap-offers-section { margin-top: 16px; }
-.onetap-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--co-gray-500); margin-bottom: 10px; }
-.onetap-offer { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; background: var(--co-gray-100); cursor: pointer; transition: background 0.15s ease; margin-bottom: 6px; }
-.onetap-offer:hover { background: var(--co-gray-200); }
+.onetap-section-title { font-size: 12px; font-weight: 700; color: var(--co-dark); margin-bottom: 10px; }
+.onetap-offer { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: var(--radius); background: var(--co-white); box-shadow: var(--shadow-card); cursor: pointer; transition: box-shadow var(--transition); margin-bottom: 6px; }
+.onetap-offer:hover { box-shadow: var(--shadow-md); }
 .onetap-offer-info { display: flex; align-items: center; gap: 10px; }
-.onetap-offer-icon { font-size: 22px; width: 32px; text-align: center; }
-.onetap-offer-desc { font-size: 13px; font-weight: 500; }
-.onetap-offer-savings { font-size: 11px; color: var(--co-success); font-weight: 500; }
+.onetap-offer-icon { font-size: 20px; width: 32px; text-align: center; }
+.onetap-offer-desc { font-size: 12px; font-weight: 600; }
+.onetap-offer-savings { font-size: 10.5px; color: var(--co-success); font-weight: 600; }
 
 /* ===== Toggle ===== */
 .onetap-toggle { cursor: pointer; }
-.onetap-toggle-track { width: 40px; height: 22px; background: var(--co-gray-300); border-radius: 11px; position: relative; transition: background 0.15s ease; }
+.onetap-toggle-track { width: 38px; height: 20px; background: var(--co-gray-300); border-radius: 10px; position: relative; transition: background var(--transition); }
 .onetap-toggle.active .onetap-toggle-track { background: var(--co-blue); }
-.onetap-toggle-thumb { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.15s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.onetap-toggle-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform var(--transition); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 .onetap-toggle.active .onetap-toggle-thumb { transform: translateX(18px); }
 
 /* ===== Footer / Pay Button ===== */
-.onetap-footer { padding: 16px 20px; border-top: 1px solid var(--co-gray-200); background: var(--co-white); position: sticky; bottom: 0; }
-.onetap-pay-btn { display: block; width: 100%; padding: 16px; background: var(--co-dark); color: white; border: none; border-radius: 12px; font-family: var(--font); font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; position: relative; overflow: hidden; }
-.onetap-pay-btn:hover:not(:disabled) { background: #000; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.onetap-footer {
+  padding: 14px 16px; border-top: 1px solid var(--co-border);
+  background: var(--co-white); position: sticky; bottom: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.onetap-pay-btn {
+  display: block; width: 100%; padding: 14px;
+  background: var(--co-red); color: white; border: none; border-radius: var(--radius);
+  font-family: var(--font); font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all var(--transition); position: relative; overflow: hidden;
+}
+.onetap-pay-btn:hover:not(:disabled) { background: var(--co-red-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(204,36,39,.25); }
 .onetap-pay-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .onetap-pay-btn:disabled { cursor: default; }
 .onetap-pay-btn-content, .onetap-pay-btn-loading, .onetap-pay-btn-success { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -206,6 +244,6 @@
 
 /* ===== Responsive ===== */
 @media (max-width: 480px) {
-  .onetap-drawer { width: 100%; max-height: 90vh; border-radius: 16px 16px 0 0; }
+  .onetap-drawer { width: 100%; max-height: 90vh; border-radius: var(--radius) var(--radius) 0 0; }
   .onetap-overlay-backdrop { padding: 0; align-items: flex-end; }
 }

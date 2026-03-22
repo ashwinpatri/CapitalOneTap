@@ -11,17 +11,9 @@
     <!-- Header -->
     <header class="header">
       <div class="header-brand">
-        <svg class="header-logo" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="8" fill="#004977"/>
-          <path d="M8 16C8 16 12 10 16 10C20 10 24 16 24 16C24 16 20 22 16 22C12 22 8 16 8 16Z" stroke="white" stroke-width="2" fill="none"/>
-          <circle cx="16" cy="16" r="3" fill="white"/>
-        </svg>
-        <div>
-          <div class="header-title">One Tap</div>
-          <div class="header-sub" id="header-sub">Capital One Smart Checkout</div>
-        </div>
+        <img class="header-logo" src="../icons/logo.png" alt="Capital OneTap">
       </div>
-      <button class="header-logout" id="logout-btn" style="display:none">Sign Out</button>
+      <div class="header-sub" id="header-sub"></div>
     </header>
 
     <!-- Auth Screen -->
@@ -71,15 +63,29 @@
         <div class="cards-carousel" id="cards-carousel"></div>
         <div class="rewards-summary">
           <div class="rewards-summary-block">
-            <div class="rewards-summary-label">Spent This Month</div>
-            <div class="rewards-summary-value" id="stat-total-rewards">—</div>
+            <div class="rewards-summary-label">Miles</div>
+            <div class="rewards-summary-value" id="stat-miles">—</div>
           </div>
           <div class="rewards-summary-block">
-            <div class="rewards-summary-label">Transactions</div>
-            <div class="rewards-summary-value" id="stat-transactions">—</div>
+            <div class="rewards-summary-label">Cash Back</div>
+            <div class="rewards-summary-value" id="stat-cash">—</div>
+          </div>
+          <div class="rewards-summary-block">
+            <div class="rewards-summary-label">Points</div>
+            <div class="rewards-summary-value" id="stat-points">—</div>
           </div>
         </div>
-        <div class="ai-rec-card collapsed" id="ai-rec-card">
+        <button class="insights-banner" id="insights-banner">
+          <div class="insights-banner-left">
+            <div class="insights-banner-icon">
+              <div class="banner-card"></div>
+              <div class="banner-card banner-card-back"></div>
+            </div>
+            <span class="insights-banner-text">Your personalized card recommendation</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
+        </button>
+        <div class="ai-rec-card" id="ai-rec-card">
           <button class="ai-rec-toggle" id="ai-rec-toggle">
             <span class="ai-rec-label">Best Cards by Category</span>
             <svg class="ai-rec-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -94,39 +100,31 @@
 
       <!-- Insights Tab -->
       <div class="tab-content" id="tab-insights">
-
-        <!-- Spending Breakdown -->
-        <div class="insights-spending-card">
-          <div class="insights-spending-header">
+        <div class="insights-section">
+          <div class="insights-header">
             <span class="insights-label">Spending Breakdown</span>
           </div>
-          <div class="insights-loading" id="insights-loading">Loading spending data...</div>
           <div id="ai-rec-chart-wrap" style="display:none">
             <div class="spending-chart-center">
               <canvas id="ai-rec-chart"></canvas>
             </div>
             <div class="spending-legend" id="ai-rec-legend"></div>
           </div>
+          <div class="insights-loading" id="insights-loading">Loading spending data...</div>
         </div>
-
-        <!-- AI Recommendation -->
-        <div class="insights-rec-card">
-          <div class="insights-rec-header">
-            <span class="insights-rec-title">Recommended for You</span>
+        <div class="insights-section insights-gemini">
+          <div class="insights-header">
+            <span class="insights-label">Recommended for You</span>
             <span class="ai-rec-badge">Gemini</span>
           </div>
           <div class="ai-rec-body" id="ai-rec-body"></div>
         </div>
-
-        <!-- Savings Tally — only shown when a card is recommended -->
-        <div class="insights-savings-tally" id="insights-savings-section" style="display:none">
-          <div class="savings-tally-header">
-            <span class="savings-tally-title">Potential Savings</span>
-            <span class="savings-tally-sub">Based on your transaction history</span>
+        <div class="insights-section" id="insights-savings-section" style="display:none">
+          <div class="insights-header">
+            <span class="insights-label">Potential Savings</span>
           </div>
-          <div class="savings-tally-body" id="savings-tally-body"></div>
+          <div id="savings-tally-body"></div>
         </div>
-
       </div>
 
       <!-- Add Card Modal -->
@@ -273,13 +271,10 @@
             <select id="setting-default-card" class="setting-select-full"></select>
           </div>
         </div>
+        <button class="settings-logout" id="logout-btn">Sign Out</button>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <a href="https://www.capitalone.com" target="_blank" class="footer-link">Manage at capitalone.com</a>
-    </footer>
   </div>
 
   <script src="../shared/constants.js"></script>

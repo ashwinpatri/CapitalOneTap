@@ -28,7 +28,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles/brand.css", "content/overlay.css", "icons/*", "icons/cards/*"],
+      "resources": ["styles/brand.css", "content/overlay.css", "icons/*", "icons/cards/*", "assets/fonts/*"],
       "matches": ["<all_urls>"]
     }
   ],

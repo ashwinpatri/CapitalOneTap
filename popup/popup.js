@@ -25,14 +25,12 @@ function sendMessage(type, payload = {}) {
 function showAuthScreen() {
   document.getElementById('auth-screen').style.display = '';
   document.getElementById('main-app').style.display = 'none';
-  document.getElementById('logout-btn').style.display = 'none';
-  document.getElementById('header-sub').textContent = 'Capital One Smart Checkout';
+  document.getElementById('header-sub').textContent = '';
 }
 
 async function showMainApp(user) {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('main-app').style.display = '';
-  document.getElementById('logout-btn').style.display = '';
   if (user) {
     document.getElementById('header-sub').textContent = `Welcome, ${user.firstName}`;
   }
@@ -143,15 +141,21 @@ function setupAccordion() {
 }
 
 // ===== Tabs =====
+function switchToTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const tabBtn = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if (tabBtn) tabBtn.classList.add('active');
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+}
+
 function setupTabs() {
   document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
-    });
+    tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
   });
+
+  const banner = document.getElementById('insights-banner');
+  if (banner) banner.addEventListener('click', () => switchToTab('insights'));
 }
 
 // ===== Helpers (early) =====
@@ -180,7 +184,7 @@ function renderCards(cards) {
 
     return `
       <div class="card-wrapper" data-card-id="${card._id}">
-        <div class="card-visual" style="background: ${gradient}">
+        <div class="card-visual" style="background: ${imgUrl ? 'transparent' : gradient}">
           ${imgUrl ? `<img class="card-visual-img" src="${imgUrl}" alt="${card.productName}">` : ''}
           <div class="card-menu-wrapper">
             <button class="card-menu-trigger" data-menu-id="${card._id}">
@@ -205,7 +209,6 @@ function renderCards(cards) {
             <span class="card-info-name">${card.productName}</span>
             ${card.isDefault ? '<span class="card-info-default">Default</span>' : ''}
           </div>
-          <div class="card-info-num">···· ${card.lastFour} · ${card.network || 'Capital One'}</div>
           <div class="card-tiers">${tierTags}</div>
         </div>
       </div>
@@ -223,8 +226,10 @@ function renderCards(cards) {
   carousel.querySelectorAll('.card-menu-trigger').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      const menu = document.getElementById(`menu-${btn.dataset.menuId}`);
+      const wasOpen = menu.classList.contains('open');
       carousel.querySelectorAll('.card-menu-dropdown.open').forEach(m => m.classList.remove('open'));
-      document.getElementById(`menu-${btn.dataset.menuId}`).classList.toggle('open');
+      if (!wasOpen) menu.classList.add('open');
     });
   });
 
@@ -281,15 +286,21 @@ function renderCards(cards) {
 }
 
 function renderStats(transactions) {
-  const thisMonth = transactions.filter(tx => {
-    const d = new Date(tx.date);
-    const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
+  let miles = 0, cash = 0, points = 0;
 
-  const totalSpent = thisMonth.reduce((sum, tx) => sum + tx.amount, 0);
-  document.getElementById('stat-total-rewards').textContent = `$${totalSpent.toFixed(0)}`;
-  document.getElementById('stat-transactions').textContent = thisMonth.length;
+  for (const tx of transactions) {
+    const earned = tx.rewardsEarned || 0;
+    const unit = (tx.rewardUnit || '').toLowerCase();
+    if (unit.includes('mile')) miles += earned;
+    else if (unit.includes('cash') || unit.includes('percent') || unit.includes('%')) cash += earned;
+    else if (unit.includes('point')) points += earned;
+    else if (unit.includes('x')) miles += earned;
+    else cash += earned;
+  }
+
+  document.getElementById('stat-miles').textContent = miles.toLocaleString();
+  document.getElementById('stat-cash').textContent = `$${cash.toFixed(2)}`;
+  document.getElementById('stat-points').textContent = points.toLocaleString();
 }
 
 // ===== Add Card Modal =====
@@ -651,13 +662,17 @@ function renderAIRec(cards) {
       const label = CAT_LABELS[cat] || capitalize(cat);
       const rateStr = unit === 'percent_cashback' || unit === 'percent_back'
         ? `${rate}% back` : `${rate}x`;
+      const imgUrl = getCardImageUrl(card.productName);
       return `
         <div class="ai-rec-row">
           <div class="ai-rec-row-left">
-            <div class="ai-rec-cat">${label}</div>
-            <div class="ai-rec-card-name">${card.productName}</div>
+            ${imgUrl ? `<img class="ai-rec-card-img" src="${imgUrl}" alt="${card.productName}">` : ''}
+            <div class="ai-rec-row-text">
+              <div class="ai-rec-cat">${label}</div>
+              <div class="ai-rec-card-name">${card.productName}</div>
+            </div>
           </div>
-          <div class="ai-rec-rate">${rateStr}</div>
+          <div class="ai-rec-rate">${rateStr} ${label}</div>
         </div>`;
     });
 
@@ -665,7 +680,6 @@ function renderAIRec(cards) {
 }
 
 async function loadInsights() {
-  // Load spending chart and AI recommendation independently
   loadSpendingChart();
   loadRecommendation();
 }
@@ -677,11 +691,10 @@ async function loadSpendingChart() {
   }
 }
 
-function findCardImageUrl(cardName) {
-  const exact = getCardImageUrl(cardName);
+function findCardImageUrl(name) {
+  const exact = getCardImageUrl(name);
   if (exact) return exact;
-  // Fuzzy match — "Venture X" matches "Venture X Rewards"
-  const nameLower = cardName.toLowerCase();
+  const nameLower = name.toLowerCase();
   const fuzzyKey = Object.keys(CARD_IMAGE_FILES).find(k =>
     k.toLowerCase().includes(nameLower) || nameLower.includes(k.toLowerCase().split(' ').slice(0, 2).join(' '))
   );
@@ -689,101 +702,71 @@ function findCardImageUrl(cardName) {
 }
 
 function renderMarkdown(text) {
-  // Strip "Recommended Card:" line; unescape \$ -> $
   const body = text
     .replace(/(?:\*\*)?Recommended Card:(?:\*\*)?\s*[^\n]*/i, '')
     .replace(/\\\$/g, '$')
     .trim();
-
   const lines = body.split('\n');
   const htmlParts = [];
   let inList = false;
-
-  // Known section header prefixes
   const HEADER_RE = /^(?:\*\*)?(Why This Card[^:]*|Key Benefits[^:]*|Drawbacks[^:]*)(?:\*\*)?:\s*(.*)/i;
-
   for (const raw of lines) {
     const line = raw.trim();
-    if (!line) {
-      if (inList) { htmlParts.push('</ul>'); inList = false; }
-      continue;
-    }
-
-    // Section header — may have inline content after the colon on the same line
+    if (!line) { if (inList) { htmlParts.push('</ul>'); inList = false; } continue; }
     const headerMatch = line.match(HEADER_RE);
     if (headerMatch) {
       if (inList) { htmlParts.push('</ul>'); inList = false; }
       const label = headerMatch[1].replace(/\*\*/g, '').trim();
-      htmlParts.push(`<div class="rec-section-header">${label}:</div>`);
-      // If content follows on the same line, render it as a paragraph
+      htmlParts.push(`<div class="rec-section-header">${label}</div>`);
       const inline = headerMatch[2].trim();
-      if (inline) {
-        const content = inline.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        htmlParts.push(`<p class="rec-para">${content}</p>`);
-      }
+      if (inline) { htmlParts.push(`<p class="rec-para">${inline.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`); }
       continue;
     }
-
-    // Bullet points
     if (line.startsWith('- ') || line.startsWith('* ')) {
       if (!inList) { htmlParts.push('<ul class="rec-list">'); inList = true; }
-      const content = line.slice(2).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      htmlParts.push(`<li class="rec-list-item">${content}</li>`);
+      htmlParts.push(`<li class="rec-list-item">${line.slice(2).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</li>`);
       continue;
     }
-
-    // Regular paragraph
     if (inList) { htmlParts.push('</ul>'); inList = false; }
-    const content = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    htmlParts.push(`<p class="rec-para">${content}</p>`);
+    htmlParts.push(`<p class="rec-para">${line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</p>`);
   }
   if (inList) htmlParts.push('</ul>');
   return htmlParts.join('');
 }
 
-// Extract plain explanation text from a "None" Gemini response
 function extractNoneExplanation(text) {
-  // Try to grab content after "Why This Card Fits Your Spending:" on same or next line
   const match = text.match(/Why This Card[^:]*:\s*([^\n]+(?:\n(?![A-Z*-]).*)*)/i);
-  if (match) {
-    return match[1].replace(/\*\*([^*]+)\*\*/g, '').replace(/\\\$/g, '$').trim();
-  }
-  // Fallback: strip all markdown headers/bullets and return plain text
+  if (match) return match[1].replace(/\*\*([^*]+)\*\*/g, '').replace(/\\\$/g, '$').trim();
   return text
     .replace(/(?:\*\*)?(?:Recommended Card|Why This Card[^:]*|Key Benefits[^:]*|Drawbacks[^:]*):(?:\*\*)?\s*/gi, '')
-    .replace(/^[-*]\s+/gm, '')
-    .replace(/\*\*/g, '')
-    .replace(/\\\$/g, '$')
-    .trim()
-    .split('\n').filter(l => l.trim()).slice(0, 3).join(' ');
+    .replace(/^[-*]\s+/gm, '').replace(/\*\*/g, '').replace(/\\\$/g, '$')
+    .trim().split('\n').filter(l => l.trim()).slice(0, 3).join(' ');
 }
 
 async function loadRecommendation() {
   const el = document.getElementById('ai-rec-body');
   el.style.display = 'block';
-  el.innerHTML = `<div class="rec-loading">Analyzing your spending...</div>`;
+  el.innerHTML = '<div class="rec-loading">Analyzing your spending...</div>';
 
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
     const rawName = res.recommendedCardName || null;
     const isNone = !rawName || /^none/i.test(rawName);
-
     const tallySection = document.getElementById('insights-savings-section');
 
     if (isNone) {
-      // Clean "already covered" view — no card image, no sections, just explanation
       const explanation = extractNoneExplanation(res.recommendation);
       el.innerHTML = `<div class="rec-covered">
         <div class="rec-covered-check">✓</div>
         <div class="rec-covered-title">You're already optimized</div>
-        <div class="rec-covered-body">${explanation || "Your current cards are already well-suited for your spending habits — no new card would meaningfully improve your rewards."}</div>
+        <div class="rec-covered-body">${explanation || "Your current cards are already well-suited for your spending habits."}</div>
       </div>`;
       if (tallySection) tallySection.style.display = 'none';
       return;
     }
 
-    const cardName = rawName;
-    const imgUrl = findCardImageUrl(cardName);
+    const cardNameStr = rawName;
+    const imgUrl = findCardImageUrl(cardNameStr);
     const markdownHtml = renderMarkdown(res.recommendation);
     const { potentialSavings = 0, actualEarned = 0, additionalValue = 0 } = res;
 
@@ -801,25 +784,22 @@ async function loadRecommendation() {
             <span class="savings-value actual">$${actualEarned.toFixed(2)}</span>
           </div>
           <div class="savings-row">
-            <span class="savings-label">Potential with ${cardName}</span>
+            <span class="savings-label">Potential with ${cardNameStr}</span>
             <span class="savings-value potential">$${potentialSavings.toFixed(2)}</span>
           </div>
           <div class="savings-row savings-row-total">
             <span class="savings-label">Additional value</span>
             <span class="savings-value highlight">+$${additionalValue.toFixed(2)}</span>
           </div>
-          <div class="savings-note">Estimate based on your transaction history. Points/miles valued at $0.01 each.</div>
         </div>
       </div>` : '';
 
     el.innerHTML = `
       <div class="rec-spotlight">
         <div class="rec-card-visual">
-          ${imgUrl
-            ? `<img class="rec-card-img" src="${imgUrl}" alt="${cardName}">`
-            : `<div class="rec-card-fallback"></div>`}
+          ${imgUrl ? `<img class="rec-card-img" src="${imgUrl}" alt="${cardNameStr}">` : '<div class="rec-card-fallback"></div>'}
         </div>
-        <div class="rec-card-name">${cardName}</div>
+        <div class="rec-card-name">${cardNameStr}</div>
       </div>
       ${savingsHtml}
       <div class="rec-markdown">${markdownHtml}</div>`;
@@ -830,50 +810,28 @@ async function loadRecommendation() {
       });
     }
 
-    // Populate standalone savings tally section below the rec card
     if (tallySection) {
       const tallyBody = document.getElementById('savings-tally-body');
-      const pct = actualEarned > 0
-        ? Math.round((additionalValue / actualEarned) * 100)
-        : 0;
-      // Potential bar is always 100%; current bar is proportional to it
-      const barPotential = 100;
-      const barActual = potentialSavings > 0
-        ? Math.round((actualEarned / potentialSavings) * 100)
-        : 100;
-
+      const pct = actualEarned > 0 ? Math.round((additionalValue / actualEarned) * 100) : 0;
+      const barActual = potentialSavings > 0 ? Math.round((actualEarned / potentialSavings) * 100) : 100;
       tallyBody.innerHTML = `
         <div class="tally-row">
-          <div class="tally-row-label">
-            <span class="tally-dot tally-dot-actual"></span>
-            <span class="tally-label-text">Current</span>
-          </div>
-          <div class="tally-bar-wrap">
-            <div class="tally-bar tally-bar-actual" style="width:${barActual}%"></div>
-          </div>
+          <div class="tally-row-label"><span class="tally-dot tally-dot-actual"></span><span>Current</span></div>
+          <div class="tally-bar-wrap"><div class="tally-bar tally-bar-actual" style="width:${barActual}%"></div></div>
           <span class="tally-amount">$${actualEarned.toFixed(2)}</span>
         </div>
         <div class="tally-row">
-          <div class="tally-row-label">
-            <span class="tally-dot tally-dot-potential"></span>
-            <span class="tally-label-text">Potential</span>
-          </div>
-          <div class="tally-bar-wrap">
-            <div class="tally-bar tally-bar-potential" style="width:${barPotential}%"></div>
-          </div>
-          <span class="tally-amount tally-amount-potential">$${potentialSavings.toFixed(2)}</span>
+          <div class="tally-row-label"><span class="tally-dot tally-dot-potential"></span><span>Potential</span></div>
+          <div class="tally-bar-wrap"><div class="tally-bar tally-bar-potential" style="width:100%"></div></div>
+          <span class="tally-amount">$${potentialSavings.toFixed(2)}</span>
         </div>
         <div class="tally-delta">
-          <span class="tally-delta-label">You left</span>
-          <span class="tally-delta-value">$${additionalValue.toFixed(2)}</span>
-          <span class="tally-delta-label">on the table${pct > 0 ? ` — ${pct}% more rewards` : ''}</span>
-        </div>
-        <div class="tally-note">Estimate based on transaction history. Points/miles valued at $0.01 each.</div>`;
-
+          <span>You left </span><strong>$${additionalValue.toFixed(2)}</strong><span> on the table${pct > 0 ? ` — ${pct}% more rewards` : ''}</span>
+        </div>`;
       tallySection.style.display = '';
     }
   } else {
-    el.innerHTML = `<div class="rec-loading">Server warming up — try again in a moment.</div>`;
+    el.innerHTML = '<div class="rec-loading">Server warming up — try again in a moment.</div>';
     const tallySection = document.getElementById('insights-savings-section');
     if (tallySection) tallySection.style.display = 'none';
   }
@@ -898,55 +856,36 @@ function drawSpendingChart(spendingSummary) {
   const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return;
 
-  // DPI fix — crisp on Retina displays
-  const dpr = window.devicePixelRatio || 1;
-  const SIZE = 148;
-  canvas.width = SIZE * dpr;
-  canvas.height = SIZE * dpr;
-  canvas.style.width = SIZE + 'px';
-  canvas.style.height = SIZE + 'px';
-
+  canvas.width = 120;
+  canvas.height = 120;
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
+  const cx = 60, cy = 60, r = 56, innerR = r * 0.52;
 
-  const cx = SIZE / 2, cy = SIZE / 2;
-  const THICKNESS = 22;
-  const R = SIZE / 2 - 8;
-  const arcR = R - THICKNESS / 2;
-  const GAP = entries.length > 1 ? 0.05 : 0;
-
-  // Draw arc-stroke ring (modern donut, not wedge-fill)
-  ctx.lineWidth = THICKNESS;
-  ctx.lineCap = 'butt';
   let angle = -Math.PI / 2;
   entries.forEach(([, amt], i) => {
     const slice = (amt / total) * 2 * Math.PI;
     ctx.beginPath();
-    ctx.arc(cx, cy, arcR, angle + GAP / 2, angle + slice - GAP / 2);
-    ctx.strokeStyle = COLORS[i % COLORS.length];
-    ctx.stroke();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + slice);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length];
+    ctx.fill();
     angle += slice;
   });
 
-  // Center text — crisp because of DPI scaling
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#1A1A1A';
-  ctx.font = `700 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-  ctx.fillText(`$${total.toLocaleString()}`, cx, cy - 9);
-  ctx.fillStyle = '#9E9E9E';
-  ctx.font = `11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-  ctx.fillText('total spent', cx, cy + 10);
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
 
-  // Legend as 2-column grid
-  legend.innerHTML = entries.map(([cat, amt], i) => `
-    <div class="spending-legend-item">
-      <span class="spending-legend-dot" style="background:${COLORS[i % COLORS.length]}"></span>
-      <span class="spending-legend-cat">${CAT_LABELS[cat] || capitalize(cat)}</span>
-      <span class="spending-legend-amt">$${amt}</span>
+  legend.innerHTML = entries.slice(0, 6).map(([cat, amt], i) => `
+    <div class="ai-rec-legend-item">
+      <div class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></div>
+      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || cat}</div>
+      <div class="ai-rec-legend-pct">$${amt}</div>
     </div>`).join('');
 
-  wrap.style.display = 'block';
+  wrap.style.display = 'flex';
   const loading = document.getElementById('insights-loading');
   if (loading) loading.style.display = 'none';
 }
