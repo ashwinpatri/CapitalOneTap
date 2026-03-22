@@ -1,6 +1,12 @@
 /* ===== Reset & Base ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+.form-divider {
+  height: 1px;
+  background: var(--co-gray-200);
+  margin: var(--space-sm) 0;
+}
+
 :root {
   --co-blue: #004977;
   --co-blue-dark: #003557;

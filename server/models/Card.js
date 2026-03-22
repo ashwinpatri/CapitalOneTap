@@ -34,6 +34,12 @@ const cardSchema = new mongoose.Schema({
   expYear: { type: String, default: null },
   cvv: { type: String, default: null },
   cardholderName: { type: String, default: null },
+  billingFirstName: { type: String, default: null },
+  billingLastName: { type: String, default: null },
+  billingAddress: { type: String, default: null },
+  billingCity: { type: String, default: null },
+  billingState: { type: String, default: null },
+  billingZip: { type: String, default: null },
   network: { type: String, required: true, enum: ['visa', 'mastercard', 'amex'] },
   annualFee: { type: Number, default: 0 },
   rewardTiers: {

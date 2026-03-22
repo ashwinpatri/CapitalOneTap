@@ -541,6 +541,12 @@ function openEditCardModal(card) {
   document.getElementById('edit-card-exp').value = (card.expMonth && card.expYear) ? card.expMonth + '/' + card.expYear : '';
   document.getElementById('edit-card-cvv').value = card.cvv || '';
   document.getElementById('edit-card-name').value = card.cardholderName || '';
+  document.getElementById('edit-card-firstname').value = card.billingFirstName || '';
+  document.getElementById('edit-card-lastname').value = card.billingLastName || '';
+  document.getElementById('edit-card-address').value = card.billingAddress || '';
+  document.getElementById('edit-card-city').value = card.billingCity || '';
+  document.getElementById('edit-card-state').value = card.billingState || '';
+  document.getElementById('edit-card-zip').value = card.billingZip || '';
 
   modal.classList.add('active');
 }
@@ -574,13 +580,19 @@ document.getElementById('edit-card-submit').addEventListener('click', async () =
   const [expMonth, expYear] = expRaw.split('/');
   const cvv = document.getElementById('edit-card-cvv').value.trim();
   const cardholderName = document.getElementById('edit-card-name').value.trim();
+  const billingFirstName = document.getElementById('edit-card-firstname').value.trim();
+  const billingLastName = document.getElementById('edit-card-lastname').value.trim();
+  const billingAddress = document.getElementById('edit-card-address').value.trim();
+  const billingCity = document.getElementById('edit-card-city').value.trim();
+  const billingState = document.getElementById('edit-card-state').value.trim().toUpperCase();
+  const billingZip = document.getElementById('edit-card-zip').value.trim();
 
   btn.textContent = 'Saving...';
   btn.disabled = true;
 
   const res = await sendMessage('EDIT_CARD', {
     cardId,
-    updates: { fullNumber, expMonth, expYear, cvv, cardholderName },
+    updates: { fullNumber, expMonth, expYear, cvv, cardholderName, billingFirstName, billingLastName, billingAddress, billingCity, billingState, billingZip },
   });
 
   if (res.success) {

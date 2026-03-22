@@ -146,6 +146,45 @@ const AUTOFILL_SELECTORS = {
     'input[placeholder*="name on card" i]', 'input[placeholder*="cardholder" i]',
     'input[aria-label*="name on card" i]',
   ],
+  firstName: [
+    'input[autocomplete="given-name"]', 'input[autocomplete="billing given-name"]',
+    'input[name*="firstName" i]', 'input[name*="first-name" i]', 'input[name*="first_name" i]',
+    'input[name*="fname" i]', 'input[id*="firstName" i]', 'input[id*="first-name" i]',
+    'input[placeholder*="first name" i]', 'input[aria-label*="first name" i]',
+  ],
+  lastName: [
+    'input[autocomplete="family-name"]', 'input[autocomplete="billing family-name"]',
+    'input[name*="lastName" i]', 'input[name*="last-name" i]', 'input[name*="last_name" i]',
+    'input[name*="lname" i]', 'input[id*="lastName" i]', 'input[id*="last-name" i]',
+    'input[placeholder*="last name" i]', 'input[aria-label*="last name" i]',
+  ],
+  address: [
+    'input[autocomplete="street-address"]', 'input[autocomplete="billing street-address"]',
+    'input[autocomplete="address-line1"]', 'input[autocomplete="billing address-line1"]',
+    'input[name*="address" i]', 'input[name*="street" i]', 'input[name*="addressLine1" i]',
+    'input[id*="address" i]', 'input[id*="street" i]',
+    'input[placeholder*="address" i]', 'input[placeholder*="street" i]',
+    'input[aria-label*="address" i]', 'input[aria-label*="street" i]',
+  ],
+  city: [
+    'input[autocomplete="address-level2"]', 'input[autocomplete="billing address-level2"]',
+    'input[name*="city" i]', 'input[id*="city" i]',
+    'input[placeholder*="city" i]', 'input[aria-label*="city" i]',
+  ],
+  state: [
+    'input[autocomplete="address-level1"]', 'select[autocomplete="address-level1"]',
+    'input[autocomplete="billing address-level1"]', 'select[autocomplete="billing address-level1"]',
+    'input[name*="state" i]', 'select[name*="state" i]', 'input[name*="region" i]', 'select[name*="region" i]',
+    'input[id*="state" i]', 'select[id*="state" i]',
+    'input[placeholder*="state" i]', 'input[aria-label*="state" i]',
+  ],
+  zip: [
+    'input[autocomplete="postal-code"]', 'input[autocomplete="billing postal-code"]',
+    'input[name*="zip" i]', 'input[name*="postal" i]', 'input[name*="postcode" i]',
+    'input[id*="zip" i]', 'input[id*="postal" i]',
+    'input[placeholder*="zip" i]', 'input[placeholder*="postal" i]',
+    'input[aria-label*="zip" i]', 'input[aria-label*="postal" i]',
+  ],
 };
 
 function autofillCard(cardProductName, cardObj) {
@@ -197,6 +236,16 @@ function autofillCard(cardProductName, cardObj) {
 
   // Name on card
   setVal(findField(AUTOFILL_SELECTORS.name), data.name);
+
+  // Billing address (from MongoDB card data)
+  if (cardObj) {
+    if (cardObj.billingFirstName) setVal(findField(AUTOFILL_SELECTORS.firstName), cardObj.billingFirstName);
+    if (cardObj.billingLastName) setVal(findField(AUTOFILL_SELECTORS.lastName), cardObj.billingLastName);
+    if (cardObj.billingAddress) setVal(findField(AUTOFILL_SELECTORS.address), cardObj.billingAddress);
+    if (cardObj.billingCity) setVal(findField(AUTOFILL_SELECTORS.city), cardObj.billingCity);
+    if (cardObj.billingState) setVal(findField(AUTOFILL_SELECTORS.state), cardObj.billingState);
+    if (cardObj.billingZip) setVal(findField(AUTOFILL_SELECTORS.zip), cardObj.billingZip);
+  }
 
   return true;
 }

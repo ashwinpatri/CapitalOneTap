@@ -92,7 +92,8 @@ router.delete('/:id', auth, async (req, res) => {
 // PUT /api/cards/:id — edit card details (fullNumber, exp, cvv, name)
 router.put('/:id', auth, async (req, res) => {
   try {
-    const { fullNumber, expMonth, expYear, cvv, cardholderName, nickname } = req.body;
+    const { fullNumber, expMonth, expYear, cvv, cardholderName, nickname,
+            billingFirstName, billingLastName, billingAddress, billingCity, billingState, billingZip } = req.body;
     const update = {};
     if (fullNumber != null) { update.fullNumber = fullNumber; update.lastFour = fullNumber.slice(-4); }
     if (expMonth != null) update.expMonth = expMonth;
@@ -100,6 +101,12 @@ router.put('/:id', auth, async (req, res) => {
     if (cvv != null) update.cvv = cvv;
     if (cardholderName != null) update.cardholderName = cardholderName;
     if (nickname != null) update.nickname = nickname;
+    if (billingFirstName != null) update.billingFirstName = billingFirstName;
+    if (billingLastName != null) update.billingLastName = billingLastName;
+    if (billingAddress != null) update.billingAddress = billingAddress;
+    if (billingCity != null) update.billingCity = billingCity;
+    if (billingState != null) update.billingState = billingState;
+    if (billingZip != null) update.billingZip = billingZip;
 
     const card = await Card.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId, isActive: true },
