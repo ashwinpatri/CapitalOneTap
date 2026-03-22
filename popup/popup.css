@@ -90,7 +90,18 @@ body {
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+  z-index: 1;
 }
 
 .header-brand {
@@ -181,7 +192,6 @@ body {
 
 /* ===== Auth Screen ===== */
 .auth-screen {
-  flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -217,7 +227,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 24px 24px 20px;
+  padding: 16px 24px;
 }
 
 .auth-submit {
