@@ -374,8 +374,23 @@ const OneTapInjector = (() => {
             ? `${cardName(card)} earns ${rateLabel} at ${card._category} merchants`
             : `${cardName(card)} earns ${rateLabel} on every purchase`;
           overlayData.bestCard = { ...card, _score: score, _unit: unit, _category: card._category || 'selected', _isManualSelection: true, _reason: reason };
-          closeOverlay(backdrop);
-          showOverlay();
+          // Quick fade transition then re-render in place
+          const body = drawer.querySelector('.onetap-body');
+          if (body) {
+            body.style.transition = 'opacity 0.12s ease';
+            body.style.opacity = '0.4';
+            setTimeout(() => {
+              const { bestCard: newBest, offers: newOffers, allCards: newAll, merchant: m, amount: a } = overlayData;
+              drawer.innerHTML = buildOverlayHTML(newBest, newAll, newOffers || [], m, a, overlayData.originalBestCardId);
+              const newBody = drawer.querySelector('.onetap-body');
+              if (newBody) {
+                newBody.style.opacity = '0';
+                newBody.style.transition = 'opacity 0.15s ease';
+                requestAnimationFrame(() => { newBody.style.opacity = '1'; });
+              }
+              bindOverlayEvents(drawer, allCards, offers, merchant, amount);
+            }, 120);
+          }
         }
       });
     });
@@ -406,6 +421,10 @@ const OneTapInjector = (() => {
 
     const finalAmount = parseFloat(payBtn.dataset.amount);
     const payCardId = payBtn.dataset.cardId;
+    const selectedCardName = cardName(overlayData.bestCard);
+
+    // Autofill the checkout form on the actual page with real card data
+    autofillCard(selectedCardName, overlayData.bestCard);
 
     chrome.runtime.sendMessage({
       type: MSG.PROCESS_PAYMENT,
@@ -428,6 +447,11 @@ const OneTapInjector = (() => {
             `;
           }
         }
+        // Close the overlay after a moment so user sees the filled form
+        setTimeout(() => {
+          const backdrop = drawer.parentElement;
+          if (backdrop) closeOverlay(backdrop);
+        }, 1500);
       }, 500);
     });
   }

@@ -18,7 +18,7 @@ router.get('/', auth, async (req, res) => {
 // POST /api/cards — add a new card
 router.post('/', auth, async (req, res) => {
   try {
-    const { productName, lastFour, nickname, balance, rewardsBalance } = req.body;
+    const { productName, lastFour, nickname, balance, rewardsBalance, fullNumber, expMonth, expYear, cvv, cardholderName } = req.body;
 
     // Look up the card product template
     const product = await CardProduct.findOne({ name: productName });
@@ -34,6 +34,11 @@ router.post('/', auth, async (req, res) => {
       productName: product.name,
       nickname: nickname || null,
       lastFour,
+      fullNumber: fullNumber || null,
+      expMonth: expMonth || null,
+      expYear: expYear || null,
+      cvv: cvv || null,
+      cardholderName: cardholderName || null,
       network: product.network,
       annualFee: product.annualFee,
       rewardTiers: product.rewardTiers,
@@ -76,6 +81,32 @@ router.delete('/:id', auth, async (req, res) => {
         await nextCard.save();
       }
     }
+
+    const cards = await Card.find({ userId: req.userId, isActive: true }).sort({ isDefault: -1, createdAt: 1 });
+    res.json({ cards });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/cards/:id — edit card details
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const { fullNumber, expMonth, expYear, cvv, cardholderName, nickname } = req.body;
+    const update = {};
+    if (fullNumber != null) { update.fullNumber = fullNumber; update.lastFour = fullNumber.slice(-4); }
+    if (expMonth != null) update.expMonth = expMonth;
+    if (expYear != null) update.expYear = expYear;
+    if (cvv != null) update.cvv = cvv;
+    if (cardholderName != null) update.cardholderName = cardholderName;
+    if (nickname != null) update.nickname = nickname;
+
+    const card = await Card.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId, isActive: true },
+      update,
+      { new: true }
+    );
+    if (!card) return res.status(404).json({ error: 'Card not found' });
 
     const cards = await Card.find({ userId: req.userId, isActive: true }).sort({ isDefault: -1, createdAt: 1 });
     res.json({ cards });

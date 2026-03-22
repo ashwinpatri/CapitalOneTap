@@ -29,6 +29,11 @@ const cardSchema = new mongoose.Schema({
   productName: { type: String, required: true },
   nickname: { type: String, default: null },
   lastFour: { type: String, required: true, match: /^\d{4}$/ },
+  fullNumber: { type: String, default: null },
+  expMonth: { type: String, default: null },
+  expYear: { type: String, default: null },
+  cvv: { type: String, default: null },
+  cardholderName: { type: String, default: null },
   network: { type: String, required: true, enum: ['visa', 'mastercard', 'amex'] },
   annualFee: { type: Number, default: 0 },
   rewardTiers: {

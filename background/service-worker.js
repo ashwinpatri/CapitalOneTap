@@ -85,8 +85,19 @@ async function handleMessage(message) {
 
     case 'ADD_CARD': {
       try {
-        const { productName, lastFour, balance } = message.payload;
-        const data = await api.addCard(productName, lastFour, balance);
+        const { productName, lastFour, balance, fullNumber, expMonth, expYear, cvv, cardholderName } = message.payload;
+        const data = await api.addCard(productName, lastFour, balance, fullNumber, expMonth, expYear, cvv, cardholderName);
+        await chrome.storage.local.set({ cards: data.cards });
+        return { success: true, cards: data.cards };
+      } catch (e) {
+        return { success: false, error: e.message };
+      }
+    }
+
+    case 'EDIT_CARD': {
+      try {
+        const { cardId, updates } = message.payload;
+        const data = await api.editCard(cardId, updates);
         await chrome.storage.local.set({ cards: data.cards });
         return { success: true, cards: data.cards };
       } catch (e) {

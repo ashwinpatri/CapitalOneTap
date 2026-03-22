@@ -83,10 +83,18 @@ export async function fetchCards() {
   return data.cards;
 }
 
-export async function addCard(productName, lastFour, balance) {
+export async function addCard(productName, lastFour, balance, fullNumber, expMonth, expYear, cvv, cardholderName) {
   const data = await apiFetch('/cards', {
     method: 'POST',
-    body: JSON.stringify({ productName, lastFour, balance }),
+    body: JSON.stringify({ productName, lastFour, balance, fullNumber, expMonth, expYear, cvv, cardholderName }),
+  });
+  return data;
+}
+
+export async function editCard(cardId, updates) {
+  const data = await apiFetch(`/cards/${cardId}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
   });
   return data;
 }

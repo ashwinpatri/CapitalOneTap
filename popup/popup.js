@@ -165,6 +165,7 @@ function renderCards(cards) {
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>
             </button>
             <div class="card-menu-dropdown" id="menu-${card._id}">
+              <button class="card-menu-item" data-edit-id="${card._id}">Edit Card</button>
               <button class="card-menu-item" data-default-id="${card._id}">Set as Default</button>
               <button class="card-menu-item danger" data-confirm-id="${card._id}">Delete Card</button>
             </div>
@@ -213,6 +214,17 @@ function renderCards(cards) {
       e.stopPropagation();
       const res = await sendMessage('SET_DEFAULT_CARD', { cardId: btn.dataset.defaultId });
       if (res && res.success !== false) renderCards(res.cards);
+    });
+  });
+
+  // Edit card
+  carousel.querySelectorAll('.card-menu-item[data-edit-id]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      document.getElementById(`menu-${btn.dataset.editId}`).classList.remove('open');
+      const cardsRes = await sendMessage('GET_ALL_CARDS');
+      const card = (cardsRes.cards || []).find(c => c._id === btn.dataset.editId);
+      if (card) openEditCardModal(card);
     });
   });
 
@@ -308,7 +320,10 @@ async function openAddCardModal() {
 
   selectedProduct = null;
   document.getElementById('add-card-submit').disabled = true;
-  document.getElementById('add-card-lastfour').value = '';
+  document.getElementById('add-card-fullnumber').value = '';
+  document.getElementById('add-card-exp').value = '';
+  document.getElementById('add-card-cvv').value = '';
+  document.getElementById('add-card-name').value = '';
   document.getElementById('add-card-balance').value = '';
 
   grid.querySelectorAll('.card-type-option').forEach(opt => {
@@ -324,14 +339,33 @@ async function openAddCardModal() {
 }
 
 function validateAddCard() {
-  const lastFour = document.getElementById('add-card-lastfour').value.trim();
-  document.getElementById('add-card-submit').disabled = !selectedProduct || lastFour.length !== 4;
+  const num = document.getElementById('add-card-fullnumber').value.replace(/\s/g, '');
+  const exp = document.getElementById('add-card-exp').value.trim();
+  const cvv = document.getElementById('add-card-cvv').value.trim();
+  document.getElementById('add-card-submit').disabled = !selectedProduct || num.length < 15 || exp.length < 5 || cvv.length < 3;
 }
 
-document.getElementById('add-card-lastfour').addEventListener('input', (e) => {
+// Format card number with spaces
+document.getElementById('add-card-fullnumber').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+  e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+  validateAddCard();
+});
+
+// Format expiry as MM/YY
+document.getElementById('add-card-exp').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2);
+  e.target.value = v;
+  validateAddCard();
+});
+
+document.getElementById('add-card-cvv').addEventListener('input', (e) => {
   e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
   validateAddCard();
 });
+
+document.getElementById('add-card-name').addEventListener('input', () => validateAddCard());
 
 document.getElementById('modal-close').addEventListener('click', () => {
   document.getElementById('add-card-modal').classList.remove('active');
@@ -343,13 +377,18 @@ document.getElementById('add-card-modal').addEventListener('click', (e) => {
 document.getElementById('add-card-submit').addEventListener('click', async () => {
   if (!selectedProduct) return;
   const btn = document.getElementById('add-card-submit');
-  const lastFour = document.getElementById('add-card-lastfour').value.trim();
+  const fullNumber = document.getElementById('add-card-fullnumber').value.replace(/\s/g, '');
+  const lastFour = fullNumber.slice(-4);
+  const expRaw = document.getElementById('add-card-exp').value.trim();
+  const [expMonth, expYear] = expRaw.split('/');
+  const cvv = document.getElementById('add-card-cvv').value.trim();
+  const cardholderName = document.getElementById('add-card-name').value.trim();
   const balance = parseFloat(document.getElementById('add-card-balance').value) || 0;
 
   btn.textContent = 'Adding...';
   btn.disabled = true;
 
-  const res = await sendMessage('ADD_CARD', { productName: selectedProduct, lastFour, balance });
+  const res = await sendMessage('ADD_CARD', { productName: selectedProduct, lastFour, fullNumber, expMonth, expYear, cvv, cardholderName, balance });
 
   if (res.success) {
     btn.textContent = 'Added!';
@@ -470,6 +509,76 @@ function renderSettings(settings, cards) {
     });
   });
 }
+
+// ===== Edit Card Modal =====
+function openEditCardModal(card) {
+  const modal = document.getElementById('edit-card-modal');
+  document.getElementById('edit-card-id').value = card._id;
+
+  // Pre-fill with existing data
+  const num = card.fullNumber || '';
+  document.getElementById('edit-card-fullnumber').value = num.replace(/(.{4})/g, '$1 ').trim();
+  document.getElementById('edit-card-exp').value = (card.expMonth && card.expYear) ? card.expMonth + '/' + card.expYear : '';
+  document.getElementById('edit-card-cvv').value = card.cvv || '';
+  document.getElementById('edit-card-name').value = card.cardholderName || '';
+
+  modal.classList.add('active');
+}
+
+document.getElementById('edit-modal-close').addEventListener('click', () => {
+  document.getElementById('edit-card-modal').classList.remove('active');
+});
+document.getElementById('edit-card-modal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) document.getElementById('edit-card-modal').classList.remove('active');
+});
+
+// Format inputs in edit modal
+document.getElementById('edit-card-fullnumber').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+  e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+});
+document.getElementById('edit-card-exp').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2);
+  e.target.value = v;
+});
+document.getElementById('edit-card-cvv').addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+});
+
+document.getElementById('edit-card-submit').addEventListener('click', async () => {
+  const btn = document.getElementById('edit-card-submit');
+  const cardId = document.getElementById('edit-card-id').value;
+  const fullNumber = document.getElementById('edit-card-fullnumber').value.replace(/\s/g, '');
+  const expRaw = document.getElementById('edit-card-exp').value.trim();
+  const [expMonth, expYear] = expRaw.split('/');
+  const cvv = document.getElementById('edit-card-cvv').value.trim();
+  const cardholderName = document.getElementById('edit-card-name').value.trim();
+
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  const res = await sendMessage('EDIT_CARD', {
+    cardId,
+    updates: { fullNumber, expMonth, expYear, cvv, cardholderName },
+  });
+
+  if (res.success) {
+    btn.textContent = 'Saved!';
+    btn.classList.add('success');
+    renderCards(res.cards);
+    setTimeout(() => {
+      document.getElementById('edit-card-modal').classList.remove('active');
+      btn.textContent = 'Save Changes';
+      btn.classList.remove('success');
+      btn.disabled = false;
+    }, 800);
+  } else {
+    btn.textContent = 'Failed — Try Again';
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = 'Save Changes'; }, 2000);
+  }
+});
 
 // ===== Helpers =====
 function formatDate(dateStr) {

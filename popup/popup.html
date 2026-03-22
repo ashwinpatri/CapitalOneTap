@@ -91,8 +91,22 @@
             <label class="form-label">Card Product</label>
             <div class="card-type-grid" id="card-product-grid"></div>
 
-            <label class="form-label">Card Number (last 4 digits)</label>
-            <input type="text" class="form-input" id="add-card-lastfour" placeholder="1234" maxlength="4">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" id="add-card-fullnumber" placeholder="4111 1111 1111 1111" maxlength="19">
+
+            <div class="form-row">
+              <div class="form-col">
+                <label class="form-label">Expiration</label>
+                <input type="text" class="form-input" id="add-card-exp" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-col">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" id="add-card-cvv" placeholder="123" maxlength="4">
+              </div>
+            </div>
+
+            <label class="form-label">Name on Card</label>
+            <input type="text" class="form-input" id="add-card-name" placeholder="JOHN DOE">
 
             <label class="form-label">Current Balance</label>
             <div class="input-wrapper">
@@ -101,6 +115,38 @@
             </div>
 
             <button class="add-card-submit" id="add-card-submit" disabled>Add Card</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Card Modal -->
+      <div class="modal-overlay" id="edit-card-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="modal-title">Edit Card</h3>
+            <button class="modal-close" id="edit-modal-close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit-card-id">
+
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" id="edit-card-fullnumber" placeholder="4111 1111 1111 1111" maxlength="19">
+
+            <div class="form-row">
+              <div class="form-col">
+                <label class="form-label">Expiration</label>
+                <input type="text" class="form-input" id="edit-card-exp" placeholder="MM/YY" maxlength="5">
+              </div>
+              <div class="form-col">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" id="edit-card-cvv" placeholder="123" maxlength="4">
+              </div>
+            </div>
+
+            <label class="form-label">Name on Card</label>
+            <input type="text" class="form-input" id="edit-card-name" placeholder="JOHN DOE">
+
+            <button class="add-card-submit" id="edit-card-submit">Save Changes</button>
           </div>
         </div>
       </div>
