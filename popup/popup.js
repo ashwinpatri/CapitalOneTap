@@ -468,13 +468,12 @@ function renderOffers(offers, cards = [], transactions = []) {
       ${cardsWithIntro.map(card => {
         const o = card.introOffer;
         const spent = spentByCard[card._id] || 0;
-        const pct = Math.min(100, Math.round((spent / o.spendRequired) * 100));
+        const pct = o.spendRequired > 0 ? Math.min(100, Math.round((spent / o.spendRequired) * 100)) : 100;
         const remaining = Math.max(0, o.spendRequired - spent);
         const bonus = o.bonusUnit === 'cash'
-          ? `$${o.bonusAmount.toLocaleString()}`
-          : `${o.bonusAmount.toLocaleString()} ${o.bonusUnit}`;
+          ? `$${o.bonusAmount.toLocaleString()} Cash`
+          : `${o.bonusAmount.toLocaleString()} ${o.bonusUnit.charAt(0).toUpperCase() + o.bonusUnit.slice(1)}`;
 
-        // Days remaining from startDate or card creation
         let daysLeft = null;
         const startMs = o.startDate ? new Date(o.startDate) : new Date(card.createdAt);
         if (startMs && o.timeframeDays) {
@@ -482,22 +481,35 @@ function renderOffers(offers, cards = [], transactions = []) {
           daysLeft = Math.max(0, Math.ceil((endMs - Date.now()) / 86400000));
         }
 
+        const earned = remaining === 0;
+
         return `
           <div class="intro-offer-card">
-            <div class="intro-offer-top">
-              <div class="intro-offer-card-name">${card.productName}</div>
-              <div class="intro-offer-bonus">${bonus}</div>
+            <div class="intro-offer-head">
+              <div class="intro-offer-head-left">
+                <div class="intro-offer-card-name">${card.productName}</div>
+                <div class="intro-offer-desc">${o.description}</div>
+              </div>
+              <div class="intro-offer-bonus-pill">${bonus}</div>
             </div>
-            <div class="intro-offer-desc">${o.description}</div>
-            <div class="intro-offer-bar-wrap">
-              <div class="intro-offer-bar" style="width:${pct}%"></div>
+
+            <div class="intro-offer-progress-section">
+              <div class="intro-offer-bar-row">
+                <div class="intro-offer-bar-wrap">
+                  <div class="intro-offer-bar ${earned ? 'intro-offer-bar-complete' : ''}" style="width:${pct}%"></div>
+                </div>
+                <span class="intro-offer-pct">${pct}%</span>
+              </div>
+              <div class="intro-offer-meta">
+                <span class="intro-offer-spent">$${spent.toFixed(0)} <span class="intro-offer-meta-of">of</span> $${o.spendRequired.toLocaleString()}</span>
+                ${daysLeft !== null
+                  ? `<span class="intro-offer-days ${daysLeft < 14 ? 'intro-offer-days-urgent' : ''}">${daysLeft}d left</span>`
+                  : ''}
+              </div>
+              ${earned
+                ? `<div class="intro-offer-status intro-offer-status-done">✓ Bonus earned!</div>`
+                : `<div class="intro-offer-status">$${remaining.toFixed(0)} more to unlock your bonus</div>`}
             </div>
-            <div class="intro-offer-meta">
-              <span>$${spent.toFixed(0)} of $${o.spendRequired.toLocaleString()} spent</span>
-              ${daysLeft !== null ? `<span>${daysLeft} days left</span>` : ''}
-            </div>
-            ${remaining === 0 ? `<div class="intro-offer-complete">Bonus earned!</div>` :
-              `<div class="intro-offer-remaining">$${remaining.toFixed(0)} more to earn your bonus</div>`}
           </div>`;
       }).join('')}`;
     bonusSection.style.display = '';
