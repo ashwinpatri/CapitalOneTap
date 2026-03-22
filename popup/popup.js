@@ -836,16 +836,17 @@ async function loadRecommendation() {
       const pct = actualEarned > 0
         ? Math.round((additionalValue / actualEarned) * 100)
         : 0;
-      const barActual = 100;
-      const barPotential = actualEarned > 0
-        ? Math.min(Math.round((potentialSavings / actualEarned) * 100), 200)
+      // Potential bar is always 100%; current bar is proportional to it
+      const barPotential = 100;
+      const barActual = potentialSavings > 0
+        ? Math.round((actualEarned / potentialSavings) * 100)
         : 100;
 
       tallyBody.innerHTML = `
         <div class="tally-row">
           <div class="tally-row-label">
             <span class="tally-dot tally-dot-actual"></span>
-            <span class="tally-label-text">Earned with current cards</span>
+            <span class="tally-label-text">Current</span>
           </div>
           <div class="tally-bar-wrap">
             <div class="tally-bar tally-bar-actual" style="width:${barActual}%"></div>
@@ -855,7 +856,7 @@ async function loadRecommendation() {
         <div class="tally-row">
           <div class="tally-row-label">
             <span class="tally-dot tally-dot-potential"></span>
-            <span class="tally-label-text">Potential with ${cardName}</span>
+            <span class="tally-label-text">Potential</span>
           </div>
           <div class="tally-bar-wrap">
             <div class="tally-bar tally-bar-potential" style="width:${barPotential}%"></div>
