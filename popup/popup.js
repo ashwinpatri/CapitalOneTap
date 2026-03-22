@@ -689,7 +689,7 @@ function findCardImageUrl(cardName) {
 }
 
 function renderMarkdown(text) {
-  // Strip the "Recommended Card:" line since we display it separately
+  // Strip the "Recommended Card:" line since we display it separately as card art + name
   const body = text.replace(/\*\*Recommended Card:\*\*[^\n]*/i, '').trim();
 
   const lines = body.split('\n');
@@ -702,20 +702,26 @@ function renderMarkdown(text) {
       if (inList) { htmlParts.push('</ul>'); inList = false; }
       continue;
     }
-    // Section headers: **Header:**
-    if (/^\*\*[^*]+:\*\*$/.test(line)) {
+
+    // Section headers — either **Bold:** or plain "Header Text:"
+    // Matches: "**Why This Card...:**" or "Why This Card...:" or "Key Benefits:" etc.
+    const boldHeader = /^\*\*([^*]+)\*\*:?\s*$/.test(line);
+    const plainHeader = /^(Why This Card|Key Benefits|Drawbacks|Summary)[^:]*:/i.test(line);
+    if (boldHeader || plainHeader) {
       if (inList) { htmlParts.push('</ul>'); inList = false; }
-      const header = line.replace(/\*\*/g, '');
-      htmlParts.push(`<div class="rec-section-header">${header}</div>`);
+      const header = line.replace(/\*\*/g, '').replace(/:$/, '').trim();
+      htmlParts.push(`<div class="rec-section-header">${header}:</div>`);
       continue;
     }
-    // Bullet points: - **label:** text  or  - text
-    if (line.startsWith('- ')) {
+
+    // Bullet points: - **label:** text  or  - text  or  * text
+    if (line.startsWith('- ') || line.startsWith('* ')) {
       if (!inList) { htmlParts.push('<ul class="rec-list">'); inList = true; }
       const content = line.slice(2).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       htmlParts.push(`<li class="rec-list-item">${content}</li>`);
       continue;
     }
+
     // Regular paragraph text
     if (inList) { htmlParts.push('</ul>'); inList = false; }
     const content = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
