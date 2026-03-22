@@ -15,24 +15,41 @@
   }
 
   // Retry extracting the total every 600ms for up to 10 seconds.
-  // Resolves as soon as a value >= $1 is found.
+  // Only resolves early on a high-confidence (score 2) grand-total label match.
+  // Falls back to the best lower-confidence result at timeout.
   function waitForTotal(timeoutMs = 10000) {
     return new Promise(resolve => {
       const interval = 600;
       let elapsed = 0;
+      let bestSoFar = null; // { price, score } — tracks best candidate seen so far
+
       function attempt() {
-        const price = OneTapUtils.extractCheckoutTotal();
-        if (price && price >= 1) {
-          resolve(price);
-          return;
+        const result = OneTapUtils.extractCheckoutTotalWithScore();
+
+        if (result && result.price >= 1) {
+          // Update best if this result has a higher score (or same score, higher price)
+          if (!bestSoFar || result.score > bestSoFar.score ||
+              (result.score === bestSoFar.score && result.price > bestSoFar.price)) {
+            bestSoFar = result;
+          }
+
+          // Only resolve immediately for a confirmed grand-total label (score 2)
+          if (result.score >= 2) {
+            resolve(result.price);
+            return;
+          }
         }
+
         elapsed += interval;
         if (elapsed >= timeoutMs) {
-          resolve(price || 0); // give up, pass whatever we have (even 0)
+          // Time's up — use the best candidate found, even if low confidence
+          resolve(bestSoFar ? bestSoFar.price : 0);
           return;
         }
+
         setTimeout(attempt, interval);
       }
+
       attempt();
     });
   }

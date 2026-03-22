@@ -30,9 +30,12 @@ const OneTapUtils = {
     return match ? parseFloat(match[1]) : null;
   },
 
-  // Smart checkout total extractor — walks the DOM looking for "total" labels,
-  // scores them by specificity, and returns the highest-priority / largest amount.
-  extractCheckoutTotal() {
+  // Internal: walks the DOM and returns { price, score } where score is:
+  //   2 = grand total label (highest confidence)
+  //   1 = generic "total" label (medium confidence)
+  //   0 = regex fallback only (low confidence)
+  //   null = nothing found
+  extractCheckoutTotalWithScore() {
     const GRAND_LABELS = ['order total', 'grand total', 'estimated total', 'total due', 'amount due', 'total today', 'payment total', 'your total'];
     const BASIC_LABELS = ['total'];
     const SKIP_LABELS  = ['subtotal', 'item total', 'items total', 'rewards total', 'savings', 'you saved', 'discount'];
@@ -78,9 +81,8 @@ const OneTapUtils = {
 
     if (candidates.length > 0) {
       // Best match: highest label score first, then largest price
-      // (grand total is always >= any subtotal with the same label score)
       candidates.sort((a, b) => b.score - a.score || b.price - a.price);
-      return candidates[0].price;
+      return candidates[0];
     }
 
     // Regex fallback: scan full body text, skip subtotal lines, take largest
@@ -94,9 +96,15 @@ const OneTapUtils = {
       const v = parseFloat(m[1].replace(/,/g, ''));
       if (v >= 1) found.push(v);
     }
-    if (found.length) return Math.max(...found);
+    if (found.length) return { price: Math.max(...found), score: 0 };
 
     return null;
+  },
+
+  // Convenience wrapper — returns just the price (backward compat)
+  extractCheckoutTotal() {
+    const result = this.extractCheckoutTotalWithScore();
+    return result ? result.price : null;
   },
 
   getMerchantName() {
