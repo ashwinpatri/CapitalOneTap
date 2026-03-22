@@ -162,6 +162,8 @@ RULES:
 - Use plain $ signs (never LaTeX \\$)
 - Bold all key rates and numbers using **like this**
 - Every bullet is one line — no parenthetical notes, no elaboration
+- Do NOT include spending dollar amounts in the output — only mention categories and reward rates
+- Do NOT write things like "groceries ($94)" or "your $94 grocery spend" — just say "groceries"
 - Perfect grammar and professional tone throughout
 - Only use data from the card list above — no invented features`;
 
@@ -180,7 +182,13 @@ RULES:
     }
 
     const geminiData = await geminiRes.json();
-    const recommendation = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    // Strip spending amounts Gemini sometimes injects from context, e.g. "groceries ($94)" -> "groceries"
+    // Also clean empty parens () or ($) that slip through
+    const recommendation = raw
+      .replace(/\s*\(\s*\$[\d,]*\s*\)/g, '')  // ($94) or ($0) or ($)
+      .replace(/\s*\(\s*\)/g, '')              // empty ()
+      .trim();
 
     // Extract recommended card name — handle bold or plain, strip ** markers
     const cardNameMatch = recommendation.match(/(?:\*\*)?Recommended Card:(?:\*\*)?\s*\*{0,2}([^\n*]+)\*{0,2}/i);
