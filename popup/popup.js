@@ -934,7 +934,7 @@ function drawSpendingChart(spendingSummary) {
   const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return;
 
-  const SIZE = 96;
+  const SIZE = 130;
   const dpr = window.devicePixelRatio || 1;
   canvas.width = SIZE * dpr;
   canvas.height = SIZE * dpr;
