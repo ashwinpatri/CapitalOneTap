@@ -84,7 +84,7 @@ ${cardList}
 Based purely on which card earns the most rewards for this spending mix, respond with exactly one sentence in this format: "We recommend the [Card Name] because [reason]." Do not include anything else.`;
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
