@@ -1,62 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-
-const MOCK_SPENDING = {
-  dining: 420,
-  groceries: 310,
-  travel: 890,
-  streaming: 55,
-  entertainment: 130,
-  gas: 95,
-  transit: 60,
-  shopping: 275,
-  hotels: 480,
-};
-
-const CARD_PRODUCTS = [
-  {
-    name: 'Venture X',
-    annualFee: 395,
-    rewardTiers: [
-      { rate: 10, unit: 'miles', categories: ['hotels', 'car-rental'] },
-      { rate: 5, unit: 'miles', categories: ['flights'] },
-      { rate: 2, unit: 'miles', categories: ['everything'] },
-    ],
-  },
-  {
-    name: 'SavorOne',
-    annualFee: 0,
-    rewardTiers: [
-      { rate: 3, unit: 'percent_cashback', categories: ['dining', 'entertainment', 'streaming', 'groceries'] },
-      { rate: 1, unit: 'percent_cashback', categories: ['everything'] },
-    ],
-  },
-  {
-    name: 'Quicksilver',
-    annualFee: 0,
-    rewardTiers: [
-      { rate: 1.5, unit: 'percent_cashback', categories: ['everything'] },
-    ],
-  },
-  {
-    name: 'Venture',
-    annualFee: 95,
-    rewardTiers: [
-      { rate: 5, unit: 'miles', categories: ['hotels', 'car-rental'] },
-      { rate: 2, unit: 'miles', categories: ['everything'] },
-    ],
-  },
-  {
-    name: 'Savor',
-    annualFee: 95,
-    rewardTiers: [
-      { rate: 4, unit: 'percent_cashback', categories: ['dining', 'entertainment'] },
-      { rate: 3, unit: 'percent_cashback', categories: ['streaming', 'groceries'] },
-      { rate: 1, unit: 'percent_cashback', categories: ['everything'] },
-    ],
-  },
-];
+const Transaction = require('../models/Transaction');
+const CardProduct = require('../models/CardProduct');
 
 router.get('/', auth, async (req, res) => {
   try {
@@ -65,24 +11,59 @@ router.get('/', auth, async (req, res) => {
       return res.status(500).json({ error: 'Gemini API key not configured' });
     }
 
-    const spendingSummary = Object.entries(MOCK_SPENDING)
+    // ── 1. Aggregate user's real spending by category ─────────────────────────
+    const transactions = await Transaction.find({
+      userId: req.user.id,
+      status: 'completed',
+    });
+
+    if (!transactions.length) {
+      return res.json({
+        recommendation: 'No transaction history yet — make some purchases to get a personalized recommendation.',
+        spendingSummary: {},
+      });
+    }
+
+    const spendingSummary = {};
+    for (const tx of transactions) {
+      const cat = tx.merchantCategory || 'general';
+      spendingSummary[cat] = (spendingSummary[cat] || 0) + tx.amount;
+    }
+    // Round to whole dollars
+    for (const cat of Object.keys(spendingSummary)) {
+      spendingSummary[cat] = Math.round(spendingSummary[cat]);
+    }
+
+    // ── 2. Pull all available card products from MongoDB ──────────────────────
+    const cardProducts = await CardProduct.find({ isAvailable: true });
+
+    if (!cardProducts.length) {
+      return res.status(500).json({ error: 'No card products found in database' });
+    }
+
+    // ── 3. Build Gemini prompt from real data ─────────────────────────────────
+    const spendingStr = Object.entries(spendingSummary)
+      .sort((a, b) => b[1] - a[1])
       .map(([cat, amt]) => `${cat}: $${amt}`)
       .join(', ');
 
-    const cardList = CARD_PRODUCTS.map(c => {
-      const tiers = c.rewardTiers.map(t =>
-        `${t.rate}x ${t.unit === 'percent_cashback' ? '% cash back' : t.unit} on ${t.categories.join('/')}`
-      ).join('; ');
+    const cardList = cardProducts.map(c => {
+      const tiers = c.rewardTiers.map(t => {
+        const unit = t.unit === 'percent_cashback' || t.unit === 'percent_back'
+          ? '% cash back' : t.unit;
+        return `${t.rate}x ${unit} on ${t.categories.join('/')}`;
+      }).join('; ');
       return `${c.name} ($${c.annualFee}/yr annual fee): ${tiers}`;
     }).join('\n');
 
-    const prompt = `A user spent the following amounts last month: ${spendingSummary}.
+    const prompt = `A Capital One customer has the following spending history: ${spendingStr}.
 
-Here are the available Capital One cards:
+Here are all available Capital One cards:
 ${cardList}
 
-Based purely on which card earns the most rewards for this spending mix, respond with exactly one sentence in this format: "We recommend the [Card Name] because [reason]." Do not include anything else.`;
+Based purely on which card earns the most rewards for this specific spending mix, respond with exactly one sentence in this format: "We recommend the [Card Name] because [reason]." Do not include anything else.`;
 
+    // ── 4. Call Gemini ────────────────────────────────────────────────────────
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`,
       {
@@ -102,7 +83,7 @@ Based purely on which card earns the most rewards for this spending mix, respond
     const geminiData = await geminiRes.json();
     const recommendation = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
-    res.json({ recommendation, spendingSummary: MOCK_SPENDING });
+    res.json({ recommendation, spendingSummary });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
