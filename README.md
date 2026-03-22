@@ -1,175 +1,109 @@
 <div align="center">
 
-<br/>
-
-<img src="icons/icon128.png" alt="OneTap Icon" width="96"/>
-
-<br/><br/>
-
-<h1>
-  <img src="https://img.shields.io/badge/Capital%20One-OneTap-CC0000?style=for-the-badge&labelColor=1C2B33&color=CC0000&logoColor=white" alt="CapitalOneTap"/>
-</h1>
-
-<p><strong>Frictionless Capital One checkout — everywhere.</strong><br/>
-Auto-applies your best card optimizing for rewards, and lets you pay in one tap on any site.</p>
+<img src="icons/icon128.png" alt="OneTap" width="80"/>
 
 <br/>
 
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-CC0000?style=flat-square&logo=googlechrome&logoColor=white&labelColor=1C2B33)](https://github.com/ashwinpatri/CapitalOneTap)
+# OneTap
+
+**Frictionless Capital One checkout, everywhere.**
+
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-CC0000?style=flat-square&labelColor=1C2B33)](https://developer.chrome.com/docs/extensions/mv3/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-CC0000?style=flat-square&logo=javascript&logoColor=white&labelColor=1C2B33)](https://github.com/ashwinpatri/CapitalOneTap)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-CC0000?style=flat-square&labelColor=1C2B33)](https://github.com/ashwinpatri/CapitalOneTap)
 [![License](https://img.shields.io/badge/License-MIT-CC0000?style=flat-square&labelColor=1C2B33)](LICENSE)
 
-<br/>
-
 </div>
 
 ---
 
-## 📸 Screenshots
+## Overview
 
-<div align="center">
-
-### Extension Popup
-
-<!-- Replace with your screenshot: assets/screenshots/popup.png -->
-<img src="assets/screenshots/popup.png" alt="Extension Popup" width="320" onerror="this.style.border='2px dashed #CC0000';this.style.borderRadius='8px';this.alt='[ Screenshot: popup.png — add to assets/screenshots/ ]'"/>
-
-<br/><br/>
-
-### Checkout Overlay
-
-<!-- Replace with your screenshot: assets/screenshots/overlay.png -->
-<img src="assets/screenshots/overlay.png" alt="Checkout Overlay on a shopping site" width="700" onerror="this.style.border='2px dashed #CC0000';this.style.borderRadius='8px';this.alt='[ Screenshot: overlay.png — add to assets/screenshots/ ]'"/>
-
-<br/><br/>
-
-### Web Dashboard
-
-<!-- Replace with your screenshot: assets/screenshots/dashboard.png -->
-<img src="assets/screenshots/dashboard.png" alt="OneTap Web Dashboard" width="700" onerror="this.style.border='2px dashed #CC0000';this.style.borderRadius='8px';this.alt='[ Screenshot: dashboard.png — add to assets/screenshots/ ]'"/>
-
-</div>
-
-> **How to add screenshots:** Take screenshots of your popup, overlay, and dashboard, then save them to `assets/screenshots/` using the filenames above. They'll automatically appear here.
+OneTap is a Chrome extension that brings Capital One to every checkout. It automatically detects purchase pages, surfaces your best available offer, and lets you complete a transaction without leaving the page. Sign in once with Google — it handles the rest.
 
 ---
 
-## ✨ Features
+## Features
 
-- **🎯 Auto-Apply Offers** — Detects checkout pages and automatically surfaces your best available Capital One offer.
-- **💳 One-Tap Pay** — Tokenized card details injected securely so you can complete purchases without ever opening your wallet.
-- **✂️ Split Transactions** — Split any purchase across multiple Capital One cards in seconds.
-- **🔔 Smart Overlay** — A lightweight, non-intrusive overlay appears only when it can save you money.
-- **🔒 Google OAuth** — Sign in securely with your Google account — no passwords stored.
-- **⚡ Works Everywhere** — Injected on all URLs via Manifest V3 content scripts.
+- Detects checkout pages and applies your best Capital One offer automatically
+- One-tap payment via securely injected card details
+- Split transactions across multiple Capital One cards
+- Non-intrusive overlay that only appears when relevant
+- Google OAuth sign-in — no passwords stored
 
 ---
 
-## 🚀 Installation
+## Installation
 
-> The extension is not yet on the Chrome Web Store. Follow these steps to load it directly.
+OneTap is not yet listed on the Chrome Web Store. Load it manually in a few steps.
 
-### Step 1 — Download the Extension
+**1. Download**
 
-**Option A — Clone the repo:**
-```bash
-git clone https://github.com/ashwinpatri/CapitalOneTap.git
+Clone the repository or download the ZIP directly:
+
+```
+https://github.com/ashwinpatri/CapitalOneTap/archive/refs/heads/main.zip
 ```
 
-**Option B — Download ZIP:**
+Unzip to a permanent location — Chrome requires the folder to remain in place.
 
-<div align="center">
+**2. Open Extensions**
 
-[![Download ZIP](https://img.shields.io/badge/⬇️%20Download%20ZIP-CC0000?style=for-the-badge&labelColor=1C2B33)](https://github.com/ashwinpatri/CapitalOneTap/archive/refs/heads/main.zip)
+Navigate to `chrome://extensions` in your browser.
 
-</div>
+**3. Enable Developer Mode**
 
-Then unzip the file somewhere permanent on your computer (not your Downloads folder — Chrome needs the folder to stay put).
+Toggle **Developer mode** on in the top-right corner.
 
----
+**4. Load Unpacked**
 
-### Step 2 — Open Chrome Extensions
+Click **Load unpacked** and select the `CapitalOneTap` folder (the one containing `manifest.json`).
 
-Navigate to:
-```
-chrome://extensions
-```
+**5. Sign In**
 
-Or go to **Chrome menu (⋮) → Extensions → Manage Extensions**.
+Pin the OneTap icon to your toolbar, click it, and sign in with Google.
 
 ---
 
-### Step 3 — Enable Developer Mode
-
-Toggle **Developer mode** on in the top-right corner of the Extensions page.
-
-<!-- Replace with your screenshot: assets/screenshots/developer-mode.png -->
-> 📷 *Screenshot placeholder — add `assets/screenshots/developer-mode.png`*
-
----
-
-### Step 4 — Load Unpacked
-
-Click **"Load unpacked"** and select the `CapitalOneTap` folder you downloaded (the one containing `manifest.json`).
-
-<!-- Replace with your screenshot: assets/screenshots/load-unpacked.png -->
-> 📷 *Screenshot placeholder — add `assets/screenshots/load-unpacked.png`*
-
----
-
-### Step 5 — Pin & Sign In
-
-Pin the **OneTap** extension from your Chrome toolbar, click it, and sign in with Google.
-
-<!-- Replace with your screenshot: assets/screenshots/sign-in.png -->
-> 📷 *Screenshot placeholder — add `assets/screenshots/sign-in.png`*
-
-You're done. Start shopping. 💳
-
----
-
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 CapitalOneTap/
 ├── assets/
-│   ├── fonts/          # Capital One Optimist typeface files
-│   └── screenshots/    # README screenshots (add yours here)
+│   └── fonts/              # Optimist typeface
 ├── background/
 │   └── service-worker.js
 ├── content/
-│   ├── detector.js     # Detects checkout pages
-│   └── injector.js     # Injects the payment overlay
-├── icons/              # Extension icons (16/32/48/128px)
-├── one-tap/            # One-tap payment logic
+│   ├── detector.js         # Checkout page detection
+│   └── injector.js         # Overlay injection
+├── icons/
+├── one-tap/                # Payment logic
 ├── popup/
-│   └── popup.html      # Extension popup UI
-├── server/             # Backend API integration
+│   └── popup.html
+├── server/                 # Backend API
 ├── shared/
 │   ├── constants.js
 │   └── utils.js
 ├── styles/
-│   └── brand.css       # Capital One brand styles
+│   └── brand.css
 ├── auth-callback.html
 └── manifest.json
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Extension | Chrome Manifest V3, Vanilla JS |
-| UI | HTML5, CSS3, Capital One Optimist font |
+| Fonts | Capital One Optimist |
 | Auth | Google OAuth 2.0 |
-| Backend API | Node.js (hosted on [Render](https://onetap-api.onrender.com)) |
-| Web App | [Vercel](https://onetap-ten.vercel.app) |
+| API | Node.js on Render |
+| Web App | Vercel |
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 - [Ashwin Patri](https://github.com/ashwinpatri)
 - [thung19](https://github.com/thung19)
@@ -178,6 +112,6 @@ CapitalOneTap/
 
 ---
 
-## ⚠️ Disclaimer
+## Disclaimer
 
-This project is an independent, unofficial tool and is **not affiliated with, endorsed by, or sponsored by Capital One Financial Corporation**. Capital One® and related marks are trademarks of Capital One.
+This is an independent, unofficial project. It is not affiliated with, endorsed by, or sponsored by Capital One Financial Corporation. Capital One® and related marks are trademarks of Capital One.
