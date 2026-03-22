@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "One Tap — Capital One Smart Checkout",
+  "name": "OneTap",
   "version": "1.0.0",
   "description": "Frictionless Capital One checkout everywhere. Auto-applies best offers, splits transactions, one tap to pay.",
   "permissions": ["activeTab", "storage", "scripting", "identity"],
