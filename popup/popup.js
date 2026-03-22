@@ -47,6 +47,7 @@ async function showMainApp(user) {
   ]);
 
   renderCards(cardsRes.cards || []);
+  renderAIRec(cardsRes.cards || []);
   renderOffers(offersRes.offers || []);
   renderActivity(txRes.transactions || [], cardsRes.cards || []);
   renderSettings(settingsRes.settings || {}, cardsRes.cards || []);
@@ -147,20 +148,24 @@ function setupTabs() {
 function renderCards(cards) {
   const carousel = document.getElementById('cards-carousel');
 
-  carousel.innerHTML = cards.map((card, i) => {
+  carousel.innerHTML = cards.map((card) => {
     const gradient = card.visual?.gradient || 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)';
-    const topTier = card.rewardTiers?.[0];
-    const rewardText = topTier
-      ? topTier.unit === 'percent_cashback' || topTier.unit === 'percent_back'
-        ? `${topTier.rate}% back`
-        : `${topTier.rate}X ${topTier.unit}`
-      : '';
-    const categoryText = topTier?.categories?.[0] === 'everything' ? 'everywhere' : topTier?.categories?.[0] || '';
+    const imgUrl = getCardImageUrl(card.productName);
+
+    const tierTags = (card.rewardTiers || []).slice(0, 4).map(tier => {
+      const isPct = tier.unit === 'percent_cashback' || tier.unit === 'percent_back';
+      const rate = isPct ? `${tier.rate}%` : `${tier.rate}x`;
+      const cats = tier.categories || [];
+      const cat = cats[0] === 'everything' ? 'everywhere'
+        : cats.length > 1 ? cats.slice(0, 2).join(' & ')
+        : cats[0] || '';
+      return `<span class="card-tier-tag"><span class="card-tier-rate">${rate}</span>${cat ? `<span class="card-tier-cat">${cat}</span>` : ''}</span>`;
+    }).join('');
 
     return `
-      <div class="card-item" data-card-id="${card._id}" style="--delay: ${i * 50}ms">
-        <div class="card-art" style="background: ${gradient}">
-          ${getCardImageUrl(card.productName) ? `<img class="card-art-img" src="${getCardImageUrl(card.productName)}" alt="">` : ''}
+      <div class="card-wrapper" data-card-id="${card._id}">
+        <div class="card-visual" style="background: ${gradient}">
+          ${imgUrl ? `<img class="card-visual-img" src="${imgUrl}" alt="${card.productName}">` : ''}
           <div class="card-menu-wrapper">
             <button class="card-menu-trigger" data-menu-id="${card._id}">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>
@@ -178,15 +183,13 @@ function renderCards(cards) {
             </div>
           </div>
         </div>
-        <div class="card-details">
-          <div class="card-details-row">
-            <span class="card-details-name">${card.productName}</span>
-            ${card.isDefault ? '<span class="card-details-badge">Default</span>' : ''}
+        <div class="card-info">
+          <div class="card-info-row">
+            <span class="card-info-name">${card.productName}</span>
+            ${card.isDefault ? '<span class="card-info-default">Default</span>' : ''}
           </div>
-          <div class="card-details-row">
-            <span class="card-details-last4">&bull;&bull;&bull;&bull; ${card.lastFour} &middot; ${card.network}</span>
-            ${rewardText ? `<span class="card-details-reward">${rewardText} ${categoryText}</span>` : ''}
-          </div>
+          <div class="card-info-num">···· ${card.lastFour} · ${card.network || 'Capital One'}</div>
+          <div class="card-tiers">${tierTags}</div>
         </div>
       </div>
     `;
@@ -258,7 +261,7 @@ function renderStats(transactions) {
 
   const totalSpent = thisMonth.reduce((sum, tx) => sum + tx.amount, 0);
   document.getElementById('stat-total-rewards').textContent = `$${totalSpent.toFixed(0)}`;
-  document.getElementById('stat-transactions').textContent = `${thisMonth.length} txns`;
+  document.getElementById('stat-transactions').textContent = thisMonth.length;
 }
 
 // ===== Add Card Modal =====
@@ -473,13 +476,64 @@ function renderSettings(settings, cards) {
 }
 
 // ===== AI Recommendation =====
+function renderAIRec(cards) {
+  const container = document.getElementById('ai-rec-rows');
+  if (!container) return;
+
+  const CAT_LABELS = {
+    dining: 'Dining', groceries: 'Groceries', travel: 'Travel',
+    flights: 'Flights', hotels: 'Hotels', streaming: 'Streaming',
+    entertainment: 'Entertainment', 'car-rental': 'Car Rental',
+    everything: 'Everything Else', general: 'Everything Else',
+  };
+  const CAT_ORDER = ['dining', 'groceries', 'travel', 'flights', 'hotels', 'streaming', 'entertainment', 'everything', 'general'];
+
+  const best = {};
+  for (const card of cards) {
+    for (const tier of (card.rewardTiers || [])) {
+      for (const cat of (tier.categories || [])) {
+        if (!best[cat] || tier.rate > best[cat].rate) {
+          best[cat] = { card, rate: tier.rate, unit: tier.unit };
+        }
+      }
+    }
+  }
+
+  // Merge everything/general — keep whichever has the higher rate
+  if (best.everything && best.general) {
+    if (best.general.rate >= best.everything.rate) delete best.everything;
+    else delete best.general;
+  }
+
+  const rows = Object.entries(best)
+    .sort(([a], [b]) => {
+      const ai = CAT_ORDER.indexOf(a), bi = CAT_ORDER.indexOf(b);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    })
+    .map(([cat, { card, rate, unit }]) => {
+      const label = CAT_LABELS[cat] || cat;
+      const rateStr = unit === 'percent_cashback' || unit === 'percent_back'
+        ? `${rate}% back` : `${rate}x`;
+      return `
+        <div class="ai-rec-row">
+          <div class="ai-rec-row-left">
+            <div class="ai-rec-cat">${label}</div>
+            <div class="ai-rec-card-name">${card.productName}</div>
+          </div>
+          <div class="ai-rec-rate">${rateStr}</div>
+        </div>`;
+    });
+
+  container.innerHTML = rows.join('');
+}
+
 async function loadRecommendation() {
   const el = document.getElementById('ai-rec-body');
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
     el.textContent = res.recommendation;
   } else {
-    el.textContent = `Error: ${res.error || 'Unknown error'}`;
+    el.textContent = '';
   }
 }
 
