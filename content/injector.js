@@ -22,7 +22,7 @@ const OneTapInjector = (() => {
   }
 
   function show(response, merchant, amount) {
-    overlayData = { ...response, merchant, amount: amount || 42.99 };
+    overlayData = { ...response, merchant, amount: amount || 0 };
     if (!shadowRoot) createHost();
     injectButton();
   }
@@ -49,6 +49,10 @@ const OneTapInjector = (() => {
   }
 
   function showOverlay() {
+    // Re-scan for the freshest price each time the overlay opens
+    const freshPrice = OneTapUtils.extractCheckoutTotal();
+    if (freshPrice && freshPrice >= 1) overlayData.amount = freshPrice;
+
     const existing = shadowRoot.querySelector('.onetap-overlay-backdrop');
     if (existing) existing.remove();
 

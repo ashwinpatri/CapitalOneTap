@@ -4,78 +4,67 @@
 
   let detected = false;
 
-  function detectCheckout() {
-    if (detected) return;
-
-    // 1. URL pattern matching
+  function isCheckoutPage() {
     const url = window.location.href;
-    const urlMatch = CHECKOUT_URL_PATTERNS.some(pattern => pattern.test(url));
-
-    // 2. DOM signal matching
-    let domMatch = false;
-    for (const selector of CHECKOUT_DOM_SELECTORS) {
-      if (document.querySelector(selector)) {
-        domMatch = true;
-        break;
-      }
+    if (CHECKOUT_URL_PATTERNS.some(p => p.test(url))) return true;
+    for (const sel of CHECKOUT_DOM_SELECTORS) {
+      if (document.querySelector(sel)) return true;
     }
-
-    // 3. Title/meta signals
     const title = document.title.toLowerCase();
-    const titleMatch = ['checkout', 'payment', 'pay now', 'place order', 'billing'].some(
-      keyword => title.includes(keyword)
-    );
+    return ['checkout', 'payment', 'pay now', 'place order', 'billing'].some(k => title.includes(k));
+  }
 
-    if (urlMatch || domMatch || titleMatch) {
-      detected = true;
-
-      // Try to extract the total price
-      let estimatedTotal = null;
-      for (const selector of PRICE_SELECTORS) {
-        const el = document.querySelector(selector);
-        if (el) {
-          estimatedTotal = OneTapUtils.extractPrice(el.textContent);
-          if (estimatedTotal) break;
+  // Retry extracting the total every 600ms for up to 10 seconds.
+  // Resolves as soon as a value >= $1 is found.
+  function waitForTotal(timeoutMs = 10000) {
+    return new Promise(resolve => {
+      const interval = 600;
+      let elapsed = 0;
+      function attempt() {
+        const price = OneTapUtils.extractCheckoutTotal();
+        if (price && price >= 1) {
+          resolve(price);
+          return;
         }
+        elapsed += interval;
+        if (elapsed >= timeoutMs) {
+          resolve(price || 0); // give up, pass whatever we have (even 0)
+          return;
+        }
+        setTimeout(attempt, interval);
       }
+      attempt();
+    });
+  }
 
-      // Fallback: scan for dollar amounts near "total"
-      if (!estimatedTotal) {
-        const allText = document.body.innerText;
-        const totalMatch = allText.match(/total[:\s]*\$?([\d,]+\.?\d{0,2})/i);
-        if (totalMatch) {
-          estimatedTotal = parseFloat(totalMatch[1].replace(/,/g, ''));
-        }
-      }
+  async function detectCheckout() {
+    if (detected) return;
+    if (!isCheckoutPage()) return;
 
-      const merchant = OneTapUtils.getMerchantName();
+    detected = true;
+    const merchant = OneTapUtils.getMerchantName();
 
-      // Notify background
-      chrome.runtime.sendMessage({
-        type: MSG.CHECKOUT_DETECTED,
-        payload: {
-          merchant,
-          amount: estimatedTotal || 0,
-          url: window.location.href,
-          pageTitle: document.title,
-        }
-      }, (response) => {
-        if (response && response.bestCard) {
-          OneTapInjector.show(response, merchant, estimatedTotal);
-        }
-      });
-    }
+    // Notify background immediately so card scoring can start in parallel
+    chrome.runtime.sendMessage({
+      type: MSG.CHECKOUT_DETECTED,
+      payload: { merchant, amount: 0, url: window.location.href, pageTitle: document.title },
+    }, async (response) => {
+      if (!response || !response.bestCard) return;
+
+      // Wait for the actual total to appear in the DOM (handles async SPA renders)
+      const total = await waitForTotal();
+
+      OneTapInjector.show(response, merchant, total);
+    });
   }
 
   // Run detection after a short delay to let SPAs render
   setTimeout(detectCheckout, 1000);
 
-  // Also observe DOM changes for SPAs
+  // Also watch DOM changes for SPAs that load checkout content dynamically
   const observer = new MutationObserver(() => {
     if (!detected) detectCheckout();
   });
   observer.observe(document.body, { childList: true, subtree: true });
-
-  // Stop observing after 10 seconds to save resources
-  setTimeout(() => observer.disconnect(), 10000);
+  setTimeout(() => observer.disconnect(), 15000);
 })();
