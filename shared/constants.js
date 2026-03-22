@@ -88,6 +88,7 @@ const CARD_IMAGE_FILES = {
 function getCardImageUrl(cardName) {
   const file = CARD_IMAGE_FILES[cardName];
   if (!file) return null;
+  if (typeof chrome === 'undefined' || !chrome.runtime) return null;
   return chrome.runtime.getURL('icons/cards/' + file);
 }
 
