@@ -67,7 +67,7 @@ router.get('/', auth, async (req, res) => {
       });
     }
 
-    // Build spending summary for prompt
+    // Build spending summary
     const spendingSummary = {};
     for (const tx of transactions) {
       const cat = tx.merchantCategory || 'general';
@@ -77,12 +77,35 @@ router.get('/', auth, async (req, res) => {
       spendingSummary[cat] = Math.round(spendingSummary[cat]);
     }
 
-    const spendingStr = Object.entries(spendingSummary)
-      .sort((a, b) => b[1] - a[1])
-      .map(([cat, amt]) => `${cat}: $${amt}`)
-      .join(', ');
+    // For each spending category, find what rate the user's existing cards already cover
+    function bestExistingRate(category) {
+      let best = { rate: 0, cardName: null, unit: 'points' };
+      for (const card of userCards) {
+        for (const tier of (card.rewardTiers || [])) {
+          if ((tier.categories || []).includes(category) || (tier.categories || []).includes('everything')) {
+            if (tier.rate > best.rate) {
+              best = { rate: tier.rate, cardName: card.productName, unit: tier.unit };
+            }
+          }
+        }
+      }
+      return best;
+    }
 
-    // Format available card products with full details for the prompt
+    // Build coverage analysis sorted by spend (highest first)
+    const sortedSpend = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
+
+    const coverageLines = sortedSpend.map(([cat, amt]) => {
+      const existing = bestExistingRate(cat);
+      const unitLabel = existing.unit === 'percent_cashback' || existing.unit === 'percent_back'
+        ? '% cash back' : `x ${existing.unit}`;
+      const coverage = existing.rate > 0
+        ? `already earning ${existing.rate}${unitLabel} with ${existing.cardName}`
+        : 'no existing card covers this';
+      return `  ${cat}: $${amt} — ${coverage}`;
+    }).join('\n');
+
+    // Format available card products
     const cardListStr = availableProducts.map(c => {
       const tiers = c.rewardTiers.map(t => {
         const unitLabel = t.unit === 'percent_cashback' || t.unit === 'percent_back'
@@ -91,55 +114,54 @@ router.get('/', auth, async (req, res) => {
         return `  - ${t.rate}${unitLabel} on: ${t.categories.join(', ')}${qualifier}`;
       }).join('\n');
       const fee = c.annualFee > 0 ? `$${c.annualFee}/year` : 'No annual fee';
-      const intro = c.defaultIntroOffer ? `Intro offer: ${c.defaultIntroOffer.description}` : null;
-      const desc = c.description ? `Description: ${c.description}` : null;
       return [
-        `Card: ${c.name}`,
-        `Annual Fee: ${fee}`,
-        `Network: ${c.network}`,
-        `Credit Level: ${c.creditLevel || 'not specified'}`,
+        `Card: ${c.name} | Annual Fee: ${fee}`,
         `Rewards:\n${tiers}`,
-        intro,
-        desc,
-      ].filter(Boolean).join('\n');
+      ].join('\n');
     }).join('\n\n---\n\n');
 
     const ownedStr = userCards.length
-      ? `Cards this customer already owns (do NOT recommend these): ${[...ownedProductNames].join(', ')}`
-      : 'This customer has no Capital One cards yet.';
+      ? `Cards the user already owns: ${[...ownedProductNames].join(', ')}`
+      : 'The user has no Capital One cards yet.';
 
-    const prompt = `You are an expert financial writer with perfect grammar and a sharp, concise voice. Recommend the single best Capital One card for this user.
+    const prompt = `You are an expert financial writer with perfect grammar and a sharp, concise voice.
 
-USER SPENDING:
-${spendingStr}
+SPENDING ANALYSIS (sorted by dollar amount, highest first — this is the priority order):
+${coverageLines}
 
 ${ownedStr}
 
-AVAILABLE CARDS:
+AVAILABLE CARDS (never recommend one the user already owns):
 ${cardListStr}
 
-STRICT OUTPUT FORMAT — copy this structure exactly:
+YOUR TASK:
+Evaluate whether any available card would meaningfully improve the user's rewards on their HIGHEST spending categories. Base your decision primarily on the largest spend categories first.
 
-**Recommended Card:** [Exact card name from the list above]
+- If the user's existing cards already cover their top spending categories well, say so — do NOT force a recommendation just to give one.
+- Only recommend a card if it offers a clear, meaningful improvement on a high-spend category that isn't well-covered.
+
+OUTPUT FORMAT (follow exactly):
+
+**Recommended Card:** [Exact card name from the list, OR write "None — your current cards are well-optimized" if no card adds meaningful value]
 
 Why This Card Fits Your Spending:
-[Exactly 2 sentences. Mention the user's top 1-2 spending categories by name. State the reward rate. No math, no earnings estimates. Tight, confident writing.]
+[ONE sentence only. State which top spending category this helps and what rate it earns. If recommending None, write one sentence explaining which existing card covers the top category and why no upgrade is needed.]
 
 Key Benefits:
-- [**Rate** on Category — one line, no elaboration]
-- [**Rate** on Category — one line]
-- [One more relevant benefit if applicable — one line]
+- [**Rate** on Category — one line only]
+- [**Rate** on Category — one line only]
+- [Optional third benefit — one line only]
 
 Drawbacks:
-- [One real tradeoff only — e.g., annual fee if non-zero, weak travel rewards, etc.]
-- [Skip entirely if no real drawbacks. NEVER list "$0 annual fee" as a drawback.]
+- [One real tradeoff — annual fee if non-zero, missing a key category, etc.]
+- [Omit this section entirely if no real drawbacks. Never list "$0 annual fee" as a drawback.]
 
 RULES:
 - Use plain $ signs (never LaTeX \\$)
-- Bold all key numbers and rates using **like this**
-- Every bullet is exactly one line — no parenthetical explanations, no elaboration
-- Perfect grammar — no awkward phrasing like "($94 spend)"
-- Do not invent features — only use data from the card list above`;
+- Bold all key rates and numbers using **like this**
+- Every bullet is one line — no parenthetical notes, no elaboration
+- Perfect grammar and professional tone throughout
+- Only use data from the card list above — no invented features`;
 
 
     const geminiRes = await fetch(

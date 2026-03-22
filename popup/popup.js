@@ -742,7 +742,10 @@ async function loadRecommendation() {
 
   const res = await sendMessage('GET_RECOMMENDATION');
   if (res.success && res.recommendation) {
-    const cardName = res.recommendedCardName || null;
+    const rawName = res.recommendedCardName || null;
+    // If Gemini said "None — your current cards are well-optimized" treat as no card
+    const isNone = !rawName || /^none/i.test(rawName);
+    const cardName = isNone ? null : rawName;
     const imgUrl = cardName ? findCardImageUrl(cardName) : null;
     const markdownHtml = renderMarkdown(res.recommendation);
 
