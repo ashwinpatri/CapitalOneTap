@@ -56,7 +56,7 @@ async function showMainApp(user) {
 
   renderCards(cardsRes.cards || []);
   renderAIRec(cardsRes.cards || []);
-  renderOffers(offersRes.offers || []);
+  renderOffers(offersRes.offers || [], cardsRes.cards || [], txRes.transactions || []);
   renderActivity(txRes.transactions || [], cardsRes.cards || []);
   renderSettings(settingsRes.settings || {}, cardsRes.cards || []);
   renderStats(txRes.transactions || []);
@@ -445,13 +445,70 @@ document.getElementById('add-card-submit').addEventListener('click', async () =>
 });
 
 // ===== Offers =====
-function renderOffers(offers) {
+function renderOffers(offers, cards = [], transactions = []) {
   const list = document.getElementById('offers-list');
   const empty = document.getElementById('offers-empty');
 
+  // ── Sign-up Bonus Progress ────────────────────────────────────────────────
+  const bonusSection = document.getElementById('intro-offers-section');
+  const cardsWithIntro = cards.filter(c => c.introOffer && !c.introOffer.earned);
+
+  if (cardsWithIntro.length > 0) {
+    // Build a spend-per-card map from transaction history
+    const spentByCard = {};
+    for (const tx of transactions) {
+      const cid = tx.cardId?._id || tx.cardId;
+      spentByCard[cid] = (spentByCard[cid] || 0) + tx.amount;
+    }
+
+    bonusSection.innerHTML = `
+      <div class="intro-offers-header">
+        <span class="intro-offers-label">Sign-up Bonus Progress</span>
+      </div>
+      ${cardsWithIntro.map(card => {
+        const o = card.introOffer;
+        const spent = spentByCard[card._id] || 0;
+        const pct = Math.min(100, Math.round((spent / o.spendRequired) * 100));
+        const remaining = Math.max(0, o.spendRequired - spent);
+        const bonus = o.bonusUnit === 'cash'
+          ? `$${o.bonusAmount.toLocaleString()}`
+          : `${o.bonusAmount.toLocaleString()} ${o.bonusUnit}`;
+
+        // Days remaining from startDate or card creation
+        let daysLeft = null;
+        const startMs = o.startDate ? new Date(o.startDate) : new Date(card.createdAt);
+        if (startMs && o.timeframeDays) {
+          const endMs = startMs.getTime() + o.timeframeDays * 86400000;
+          daysLeft = Math.max(0, Math.ceil((endMs - Date.now()) / 86400000));
+        }
+
+        return `
+          <div class="intro-offer-card">
+            <div class="intro-offer-top">
+              <div class="intro-offer-card-name">${card.productName}</div>
+              <div class="intro-offer-bonus">${bonus}</div>
+            </div>
+            <div class="intro-offer-desc">${o.description}</div>
+            <div class="intro-offer-bar-wrap">
+              <div class="intro-offer-bar" style="width:${pct}%"></div>
+            </div>
+            <div class="intro-offer-meta">
+              <span>$${spent.toFixed(0)} of $${o.spendRequired.toLocaleString()} spent</span>
+              ${daysLeft !== null ? `<span>${daysLeft} days left</span>` : ''}
+            </div>
+            ${remaining === 0 ? `<div class="intro-offer-complete">Bonus earned!</div>` :
+              `<div class="intro-offer-remaining">$${remaining.toFixed(0)} more to earn your bonus</div>`}
+          </div>`;
+      }).join('')}`;
+    bonusSection.style.display = '';
+  } else {
+    bonusSection.style.display = 'none';
+  }
+
+  // ── Merchant Offers ───────────────────────────────────────────────────────
   if (!offers.length) {
     list.innerHTML = '';
-    empty.style.display = '';
+    empty.style.display = cardsWithIntro.length ? 'none' : '';
     return;
   }
   empty.style.display = 'none';
