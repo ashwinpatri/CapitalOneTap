@@ -852,12 +852,10 @@ body {
 .ai-rec-legend-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--co-gray-100);
+  gap: 6px;
+  padding: 4px 0;
   font-size: 12px;
 }
-.ai-rec-legend-item:last-child { border-bottom: none; }
 
 .ai-rec-legend-dot {
   width: 9px;
@@ -867,10 +865,10 @@ body {
 }
 
 .ai-rec-legend-label {
-  flex: 1;
-  color: var(--co-gray-700, #333);
+  color: var(--co-gray-700, #444);
   font-weight: 500;
 }
+
 .ai-rec-legend-pct {
   color: var(--co-dark);
   font-weight: 700;
@@ -1081,7 +1079,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
-  flex: 1;
   min-width: 0;
 }
 
