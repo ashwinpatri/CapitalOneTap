@@ -112,24 +112,33 @@ const AUTOFILL_SELECTORS = {
     'input[name*="cardnumber" i]', 'input[name*="card-number" i]', 'input[name*="card_number" i]',
     'input[name*="ccnumber" i]', 'input[name*="cc-number" i]', 'input[name*="cc_number" i]',
     'input[id*="cardnumber" i]', 'input[id*="card-number" i]', 'input[id*="creditcard" i]',
+    'input[id="creditCardNumber"]',
+    'input[data-shortname="cc"]',
+    'input[onautocomplete="cc-number"]',
     'input[data-cy*="card-number" i]', 'input[placeholder*="card number" i]',
     'input[aria-label*="card number" i]',
+    'input[placeholder*="Card Number" i]', 'input[data-testid*="card" i]',
+    'input[type="tel"][aria-label*="card" i]', 'input[inputmode="numeric"][placeholder*="card" i]',
+    'form#creditCardForm input[type="tel"]',
   ],
   expiry: [
     'input[autocomplete="cc-exp"]',
     'input[name*="expir" i]', 'input[name*="exp-date" i]', 'input[name*="expDate" i]',
-    'input[id*="expir" i]', 'input[placeholder*="MM" i]',
-    'input[aria-label*="expir" i]',
+    'input[id*="expir" i]', 'input[placeholder*="MM" i]', 'input[placeholder*="MM/YY" i]',
+    'input[aria-label*="expir" i]', 'input[aria-label*="expiration" i]',
+    'input[placeholder*="Exp" i]', 'input[data-testid*="expir" i]',
   ],
   expiryMonth: [
     'input[autocomplete="cc-exp-month"]', 'select[autocomplete="cc-exp-month"]',
     'input[name*="exp-month" i]', 'input[name*="expMonth" i]', 'select[name*="month" i]',
     'input[id*="exp-month" i]', 'select[id*="exp-month" i]',
+    'input[id="expirationMonth"]', 'input[name="expirationMonth"]',
   ],
   expiryYear: [
     'input[autocomplete="cc-exp-year"]', 'select[autocomplete="cc-exp-year"]',
     'input[name*="exp-year" i]', 'input[name*="expYear" i]', 'select[name*="year" i]',
     'input[id*="exp-year" i]', 'select[id*="exp-year" i]',
+    'input[id="expirationYear"]', 'input[name="expirationYear"]',
   ],
   cvv: [
     'input[autocomplete="cc-csc"]',
@@ -137,6 +146,8 @@ const AUTOFILL_SELECTORS = {
     'input[id*="cvv" i]', 'input[id*="cvc" i]', 'input[id*="security-code" i]',
     'input[placeholder*="CVV" i]', 'input[placeholder*="CVC" i]', 'input[placeholder*="Security" i]',
     'input[aria-label*="security code" i]', 'input[aria-label*="CVV" i]',
+    'input[aria-label*="cvv" i]', 'input[data-testid*="cvv" i]',
+    'input[placeholder="CVV"]',
   ],
   name: [
     'input[autocomplete="cc-name"]',
@@ -194,15 +205,30 @@ function autofillCard(cardProductName, cardObj) {
     : DEMO_CARD_DATA[cardProductName] || DEMO_CARD_FALLBACK;
 
   function findField(selectors) {
+    // Search main document first
     for (const sel of selectors) {
       const el = document.querySelector(sel);
       if (el) return el;
     }
+    // Search inside same-origin iframes
+    try {
+      const iframes = document.querySelectorAll('iframe');
+      for (const iframe of iframes) {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (!iframeDoc) continue;
+          for (const sel of selectors) {
+            const el = iframeDoc.querySelector(sel);
+            if (el) return el;
+          }
+        } catch (e) { /* cross-origin iframe, skip */ }
+      }
+    } catch (e) {}
     return null;
   }
 
   function setVal(el, value) {
-    if (!el) return;
+    if (!el) return false;
     const nativeSetter = Object.getOwnPropertyDescriptor(
       el.tagName === 'SELECT' ? HTMLSelectElement.prototype : HTMLInputElement.prototype, 'value'
     )?.set;
@@ -211,43 +237,94 @@ function autofillCard(cardProductName, cardObj) {
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
     el.dispatchEvent(new Event('blur', { bubbles: true }));
+    // Also fire keyboard events for React/frameworks
+    el.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
+    el.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+    return true;
   }
 
-  // Card number
-  setVal(findField(AUTOFILL_SELECTORS.cardNumber), data.number);
+  function fillAllFields() {
+    let filled = 0;
+    const steps = [];
 
-  // Expiry — try combined field first, then separate month/year
-  const expiryField = findField(AUTOFILL_SELECTORS.expiry);
-  if (expiryField) {
-    setVal(expiryField, data.exp);
-  } else {
-    const [month, year] = data.exp.split('/');
-    setVal(findField(AUTOFILL_SELECTORS.expiryMonth), month);
-    const yearField = findField(AUTOFILL_SELECTORS.expiryYear);
-    if (yearField) {
-      // Some sites use 2-digit, some 4-digit year
-      const yearVal = yearField.tagName === 'SELECT' ? '20' + year : year;
-      setVal(yearField, yearVal);
+    // Step 1: Card number
+    steps.push(() => {
+      if (setVal(findField(AUTOFILL_SELECTORS.cardNumber), data.number)) filled++;
+    });
+
+    // Step 2: Expiry
+    steps.push(() => {
+      const expiryField = findField(AUTOFILL_SELECTORS.expiry);
+      if (expiryField) {
+        if (setVal(expiryField, data.exp)) filled++;
+      } else {
+        const [month, year] = data.exp.split('/');
+        setVal(findField(AUTOFILL_SELECTORS.expiryMonth), month);
+        const yearField = findField(AUTOFILL_SELECTORS.expiryYear);
+        if (yearField) {
+          const yearVal = yearField.tagName === 'SELECT' ? '20' + year : year;
+          if (setVal(yearField, yearVal)) filled++;
+        }
+      }
+    });
+
+    // Step 3: CVV
+    steps.push(() => {
+      if (setVal(findField(AUTOFILL_SELECTORS.cvv), data.cvv)) filled++;
+    });
+
+    // Step 4: Name on card
+    steps.push(() => {
+      setVal(findField(AUTOFILL_SELECTORS.name), data.name);
+    });
+
+    // Step 5: Billing name
+    if (cardObj && (cardObj.billingFirstName || cardObj.billingLastName)) {
+      steps.push(() => {
+        if (cardObj.billingFirstName) setVal(findField(AUTOFILL_SELECTORS.firstName), cardObj.billingFirstName);
+        if (cardObj.billingLastName) setVal(findField(AUTOFILL_SELECTORS.lastName), cardObj.billingLastName);
+      });
     }
+
+    // Step 6: Billing address
+    if (cardObj && (cardObj.billingAddress || cardObj.billingCity)) {
+      steps.push(() => {
+        if (cardObj.billingAddress) setVal(findField(AUTOFILL_SELECTORS.address), cardObj.billingAddress);
+        if (cardObj.billingCity) setVal(findField(AUTOFILL_SELECTORS.city), cardObj.billingCity);
+        if (cardObj.billingState) setVal(findField(AUTOFILL_SELECTORS.state), cardObj.billingState);
+        if (cardObj.billingZip) setVal(findField(AUTOFILL_SELECTORS.zip), cardObj.billingZip);
+      });
+    }
+
+    // Run steps sequentially with delays so fields appear one by one
+    steps.forEach((step, i) => {
+      setTimeout(step, i * 300);
+    });
+
+    // Return filled count after all steps complete
+    setTimeout(() => { /* filled is updated by then */ }, steps.length * 300);
+    return filled;
   }
 
-  // CVV
-  setVal(findField(AUTOFILL_SELECTORS.cvv), data.cvv);
-
-  // Name on card
-  setVal(findField(AUTOFILL_SELECTORS.name), data.name);
-
-  // Billing address (from MongoDB card data)
-  if (cardObj) {
-    if (cardObj.billingFirstName) setVal(findField(AUTOFILL_SELECTORS.firstName), cardObj.billingFirstName);
-    if (cardObj.billingLastName) setVal(findField(AUTOFILL_SELECTORS.lastName), cardObj.billingLastName);
-    if (cardObj.billingAddress) setVal(findField(AUTOFILL_SELECTORS.address), cardObj.billingAddress);
-    if (cardObj.billingCity) setVal(findField(AUTOFILL_SELECTORS.city), cardObj.billingCity);
-    if (cardObj.billingState) setVal(findField(AUTOFILL_SELECTORS.state), cardObj.billingState);
-    if (cardObj.billingZip) setVal(findField(AUTOFILL_SELECTORS.zip), cardObj.billingZip);
+  function checkFilled() {
+    const cardField = findField(AUTOFILL_SELECTORS.cardNumber);
+    if (!cardField) return false;
+    const val = cardField.value.replace(/\s/g, '');
+    return val.length >= 13;
   }
 
-  return true;
+  // Keep trying every second until it works or 15 attempts
+  fillAllFields();
+  let attempts = 0;
+  const fillTimer = setInterval(() => {
+    attempts++;
+    fillAllFields();
+    if (checkFilled() || attempts >= 15) {
+      clearInterval(fillTimer);
+    }
+  }, 1000);
+
+  return checkFilled;
 }
 
 const PRICE_SELECTORS = [

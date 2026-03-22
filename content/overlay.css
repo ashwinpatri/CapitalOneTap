@@ -32,11 +32,11 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: linear-gradient(135deg, var(--co-blue-dark) 0%, var(--co-blue) 100%);
-  color: white;
-  border: none;
+  background: var(--co-white);
+  color: var(--co-dark);
+  border: 2px solid var(--co-blue);
   border-radius: var(--radius);
-  padding: 14px 24px;
+  padding: 12px;
   cursor: pointer;
   font-family: var(--font);
   font-size: 14px;
@@ -51,9 +51,8 @@
 }
 
 .onetap-fab:hover {
-  background: linear-gradient(135deg, var(--co-blue) 0%, var(--co-blue-mid) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 12px 36px rgba(0,47,77,.3);
+  box-shadow: 0 12px 36px rgba(0,47,77,.2);
 }
 
 .onetap-fab:active { transform: translateY(0) scale(0.98); }
@@ -63,9 +62,12 @@
   animation: onetap-pulse 2s ease-in-out 0.5s 2;
 }
 
-.onetap-fab-inner { display: flex; align-items: center; gap: 10px; }
-.onetap-fab-icon { width: 20px; height: 20px; }
-.onetap-fab-text { white-space: nowrap; }
+.onetap-fab-inner { display: flex; align-items: center; justify-content: center; }
+.onetap-fab-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
 
 @keyframes onetap-pulse {
   0%, 100% { box-shadow: var(--shadow-lg); }

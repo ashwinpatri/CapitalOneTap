@@ -1,5 +1,6 @@
 // One Tap Injector — creates shadow DOM with floating button and checkout overlay
 const OneTapInjector = (() => {
+  const isIframe = window !== window.top;
   let shadowRoot = null;
   let overlayData = null;
 
@@ -38,24 +39,79 @@ const OneTapInjector = (() => {
     shadowRoot.appendChild(overlayLink);
   }
 
+  function extractLatestPrice() {
+    const allText = document.body.innerText;
+    const lines = allText.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (/sub\s*total|pre\s*total|savings|shipping|tax|estimated/i.test(trimmed)) continue;
+      const match = trimmed.match(/\btotal\b[:\s$]*\$?\s?([\d,]+\.\d{2})/i);
+      if (match) return parseFloat(match[1].replace(/,/g, ''));
+    }
+    for (const selector of PRICE_SELECTORS) {
+      const el = document.querySelector(selector);
+      if (el) {
+        const price = OneTapUtils.extractPrice(el.textContent);
+        if (price) return price;
+      }
+    }
+    const allPrices = [...allText.matchAll(/\$\s?([\d,]+\.\d{2})/g)]
+      .map(m => parseFloat(m[1].replace(/,/g, '')))
+      .filter(p => p > 0 && p < 100000);
+    return allPrices.length > 0 ? Math.max(...allPrices) : 0;
+  }
+
   function show(response, merchant, amount) {
-    overlayData = { ...response, merchant, amount: amount || 42.99 };
+    overlayData = { ...response, merchant, amount: amount || 0 };
     if (!shadowRoot) createHost();
     injectButton();
   }
 
   function injectButton() {
+    // Add compact styles for iframe mode
+    if (isIframe) {
+      const iframeStyle = document.createElement('style');
+      iframeStyle.textContent = `
+        .onetap-fab {
+          padding: 4px 10px !important;
+          border-radius: 6px !important;
+          bottom: 8px !important;
+          right: 8px !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+        }
+        .onetap-fab-logo { height: 16px !important; }
+      `;
+      shadowRoot.appendChild(iframeStyle);
+    }
+
     const btn = document.createElement('button');
     btn.className = 'onetap-fab';
     btn.innerHTML = `
       <div class="onetap-fab-inner">
-        <svg class="onetap-fab-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 4H4C2.89 4 2 4.89 2 6V18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="white"/>
-        </svg>
-        <span class="onetap-fab-text">One Tap Pay</span>
+        <img class="onetap-fab-logo" src="${chrome.runtime.getURL('icons/logo1.png')}" alt="">
       </div>
     `;
-    btn.addEventListener('click', () => showOverlay());
+    btn.addEventListener('click', () => {
+      if (isIframe) {
+        // Inside iframe — just autofill immediately with best card
+        const bestCard = overlayData.bestCard;
+        if (bestCard) {
+          btn.querySelector('.onetap-fab-text').textContent = 'Filling...';
+          btn.disabled = true;
+          autofillCard(cardName(bestCard), bestCard);
+          setTimeout(() => {
+            btn.querySelector('.onetap-fab-text').textContent = 'Filled!';
+            btn.style.background = '#0c7a3a';
+            setTimeout(() => { btn.style.display = 'none'; }, 1500);
+          }, 1000);
+        }
+      } else {
+        // Re-extract price from the page before showing overlay
+        const freshPrice = extractLatestPrice();
+        if (freshPrice > 0) overlayData.amount = freshPrice;
+        showOverlay();
+      }
+    });
     shadowRoot.appendChild(btn);
 
     requestAnimationFrame(() => {
@@ -349,7 +405,7 @@ const OneTapInjector = (() => {
               <rect x="3" y="7" width="10" height="7" rx="1.5" fill="white"/>
               <path d="M5 7V5C5 3.34 6.34 2 8 2C9.66 2 11 3.34 11 5V7" stroke="white" stroke-width="1.5" fill="none"/>
             </svg>
-            <span>Pay $${finalAmount.toFixed(2)}</span>
+            <span>Autofill</span>
           </div>
           <div class="onetap-pay-btn-loading" style="display:none">
             <div class="onetap-spinner"></div>
@@ -359,7 +415,7 @@ const OneTapInjector = (() => {
             <svg viewBox="0 0 24 24" fill="none" class="onetap-checkmark">
               <path d="M5 13L9 17L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Payment Complete!</span>
+            <span>Autofill Complete</span>
           </div>
         </button>
       </div>
@@ -421,39 +477,42 @@ const OneTapInjector = (() => {
 
     const finalAmount = parseFloat(payBtn.dataset.amount);
     const payCardId = payBtn.dataset.cardId;
-    const selectedCardName = cardName(overlayData.bestCard);
 
-    // Autofill the checkout form on the actual page with real card data
-    autofillCard(selectedCardName, overlayData.bestCard);
+    // Find the selected card from allCards
+    const selectedCard = overlayData.allCards.find(c => (c._id || c.id) === payCardId) || overlayData.bestCard;
+    const selectedCardName = cardName(selectedCard);
 
-    chrome.runtime.sendMessage({
-      type: MSG.PROCESS_PAYMENT,
-      payload: { cardId: payCardId, amount: finalAmount, merchant }
-    }, (response) => {
-      loading.style.display = 'none';
-      success.style.display = 'flex';
-      payBtn.classList.add('onetap-pay-success');
+    // Autofill — returns a checkFilled function
+    const checkFilled = autofillCard(selectedCardName, selectedCard);
 
-      setTimeout(() => {
-        const innerDrawer = payBtn.closest('.onetap-drawer');
-        if (innerDrawer) {
-          const rewardsBar = innerDrawer.querySelector('.onetap-rewards-bar');
-          if (rewardsBar && response && response.transaction) {
-            rewardsBar.innerHTML = `
-              <svg class="onetap-rewards-icon" viewBox="0 0 20 20" fill="none">
-                <path d="M10 1L12.5 7H19L13.75 11L15.5 17.5L10 13.5L4.5 17.5L6.25 11L1 7H7.5L10 1Z" fill="#FFD700"/>
-              </svg>
-              <span>Earned <strong>${response.transaction.rewardsEarned} ${response.transaction.rewardUnit}</strong> · Confirmation: ${response.confirmationNumber}</span>
-            `;
-          }
-        }
-        // Close the overlay after a moment so user sees the filled form
+    // Quick check if autofill worked
+    setTimeout(() => {
+      const filled = typeof checkFilled === 'function' ? checkFilled() : true;
+
+      if (filled) {
+        chrome.runtime.sendMessage({
+          type: MSG.PROCESS_PAYMENT,
+          payload: { cardId: payCardId, amount: finalAmount, merchant }
+        }, () => {
+          loading.style.display = 'none';
+          success.style.display = 'flex';
+          payBtn.classList.add('onetap-pay-success');
+          setTimeout(() => {
+            const backdrop = drawer.parentElement;
+            if (backdrop) closeOverlay(backdrop);
+          }, 1500);
+        });
+      } else {
+        loading.style.display = 'none';
+        content.style.display = 'flex';
+        payBtn.disabled = false;
+        const btnText = content.querySelector('span');
+        if (btnText) btnText.textContent = 'Could not fill — try again';
         setTimeout(() => {
-          const backdrop = drawer.parentElement;
-          if (backdrop) closeOverlay(backdrop);
-        }, 1500);
-      }, 500);
-    });
+          if (btnText) btnText.textContent = 'Autofill';
+        }, 2000);
+      }
+    }, 2500);
   }
 
   function closeOverlay(backdrop) {
