@@ -837,9 +837,10 @@ body {
 /* Chart / legend */
 .ai-rec-chart-wrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 14px 12px;
-  gap: 0;
+  padding: 14px 14px 16px;
+  gap: 14px;
 }
 
 .ai-rec-legend {
@@ -853,9 +854,11 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 0;
+  padding: 5px 0;
   font-size: 12px;
+  border-bottom: 1px solid var(--co-gray-100);
 }
+.ai-rec-legend-item:nth-last-child(-n+2) { border-bottom: none; }
 
 .ai-rec-legend-dot {
   width: 9px;
@@ -1072,18 +1075,15 @@ body {
 
 /* Spending chart */
 .spending-chart-center {
-  flex: 0 0 47%;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
 .spending-legend {
-  margin-left: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding-right: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 20px;
+  width: 100%;
 }
 
 /* Savings tally */
