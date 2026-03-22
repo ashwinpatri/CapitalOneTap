@@ -120,22 +120,24 @@ router.get('/', auth, async (req, res) => {
       ].join('\n');
     }).join('\n\n---\n\n');
 
-    const ownedStr = userCards.length
-      ? `Cards the user already owns: ${[...ownedProductNames].join(', ')}`
-      : 'The user has no Capital One cards yet.';
+    const ownedCardsList = userCards.length
+      ? [...ownedProductNames].join(', ')
+      : 'none';
 
     const prompt = `You are an expert financial writer with perfect grammar and a sharp, concise voice.
+
+CARDS THE USER ALREADY OWNS — DO NOT RECOMMEND ANY OF THESE:
+${ownedCardsList}
 
 SPENDING ANALYSIS (sorted by dollar amount, highest first — this is the priority order):
 ${coverageLines}
 
-${ownedStr}
-
-AVAILABLE CARDS (never recommend one the user already owns):
+CARDS AVAILABLE TO RECOMMEND (these are the ONLY cards you may recommend — the user does NOT own any of these):
 ${cardListStr}
 
 YOUR TASK:
-Evaluate whether any available card would meaningfully improve the user's rewards on their HIGHEST spending categories. Base your decision primarily on the largest spend categories first.
+You are recommending a NEW card the user does not yet have. Never recommend a card the user already owns.
+Evaluate whether any of the available cards above would meaningfully improve the user's rewards on their HIGHEST spending categories. Base your decision primarily on the largest spend categories first.
 
 - If the user's existing cards already cover their top spending categories well, say so — do NOT force a recommendation just to give one.
 - Only recommend a card if it offers a clear, meaningful improvement on a high-spend category that isn't well-covered.
