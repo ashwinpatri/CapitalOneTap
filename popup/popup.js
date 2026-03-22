@@ -934,10 +934,15 @@ function drawSpendingChart(spendingSummary) {
   const total = entries.reduce((s, [, v]) => s + v, 0);
   if (total === 0) return;
 
-  canvas.width = 120;
-  canvas.height = 120;
+  const SIZE = 96;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = SIZE * dpr;
+  canvas.height = SIZE * dpr;
+  canvas.style.width = SIZE + 'px';
+  canvas.style.height = SIZE + 'px';
   const ctx = canvas.getContext('2d');
-  const cx = 60, cy = 60, r = 56, innerR = r * 0.52;
+  ctx.scale(dpr, dpr);
+  const cx = SIZE / 2, cy = SIZE / 2, r = SIZE / 2 - 4, innerR = r * 0.52;
 
   let angle = -Math.PI / 2;
   entries.forEach(([, amt], i) => {

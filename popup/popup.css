@@ -837,9 +837,9 @@ body {
 /* Chart / legend */
 .ai-rec-chart-wrap {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 12px 0 0;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 12px;
 }
 
 .ai-rec-legend {
@@ -1074,16 +1074,14 @@ body {
 
 /* Spending chart */
 .spending-chart-center {
-  display: flex;
-  justify-content: center;
-  padding: 14px 14px 6px;
+  flex-shrink: 0;
 }
 
 .spending-legend {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 4px 14px 12px;
+  flex: 1;
   min-width: 0;
 }
 
