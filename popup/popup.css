@@ -62,7 +62,7 @@ html {
 body {
   width: 380px;
   font-family: var(--font);
-  font-weight: 500;
+  font-weight: 700;
   background: transparent;
   color: var(--text);
   overflow-x: hidden;
@@ -141,7 +141,7 @@ body {
 .header-sub {
   font-size: 10.5px;
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: .01em;
 }
 .header-sub:empty { display: none; }
@@ -454,7 +454,7 @@ body {
   font-size: 9px;
   color: var(--text-light);
   text-transform: capitalize;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Card 3-dot Menu */
@@ -809,7 +809,7 @@ body {
 .ai-rec-card-name {
   font-size: 10px;
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .ai-rec-rate {
@@ -861,7 +861,7 @@ body {
   flex-shrink: 0;
 }
 
-.ai-rec-legend-label { flex: 1; color: var(--text); font-weight: 500; }
+.ai-rec-legend-label { flex: 1; color: var(--text); font-weight: 600; }
 .ai-rec-legend-pct { color: var(--text-light); font-weight: 600; }
 
 /* ===== Recommendation & Savings ===== */
@@ -1422,7 +1422,7 @@ body {
   border-radius: 4px;
   font-family: var(--font);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text);
   background: var(--white);
   transition: border-color var(--transition), box-shadow var(--transition);
@@ -1608,6 +1608,6 @@ body {
   font-size: 10px;
   color: rgba(255,255,255,0.4);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 .footer-link:hover { color: rgba(255,255,255,0.7); text-decoration: underline; }
