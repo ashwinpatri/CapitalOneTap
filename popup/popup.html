@@ -24,7 +24,12 @@
       </div>
 
       <div class="auth-form" id="login-form">
-        <input type="text" class="form-input" id="login-username" placeholder="Username">
+        <button class="auth-google" id="google-signin-btn">
+          <img src="../assets/googleLogo.png" alt="Google" class="auth-google-icon">
+          Sign in with Google
+        </button>
+        <div class="auth-divider"><span>or</span></div>
+        <input type="text" class="form-input" id="login-username" placeholder="Email or Username">
         <input type="password" class="form-input" id="login-password" placeholder="Password">
         <button class="auth-submit" id="login-btn">Sign In</button>
         <div class="auth-error" id="login-error"></div>
