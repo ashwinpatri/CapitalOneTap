@@ -4,7 +4,7 @@
 
 <br/>
 
-# OneTap
+# [OneTap](https://onetap-ten.vercel.app)
 
 **Frictionless Capital One checkout, everywhere.**
 
@@ -113,4 +113,4 @@ CapitalOneTap/
 
 ## Disclaimer
 
-This is an independent, unofficial project, built for the VandyHacks x CapitalOne Hackathon. It is not affiliated with, endorsed by, or sponsored by Capital One Financial Corporation. Capital One® and related marks are trademarks of Capital One.
+This is an independent, unofficial project, built for the VandyHacks x Capital One Hackathon. It is not affiliated with, endorsed by, or sponsored by Capital One Financial Corporation. Capital One® and related marks are trademarks of Capital One.
