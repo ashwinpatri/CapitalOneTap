@@ -237,6 +237,41 @@ body {
 .auth-submit:hover { background: var(--blue); }
 .auth-submit:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.auth-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .2s;
+}
+.auth-google:hover { border-color: var(--blue); }
+.auth-google-icon { width: 18px; height: 18px; }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #b4b8bc;
+  font-size: .8rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 .auth-error {
   color: var(--red);
   font-size: 12px;
