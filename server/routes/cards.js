@@ -44,6 +44,7 @@ router.post('/', auth, async (req, res) => {
         earned: false,
       } : null,
       visual: product.visual,
+      imageUrl: product.imageUrl || null,
       balance: balance || 0,
       rewardsBalance: rewardsBalance || 0,
       isDefault: !hasDefault, // first card is default

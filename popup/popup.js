@@ -146,48 +146,53 @@ function setupTabs() {
 function renderCards(cards) {
   const carousel = document.getElementById('cards-carousel');
 
-  carousel.innerHTML = cards.map(card => {
-    const gradient = card.visual?.gradient || 'linear-gradient(135deg, #333 0%, #111 100%)';
-    const textColor = card.visual?.textColor || '#FFFFFF';
+  carousel.innerHTML = cards.map((card, i) => {
+    const gradient = card.visual?.gradient || 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)';
     const topTier = card.rewardTiers?.[0];
     const rewardText = topTier
-      ? `${topTier.rate}x ${topTier.unit === 'percent_cashback' ? '% back' : topTier.unit} on ${topTier.categories[0]}`
+      ? topTier.unit === 'percent_cashback' || topTier.unit === 'percent_back'
+        ? `${topTier.rate}% back`
+        : `${topTier.rate}X ${topTier.unit}`
       : '';
+    const categoryText = topTier?.categories?.[0] === 'everything' ? 'everywhere' : topTier?.categories?.[0] || '';
 
     return `
-      <div class="card-visual" style="background: ${gradient}; color: ${textColor}" data-card-id="${card._id}">
-        <div class="card-menu-wrapper">
-          <button class="card-menu-trigger" data-menu-id="${card._id}">&#8943;</button>
-          <div class="card-menu-dropdown" id="menu-${card._id}">
-            <button class="card-menu-item" data-default-id="${card._id}">Set as Default</button>
-            <button class="card-menu-item danger" data-confirm-id="${card._id}">Delete Card</button>
+      <div class="card-item" data-card-id="${card._id}" style="--delay: ${i * 50}ms">
+        <div class="card-art" style="background: ${gradient}">
+          ${getCardImageUrl(card.productName) ? `<img class="card-art-img" src="${getCardImageUrl(card.productName)}" alt="">` : ''}
+          <div class="card-menu-wrapper">
+            <button class="card-menu-trigger" data-menu-id="${card._id}">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13" r="1.5"/></svg>
+            </button>
+            <div class="card-menu-dropdown" id="menu-${card._id}">
+              <button class="card-menu-item" data-default-id="${card._id}">Set as Default</button>
+              <button class="card-menu-item danger" data-confirm-id="${card._id}">Delete Card</button>
+            </div>
+          </div>
+          <div class="card-confirm-delete" id="confirm-${card._id}">
+            <div class="card-confirm-text">Delete ${card.productName}?</div>
+            <div class="card-confirm-actions">
+              <button class="card-confirm-no" data-cancel-id="${card._id}">Cancel</button>
+              <button class="card-confirm-yes" data-delete-id="${card._id}">Delete</button>
+            </div>
           </div>
         </div>
-        <div class="card-confirm-delete" id="confirm-${card._id}">
-          <div class="card-confirm-text">Delete ${card.productName}?</div>
-          <div class="card-confirm-actions">
-            <button class="card-confirm-no" data-cancel-id="${card._id}">Cancel</button>
-            <button class="card-confirm-yes" data-delete-id="${card._id}">Delete</button>
+        <div class="card-details">
+          <div class="card-details-row">
+            <span class="card-details-name">${card.productName}</span>
+            ${card.isDefault ? '<span class="card-details-badge">Default</span>' : ''}
           </div>
-        </div>
-        <div class="card-visual-top">
-          <div>
-            <div class="card-visual-name">${card.productName}</div>
-            <div class="card-visual-type">${card.network}</div>
+          <div class="card-details-row">
+            <span class="card-details-last4">&bull;&bull;&bull;&bull; ${card.lastFour} &middot; ${card.network}</span>
+            ${rewardText ? `<span class="card-details-reward">${rewardText} ${categoryText}</span>` : ''}
           </div>
-          ${card.isDefault ? '<div class="card-visual-default">Default</div>' : ''}
-        </div>
-        <div class="card-visual-number">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; ${card.lastFour}</div>
-        <div class="card-visual-bottom">
-          <div class="card-visual-reward">${rewardText}</div>
-          <div class="card-visual-logo">Capital One</div>
         </div>
       </div>
     `;
   }).join('') + `
     <button class="add-card-btn" id="add-card-btn">
-      <div class="add-card-btn-icon">+</div>
-      <div class="add-card-btn-text">Add Card</div>
+      <span class="add-card-plus">+</span>
+      <span class="add-card-label">Add Card</span>
     </button>
   `;
 
@@ -265,20 +270,41 @@ async function openAddCardModal() {
   const res = await sendMessage('GET_CARD_PRODUCTS');
   const products = res.products || [];
 
-  grid.innerHTML = products.map(p => {
-    const topTier = p.rewardTiers?.[0];
-    const rewardText = topTier
-      ? `${topTier.rate}x ${topTier.unit === 'percent_cashback' ? '% back' : topTier.unit}`
-      : '';
-    return `
-      <div class="card-type-option" data-product-name="${p.name}">
-        <div class="card-type-swatch" style="background: ${p.visual?.gradient || '#333'}"></div>
-        <div class="card-type-name">${p.name}</div>
-        <div class="card-type-reward">${rewardText}</div>
-        <div class="card-type-fee">${p.annualFee ? `$${p.annualFee}/yr` : 'No annual fee'}</div>
-      </div>
-    `;
-  }).join('');
+  // Group products by cardType
+  const groups = { personal: [], business: [], partner: [] };
+  products.forEach(p => {
+    const type = p.cardType || 'personal';
+    if (!groups[type]) groups[type] = [];
+    groups[type].push(p);
+  });
+
+  const groupLabels = { personal: 'Personal Cards', business: 'Business Cards', partner: 'Partner Cards' };
+
+  grid.innerHTML = Object.entries(groups)
+    .filter(([, cards]) => cards.length > 0)
+    .map(([type, cards]) => `
+      <div class="card-group-label">${groupLabels[type] || type}</div>
+      ${cards.map(p => {
+        const topTier = p.rewardTiers?.[0];
+        const rewardText = topTier
+          ? topTier.unit === 'percent_cashback' || topTier.unit === 'percent_back'
+            ? `${topTier.rate}% back`
+            : `${topTier.rate}X ${topTier.unit}`
+          : '';
+        const localImg = getCardImageUrl(p.name);
+        const imgHtml = localImg
+          ? `<img class="card-type-img" src="${localImg}" alt="${p.name}">`
+          : `<div class="card-type-swatch" style="background: ${p.visual?.gradient || '#333'}"></div>`;
+        return `
+          <div class="card-type-option" data-product-name="${p.name}">
+            ${imgHtml}
+            <div class="card-type-name">${p.name}</div>
+            <div class="card-type-reward">${rewardText}</div>
+            <div class="card-type-fee">${p.annualFee ? `$${p.annualFee}/yr` : 'No annual fee'}</div>
+          </div>
+        `;
+      }).join('')}
+    `).join('');
 
   selectedProduct = null;
   document.getElementById('add-card-submit').disabled = true;

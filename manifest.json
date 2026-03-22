@@ -28,7 +28,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles/brand.css", "content/overlay.css", "icons/*"],
+      "resources": ["styles/brand.css", "content/overlay.css", "icons/*", "icons/cards/*"],
       "matches": ["<all_urls>"]
     }
   ],
@@ -39,6 +39,6 @@
     "128": "icons/icon128.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://onetap-api.onrender.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://onetap-api.onrender.com; img-src 'self' https://ecm.capitalone.com"
   }
 }

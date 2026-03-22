@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const rewardTierSchema = new mongoose.Schema({
   rate: { type: Number, required: true },
-  unit: { type: String, required: true, enum: ['miles', 'percent_cashback', 'points'] },
+  unit: { type: String, required: true, enum: ['miles', 'percent_cashback', 'points', 'percent_back'] },
   categories: { type: [String], required: true },
   qualifier: { type: String, default: null },
 }, { _id: false });
@@ -33,16 +33,11 @@ const cardSchema = new mongoose.Schema({
   annualFee: { type: Number, default: 0 },
   rewardTiers: {
     type: [rewardTierSchema],
-    required: true,
-    validate: {
-      validator: function (tiers) {
-        return tiers.length > 0 && tiers[tiers.length - 1].categories.includes('everything');
-      },
-      message: 'Must have at least one tier with a catch-all "everything" tier last.',
-    },
+    default: [],
   },
   introOffer: { type: introOfferSchema, default: null },
   visual: { type: cardVisualSchema, required: true },
+  imageUrl: { type: String, default: null },
   balance: { type: Number, default: 0 },
   rewardsBalance: { type: Number, default: 0 },
   isDefault: { type: Boolean, default: false },

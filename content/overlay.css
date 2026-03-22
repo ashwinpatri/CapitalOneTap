@@ -33,6 +33,7 @@
 
 .onetap-fab-visible {
   transform: translateX(0) !important;
+  animation: onetap-pulse 2s ease-in-out 0.5s 2;
 }
 
 .onetap-fab-inner {
@@ -41,19 +42,8 @@
   gap: 10px;
 }
 
-.onetap-fab-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.onetap-fab-text {
-  white-space: nowrap;
-}
-
-/* Pulse animation on first appearance */
-.onetap-fab-visible {
-  animation: onetap-pulse 2s ease-in-out 0.5s 2;
-}
+.onetap-fab-icon { width: 22px; height: 22px; }
+.onetap-fab-text { white-space: nowrap; }
 
 @keyframes onetap-pulse {
   0%, 100% { box-shadow: var(--shadow-lg); }
@@ -84,8 +74,8 @@
   width: 400px;
   max-height: 85vh;
   background: var(--co-white);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
   overflow-y: auto;
   overflow-x: hidden;
   transform: translateY(100%) scale(0.95);
@@ -93,7 +83,8 @@
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-family: var(--font);
   color: var(--co-dark);
-  padding-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
 }
 
 .onetap-drawer-visible {
@@ -101,7 +92,6 @@
   opacity: 1;
 }
 
-/* Custom scrollbar */
 .onetap-drawer::-webkit-scrollbar { width: 4px; }
 .onetap-drawer::-webkit-scrollbar-track { background: transparent; }
 .onetap-drawer::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 4px; }
@@ -111,47 +101,48 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-lg) var(--space-xl);
-  border-bottom: 1px solid var(--co-gray-200);
+  padding: 16px 20px;
   position: sticky;
   top: 0;
   background: var(--co-white);
   z-index: 10;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid var(--co-gray-200);
 }
 
 .onetap-header-left {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: 12px;
 }
 
 .onetap-logo svg {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
 }
 
 .onetap-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   color: var(--co-blue);
 }
 
 .onetap-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--co-gray-500);
 }
 
 .onetap-close {
   background: none;
   border: none;
-  font-size: 24px;
   color: var(--co-gray-400);
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition);
-  line-height: 1;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .onetap-close:hover {
@@ -159,35 +150,159 @@
   background: var(--co-gray-100);
 }
 
-/* ===== Amount Bar ===== */
-.onetap-amount-bar {
+/* ===== Body ===== */
+.onetap-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.onetap-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--co-dark);
+  margin-bottom: 16px;
+}
+
+/* ===== Card Pick (Kudos-style) ===== */
+.onetap-pick {
+  border: 2px solid var(--co-gray-200);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+}
+
+.onetap-pick:hover {
+  border-color: var(--co-gray-300);
+}
+
+.onetap-pick-selected {
+  border-color: var(--co-blue);
+  box-shadow: 0 0 0 1px var(--co-blue);
+}
+
+.onetap-pick-selected:hover {
+  border-color: var(--co-blue);
+}
+
+.onetap-pick-badge {
+  padding: 8px 14px;
+  background: #e8f1f8;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--co-blue);
+}
+
+.onetap-pick-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: var(--space-md) var(--space-xl);
+  gap: 14px;
+  padding: 14px;
+}
+
+.onetap-pick-img-wrap {
+  width: 64px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--co-gray-100);
 }
 
-.onetap-amount-label {
-  font-size: 14px;
-  color: var(--co-gray-500);
-  font-weight: 500;
+.onetap-pick-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.onetap-amount-value {
-  font-size: 24px;
+.onetap-pick-img-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+
+.onetap-pick-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.onetap-pick-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--co-dark);
+  line-height: 1.3;
+}
+
+.onetap-pick-check {
+  flex-shrink: 0;
+}
+
+/* ===== Rewards Breakdown (inside selected card) ===== */
+.onetap-rewards-section {
+  border-top: 1px solid var(--co-gray-200);
+  padding: 0 14px 14px;
+}
+
+.onetap-rewards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 8px;
+}
+
+.onetap-rewards-label {
+  font-size: 14px;
   font-weight: 700;
   color: var(--co-dark);
 }
 
-/* ===== Sections ===== */
-.onetap-section {
-  padding: var(--space-lg) var(--space-xl);
-  border-bottom: 1px solid var(--co-gray-200);
+.onetap-rewards-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--co-dark);
 }
 
-.onetap-section:last-of-type {
-  border-bottom: none;
+.onetap-rewards-detail {
+  background: var(--co-gray-100);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.onetap-rewards-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.onetap-rewards-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--co-dark);
+}
+
+.onetap-rewards-detail-sub {
+  font-size: 12px;
+  color: var(--co-gray-500);
+  margin-top: 1px;
+}
+
+.onetap-rewards-detail-right {
+  text-align: right;
+}
+
+.onetap-rewards-detail-amount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--co-dark);
+}
+
+/* ===== Offers Section ===== */
+.onetap-offers-section {
+  margin-top: 16px;
 }
 
 .onetap-section-title {
@@ -196,112 +311,19 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--co-gray-500);
-  margin-bottom: var(--space-md);
-}
-
-/* ===== Recommended Card ===== */
-.onetap-card-recommended {
-  border-radius: var(--radius-md);
-  padding: var(--space-lg) var(--space-xl);
-  position: relative;
-  overflow: hidden;
-}
-
-.onetap-card-badge {
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  margin-bottom: var(--space-sm);
-  backdrop-filter: blur(8px);
-}
-
-.onetap-card-name {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.onetap-card-number {
-  font-size: 14px;
-  opacity: 0.8;
-  font-family: 'SF Mono', 'Menlo', monospace;
-  letter-spacing: 1px;
-}
-
-.onetap-card-reason {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-top: var(--space-sm);
-  padding-top: var(--space-sm);
-  border-top: 1px solid rgba(255,255,255,0.15);
-}
-
-/* ===== Card List (Other Cards) ===== */
-.onetap-card-list {
-  display: flex;
-  gap: var(--space-sm);
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
-  -webkit-overflow-scrolling: touch;
-}
-
-.onetap-card-list::-webkit-scrollbar { height: 3px; }
-.onetap-card-list::-webkit-scrollbar-thumb { background: var(--co-gray-300); border-radius: 3px; }
-
-.onetap-card-chip {
-  flex-shrink: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--space-md) var(--space-lg);
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all var(--transition);
-  text-align: left;
-  min-width: 140px;
-}
-
-.onetap-card-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.onetap-card-chip:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.onetap-chip-name {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.onetap-chip-last4 {
-  display: block;
-  font-size: 12px;
-  opacity: 0.7;
-  font-family: 'SF Mono', 'Menlo', monospace;
-  margin-top: 2px;
-}
-
-/* ===== Offers ===== */
-.onetap-offers-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+  margin-bottom: 10px;
 }
 
 .onetap-offer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-md);
-  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  border-radius: 8px;
   background: var(--co-gray-100);
   cursor: pointer;
-  transition: background var(--transition);
+  transition: background 0.15s ease;
+  margin-bottom: 6px;
 }
 
 .onetap-offer:hover {
@@ -311,38 +333,36 @@
 .onetap-offer-info {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: 10px;
 }
 
 .onetap-offer-icon {
-  font-size: 24px;
-  width: 36px;
+  font-size: 22px;
+  width: 32px;
   text-align: center;
 }
 
 .onetap-offer-desc {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .onetap-offer-savings {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--co-success);
   font-weight: 500;
 }
 
-/* ===== Toggle Switch ===== */
-.onetap-toggle {
-  cursor: pointer;
-}
+/* ===== Toggle ===== */
+.onetap-toggle { cursor: pointer; }
 
 .onetap-toggle-track {
-  width: 44px;
-  height: 24px;
+  width: 40px;
+  height: 22px;
   background: var(--co-gray-300);
-  border-radius: 12px;
+  border-radius: 11px;
   position: relative;
-  transition: background var(--transition);
+  transition: background 0.15s ease;
 }
 
 .onetap-toggle.active .onetap-toggle-track {
@@ -350,114 +370,51 @@
 }
 
 .onetap-toggle-thumb {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: white;
   border-radius: 50%;
   position: absolute;
   top: 2px;
   left: 2px;
-  transition: transform var(--transition);
+  transition: transform 0.15s ease;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .onetap-toggle.active .onetap-toggle-thumb {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
-/* ===== Split Payment ===== */
-.onetap-split-toggle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.onetap-split-panel {
-  margin-top: var(--space-lg);
-}
-
-.onetap-split-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-md);
-}
-
-.onetap-split-card {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 140px;
-}
-
-.onetap-split-slider {
-  flex: 1;
-  accent-color: var(--co-blue);
-}
-
-.onetap-split-amount {
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 60px;
-  text-align: right;
-}
-
-.onetap-split-select {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--co-gray-300);
-  font-family: var(--font);
-  font-size: 12px;
-  min-width: 140px;
+/* ===== Footer / Pay Button ===== */
+.onetap-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--co-gray-200);
   background: var(--co-white);
+  position: sticky;
+  bottom: 0;
 }
 
-/* ===== Rewards Bar ===== */
-.onetap-rewards-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  background: linear-gradient(135deg, #FFF8E1, #FFF3C4);
-  font-size: 13px;
-  color: #5D4037;
-}
-
-.onetap-rewards-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-/* ===== Pay Button ===== */
 .onetap-pay-btn {
   display: block;
-  width: calc(100% - 48px);
-  margin: var(--space-lg) var(--space-xl);
+  width: 100%;
   padding: 16px;
-  background: var(--co-red);
+  background: var(--co-dark);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   font-family: var(--font);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
 }
 
 .onetap-pay-btn:hover:not(:disabled) {
-  background: var(--co-red-dark);
+  background: #000;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(208, 48, 39, 0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
 .onetap-pay-btn:active:not(:disabled) {
@@ -474,13 +431,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: 8px;
 }
 
-.onetap-lock-icon {
-  width: 16px;
-  height: 16px;
-}
+.onetap-lock-icon { width: 16px; height: 16px; }
 
 .onetap-pay-success {
   background: var(--co-success) !important;
@@ -500,11 +454,8 @@
   to { transform: rotate(360deg); }
 }
 
-/* ===== Checkmark Animation ===== */
-.onetap-checkmark {
-  width: 24px;
-  height: 24px;
-}
+/* ===== Checkmark ===== */
+.onetap-checkmark { width: 24px; height: 24px; }
 
 .onetap-checkmark path {
   stroke-dasharray: 30;
@@ -521,7 +472,7 @@
   .onetap-drawer {
     width: 100%;
     max-height: 90vh;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-radius: 16px 16px 0 0;
   }
 
   .onetap-overlay-backdrop {
