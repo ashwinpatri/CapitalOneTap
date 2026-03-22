@@ -88,8 +88,11 @@ const CARD_IMAGE_FILES = {
 function getCardImageUrl(cardName) {
   const file = CARD_IMAGE_FILES[cardName];
   if (!file) return null;
-  if (typeof chrome === 'undefined' || !chrome.runtime) return null;
-  return chrome.runtime.getURL('icons/cards/' + file);
+  try {
+    return chrome.runtime.getURL('icons/cards/' + file);
+  } catch (e) {
+    return null;
+  }
 }
 
 // Demo card data for autofill (fake test numbers — won't charge anything)
