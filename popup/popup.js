@@ -70,7 +70,8 @@ function setupAuthTabs() {
 
   // Enter key submits
   ['login-username', 'login-password'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', (e) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleLogin();
     });
   });
