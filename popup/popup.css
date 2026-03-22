@@ -115,9 +115,11 @@ body {
 }
 
 .header-logo {
-  height: 64px;
-  width: auto;
-  margin: -12px -8px;
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0;
 }
 
 .header-title {
