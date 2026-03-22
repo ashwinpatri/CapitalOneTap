@@ -517,11 +517,9 @@ function renderOffers(offers, cards = [], transactions = []) {
     <div class="offer-card" data-offer-id="${offer._id}">
       <div class="offer-left">
         <div class="offer-icon">${offer.merchantIcon || '🏷'}</div>
-        <div>
-          <div class="offer-merchant">${offer.merchant}</div>
-          <div class="offer-desc">${offer.description}</div>
-          ${offer.expiresAt ? `<div class="offer-expiry">Expires ${formatDate(offer.expiresAt)}</div>` : ''}
-        </div>
+        <div class="offer-merchant">${offer.merchant}</div>
+        <div class="offer-desc">${offer.description}</div>
+        ${offer.expiresAt ? `<div class="offer-expiry">Expires ${formatDate(offer.expiresAt)}</div>` : ''}
       </div>
       <button class="offer-btn ${offer.activated ? 'offer-btn-activated' : 'offer-btn-activate'}">
         ${offer.activated ? 'Active' : 'Activate'}
