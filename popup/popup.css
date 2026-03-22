@@ -837,9 +837,9 @@ body {
 /* Chart / legend */
 .ai-rec-chart-wrap {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 0 0;
 }
 
 .ai-rec-legend {
@@ -852,19 +852,30 @@ body {
 .ai-rec-legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
+  gap: 7px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--co-gray-100);
+  font-size: 12px;
 }
+.ai-rec-legend-item:last-child { border-bottom: none; }
 
 .ai-rec-legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.ai-rec-legend-label { flex: 1; color: var(--text); font-weight: 600; }
-.ai-rec-legend-pct { color: var(--text-light); font-weight: 600; }
+.ai-rec-legend-label {
+  flex: 1;
+  color: var(--co-gray-700, #333);
+  font-weight: 500;
+}
+.ai-rec-legend-pct {
+  color: var(--co-dark);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===== Recommendation & Savings ===== */
 .rec-loading {
@@ -1069,10 +1080,11 @@ body {
 }
 
 .spending-legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  padding: 6px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 14px 12px;
+  min-width: 0;
 }
 
 /* Savings tally */

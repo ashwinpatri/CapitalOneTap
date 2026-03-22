@@ -927,6 +927,7 @@ function drawSpendingChart(spendingSummary) {
     entertainment: 'Entertainment', 'car-rental': 'Car Rental',
     gas: 'Gas', transit: 'Transit', shopping: 'Shopping',
     general: 'General', everything: 'Everything Else',
+    'bass-pro': 'Bass Pro',
   };
 
   const entries = Object.entries(spendingSummary).sort((a, b) => b[1] - a[1]);
@@ -955,11 +956,11 @@ function drawSpendingChart(spendingSummary) {
   ctx.fillStyle = '#ffffff';
   ctx.fill();
 
-  legend.innerHTML = entries.slice(0, 6).map(([cat, amt], i) => `
+  legend.innerHTML = entries.map(([cat, amt], i) => `
     <div class="ai-rec-legend-item">
-      <div class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></div>
-      <div class="ai-rec-legend-label">${CAT_LABELS[cat] || cat}</div>
-      <div class="ai-rec-legend-pct">$${amt}</div>
+      <span class="ai-rec-legend-dot" style="background:${COLORS[i % COLORS.length]}"></span>
+      <span class="ai-rec-legend-label">${CAT_LABELS[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+      <span class="ai-rec-legend-pct">$${amt.toLocaleString()}</span>
     </div>`).join('');
 
   wrap.style.display = 'flex';
