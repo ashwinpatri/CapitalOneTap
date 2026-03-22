@@ -96,7 +96,7 @@ Based purely on which card earns the most rewards for this spending mix, respond
 
     if (!geminiRes.ok) {
       const err = await geminiRes.json().catch(() => ({}));
-      return res.status(502).json({ error: 'Gemini request failed', details: err });
+      return res.status(502).json({ error: `Gemini request failed: ${geminiRes.status} — ${JSON.stringify(err)}` });
     }
 
     const geminiData = await geminiRes.json();
