@@ -78,16 +78,21 @@ function setupAuthTabs() {
 }
 
 function handleGoogleLogin() {
-  chrome.tabs.create({ url: 'https://onetap-ten.vercel.app/signin.html' });
+  const session = crypto.randomUUID();
+  chrome.tabs.create({ url: `https://onetap-ten.vercel.app/signin.html?session=${session}` });
 
-  chrome.storage.onChanged.addListener(function onAuthChange(changes, area) {
-    if (area === 'local' && changes.authToken) {
-      chrome.storage.onChanged.removeListener(onAuthChange);
-      sendMessage('CHECK_AUTH').then(res => {
-        if (res.loggedIn) showMainApp(res.user);
-      });
+  // Poll every 1.5s for up to 2 minutes
+  let attempts = 0;
+  const interval = setInterval(async () => {
+    attempts++;
+    if (attempts > 80) { clearInterval(interval); return; }
+    const res = await sendMessage('GOOGLE_POLL', { session });
+    if (res.ready) {
+      clearInterval(interval);
+      const authRes = await sendMessage('CHECK_AUTH');
+      if (authRes.loggedIn) showMainApp(authRes.user);
     }
-  });
+  }, 1500);
 }
 
 async function handleLogin() {

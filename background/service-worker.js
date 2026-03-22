@@ -34,20 +34,6 @@ async function refreshData() {
 
 chrome.runtime.onInstalled.addListener(() => refreshData());
 
-// External messages from onetap-api.onrender.com callback page
-chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-  if (message.type === 'GOOGLE_AUTH') {
-    chrome.storage.local.set({ authToken: message.token }, async () => {
-      await refreshData();
-      sendResponse({ success: true });
-      // Close the auth tab
-      if (sender.tab?.id) chrome.tabs.remove(sender.tab.id);
-      // Try to open the popup
-      try { await chrome.action.openPopup(); } catch (_) {}
-    });
-    return true;
-  }
-});
 
 // Message handler
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -58,6 +44,18 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 async function handleMessage(message) {
   switch (message.type) {
     // ===== Auth =====
+    case 'GOOGLE_POLL': {
+      const { session } = message.payload;
+      const res = await fetch(`https://onetap-api.onrender.com/api/auth/google/poll?session=${session}`);
+      const data = await res.json();
+      if (data.ready) {
+        await chrome.storage.local.set({ authToken: data.token });
+        await refreshData();
+        return { ready: true };
+      }
+      return { ready: false };
+    }
+
     case 'GOOGLE_LOGIN': {
       try {
         const CLIENT_ID = '196802038272-qusfgtfsl6n515seqh22cqf28koh7b6t.apps.googleusercontent.com';

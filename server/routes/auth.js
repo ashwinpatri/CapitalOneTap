@@ -5,6 +5,13 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// Temporary in-memory store: session_id → JWT (expires after 2 min)
+const pendingSessions = new Map();
+function storePendingToken(sessionId, token) {
+  pendingSessions.set(sessionId, token);
+  setTimeout(() => pendingSessions.delete(sessionId), 120_000);
+}
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
@@ -121,14 +128,26 @@ router.post('/google', async (req, res) => {
 
 // GET /api/auth/google — initiate OAuth
 router.get('/google', (req, res) => {
+  const session = req.query.session || '';
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
     redirect_uri: 'https://onetap-api.onrender.com/api/auth/google/callback',
     response_type: 'code',
     scope: 'email profile',
     access_type: 'online',
+    state: session,
   });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+// GET /api/auth/google/poll — extension polls for token
+router.get('/google/poll', (req, res) => {
+  const { session } = req.query;
+  if (!session) return res.json({ ready: false });
+  const token = pendingSessions.get(session);
+  if (!token) return res.json({ ready: false });
+  pendingSessions.delete(session);
+  res.json({ ready: true, token });
 });
 
 // GET /api/auth/google/callback
@@ -165,29 +184,14 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(`https://onetap-ten.vercel.app/signin.html?error=not_registered&email=${encodeURIComponent(email)}`);
     }
 
-    // Generate JWT and send to extension via postMessage
+    // Store JWT keyed by session, extension will poll for it
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    res.send(`<!DOCTYPE html><html><head><title>Signing in…</title></head><body>
-      <p id="msg" style="font-family:sans-serif;text-align:center;margin-top:20vh;font-size:1.1rem;">Signing you in…</p>
-      <script>
-        const token = ${JSON.stringify(jwtToken)};
-        const EXT_ID = 'iglldahcailcddegenopplhmeoebhohh';
-        try {
-          if (typeof chrome === 'undefined' || !chrome.runtime) {
-            document.getElementById('msg').textContent = 'Error: chrome.runtime not available. Make sure the extension is loaded.';
-          } else {
-            chrome.runtime.sendMessage(EXT_ID, { type: 'GOOGLE_AUTH', token }, function(response) {
-              if (chrome.runtime.lastError) {
-                document.getElementById('msg').textContent = 'Error: ' + chrome.runtime.lastError.message;
-              } else {
-                document.getElementById('msg').textContent = 'Signed in! You can close this tab.';
-              }
-            });
-          }
-        } catch(e) {
-          document.getElementById('msg').textContent = 'Error: ' + e.message;
-        }
-      </script>
+    const sessionId = req.query.state || '';
+    if (sessionId) storePendingToken(sessionId, jwtToken);
+    res.send(`<!DOCTYPE html><html><head><title>Signed In</title></head><body>
+      <p style="font-family:sans-serif;text-align:center;margin-top:20vh;font-size:1.1rem;">
+        Signed in successfully! You can close this tab.
+      </p>
     </body></html>`);
   } catch (err) {
     res.redirect('https://onetap-ten.vercel.app/signin.html?error=server_error');
