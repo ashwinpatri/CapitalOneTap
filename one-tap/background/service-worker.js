@@ -47,7 +47,7 @@ async function handleMessage(message) {
       try {
         const { username, password } = message.payload;
         const data = await api.login(username, password);
-        await refreshData();
+        refreshData(); // fire-and-forget, data loads in background
         return { success: true, user: data.user };
       } catch (e) {
         return { success: false, error: e.message };
@@ -58,7 +58,7 @@ async function handleMessage(message) {
       try {
         const { username, email, password, firstName, lastName } = message.payload;
         const data = await api.register(username, email, password, firstName, lastName);
-        await refreshData();
+        refreshData(); // fire-and-forget, new users have no data to fetch
         return { success: true, user: data.user };
       } catch (e) {
         return { success: false, error: e.message };
