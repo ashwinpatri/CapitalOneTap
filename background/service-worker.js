@@ -37,7 +37,7 @@ async function pollForGoogleToken() {
   if (!googlePollSession) return;
 
   try {
-    const res = await fetch(`https://onetap-ten.vercel.app/api/auth/google/poll?session=${googlePollSession}`);
+    const res = await fetch(`https://getonetap.vercel.app/api/auth/google/poll?session=${googlePollSession}`);
     const data = await res.json();
     await chrome.storage.local.set({ _pollDebug: { ready: data.ready, ts: Date.now() } });
     if (data.ready) {

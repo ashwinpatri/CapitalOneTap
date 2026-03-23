@@ -86,7 +86,7 @@ function setupAuthTabs() {
 function handleGoogleLogin() {
   const session = crypto.randomUUID();
   sendMessage('START_GOOGLE_POLL', { session });
-  chrome.tabs.create({ url: `https://onetap-ten.vercel.app/signin.html?session=${session}` });
+  chrome.tabs.create({ url: `https://getonetap.vercel.app/signin.html?session=${session}` });
 }
 
 async function handleLogin() {

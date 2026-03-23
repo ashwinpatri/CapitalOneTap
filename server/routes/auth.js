@@ -154,7 +154,7 @@ router.get('/google/poll', (req, res) => {
 router.get('/google/callback', async (req, res) => {
   try {
     const { code } = req.query;
-    if (!code) return res.redirect('https://onetap-ten.vercel.app/signin.html?error=no_code');
+    if (!code) return res.redirect('https://getonetap.vercel.app/signin.html?error=no_code');
 
     // Exchange code for tokens
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -169,7 +169,7 @@ router.get('/google/callback', async (req, res) => {
       }),
     });
     const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) return res.redirect('https://onetap-ten.vercel.app/signin.html?error=token_failed');
+    if (!tokenData.access_token) return res.redirect('https://getonetap.vercel.app/signin.html?error=token_failed');
 
     // Get user profile from Google
     const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -181,16 +181,16 @@ router.get('/google/callback', async (req, res) => {
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.redirect(`https://onetap-ten.vercel.app/signin.html?error=not_registered&email=${encodeURIComponent(email)}`);
+      return res.redirect(`https://getonetap.vercel.app/signin.html?error=not_registered&email=${encodeURIComponent(email)}`);
     }
 
     // Store JWT keyed by session, extension will poll for it
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     const sessionId = req.query.state || '';
     if (sessionId) storePendingToken(sessionId, jwtToken);
-    res.redirect('https://onetap-ten.vercel.app/signin-success.html');
+    res.redirect('https://getonetap.vercel.app/signin-success.html');
   } catch (err) {
-    res.redirect('https://onetap-ten.vercel.app/signin.html?error=server_error');
+    res.redirect('https://getonetap.vercel.app/signin.html?error=server_error');
   }
 });
 
