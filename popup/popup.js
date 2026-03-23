@@ -12,6 +12,12 @@ async function init() {
     showMainApp(authRes.user);
   } else {
     showAuthScreen();
+    // If returning from Google OAuth, poll immediately for the token
+    const { googlePollSession } = await chrome.storage.local.get('googlePollSession');
+    if (googlePollSession) {
+      const res = await sendMessage('POLL_GOOGLE_NOW');
+      if (res.loggedIn) { showMainApp(res.user); return; }
+    }
     // Auto-login if service worker completes Google OAuth while popup is open
     chrome.storage.onChanged.addListener(function onAuthChange(changes, area) {
       if (area === 'local' && changes.authToken) {

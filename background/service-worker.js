@@ -77,6 +77,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 async function handleMessage(message) {
   switch (message.type) {
     // ===== Auth =====
+    case 'POLL_GOOGLE_NOW': {
+      await pollForGoogleToken();
+      const loggedIn = await api.isLoggedIn();
+      const userData = (await chrome.storage.local.get('user')).user || null;
+      return { loggedIn, user: userData };
+    }
+
     case 'START_GOOGLE_POLL': {
       const { session } = message.payload;
       await chrome.storage.local.set({ googlePollSession: session });
