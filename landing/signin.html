@@ -218,7 +218,7 @@
       <h1>Sign in to OneTap</h1>
       <p class="subtitle">Use your Capital One account email to sign in.</p>
 
-      <a class="google-btn" id="google-btn" href="https://onetap-ten.vercel.app/api/auth/google">
+      <a class="google-btn" id="google-btn" href="https://onetap-api.onrender.com/api/auth/google">
         <img src="assets/googleImg.png" alt="Google" />
         Sign in with Google
       </a>
@@ -258,7 +258,7 @@
     // Pass session through to backend
     if (session) {
       document.getElementById('google-btn').href =
-        `https://onetap-ten.vercel.app/api/auth/google?session=${encodeURIComponent(session)}`;
+        `https://onetap-api.onrender.com/api/auth/google?session=${encodeURIComponent(session)}`;
     }
 
     if (error === 'not_registered') {
