@@ -39,6 +39,7 @@ async function pollForGoogleToken() {
   try {
     const res = await fetch(`https://onetap-ten.vercel.app/api/auth/google/poll?session=${googlePollSession}`);
     const data = await res.json();
+    await chrome.storage.local.set({ _pollDebug: { ready: data.ready, ts: Date.now() } });
     if (data.ready) {
       await chrome.alarms.clear('googlePoll');
       await chrome.storage.local.remove('googlePollSession');
@@ -48,11 +49,16 @@ async function pollForGoogleToken() {
           headers: { Authorization: `Bearer ${data.token}` },
         });
         const meData = await meRes.json();
+        await chrome.storage.local.set({ _meDebug: { status: meRes.status, hasUser: !!meData.user } });
         if (meData.user) await chrome.storage.local.set({ user: meData.user });
-      } catch (_) {}
+      } catch (e) {
+        await chrome.storage.local.set({ _meDebug: { error: e.message } });
+      }
       await refreshData();
     }
-  } catch (_) {}
+  } catch (e) {
+    await chrome.storage.local.set({ _pollDebug: { error: e.message, ts: Date.now() } });
+  }
 }
 
 chrome.alarms.onAlarm.addListener((alarm) => {

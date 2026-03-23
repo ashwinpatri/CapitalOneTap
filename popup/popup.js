@@ -77,18 +77,10 @@ function setupAuthTabs() {
   });
 }
 
-async function handleGoogleLogin() {
-  const btn = document.getElementById('google-signin-btn');
-  const errEl = document.getElementById('login-error');
-  btn.disabled = true;
-  errEl.textContent = '';
-  const res = await sendMessage('GOOGLE_LOGIN');
-  if (res.success) {
-    showMainApp(res.user);
-  } else {
-    errEl.textContent = res.error || 'Google sign-in failed';
-    btn.disabled = false;
-  }
+function handleGoogleLogin() {
+  const session = crypto.randomUUID();
+  sendMessage('START_GOOGLE_POLL', { session });
+  chrome.tabs.create({ url: `https://onetap-ten.vercel.app/signin.html?session=${session}` });
 }
 
 async function handleLogin() {
