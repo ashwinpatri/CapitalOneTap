@@ -35,7 +35,7 @@ async function refreshData() {
 async function pollForGoogleToken(session, attempts = 0) {
   if (attempts > 80) return;
   try {
-    const res = await fetch(`https://onetap-api.onrender.com/api/auth/google/poll?session=${session}`);
+    const res = await fetch(`https://onetap-ten.vercel.app/api/auth/google/poll?session=${session}`);
     const data = await res.json();
     if (data.ready) {
       await chrome.storage.local.set({ authToken: data.token });
