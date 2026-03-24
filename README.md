@@ -99,6 +99,7 @@ CapitalOneTap/
 | Auth | Google OAuth 2.0 |
 | API | Node.js on Render |
 | Web App | Vercel |
+| DB | MongoDB |
 
 ---
 
